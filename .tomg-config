@@ -1,0 +1,38 @@
+[
+  {
+    "resultsPath": "C:\\Programs\\projects\\tg-wa-bots\\atgarant_ts\\output",
+    "pluralizeNames": true,
+    "noConfigs": false,
+    "convertCaseFile": "pascal",
+    "convertCaseEntity": "pascal",
+    "convertCaseProperty": "camel",
+    "convertEol": "CRLF",
+    "propertyVisibility": "none",
+    "lazy": false,
+    "activeRecord": false,
+    "generateConstructor": false,
+    "customNamingStrategyPath": "",
+    "relationIds": false,
+    "strictMode": "none",
+    "skipSchema": false,
+    "indexFile": false,
+    "exportType": "named"
+  },
+  {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "databaseNames": [
+      "botgenix"
+    ],
+    "user": "root",
+    "password": "admin",
+    "databaseType": "mssql",
+    "schemaNames": [
+      "dbo"
+    ],
+    "instanceName": "",
+    "ssl": false,
+    "skipTables": [],
+    "onlyTables": []
+  }
+]

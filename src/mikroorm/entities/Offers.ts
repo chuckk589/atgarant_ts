@@ -46,10 +46,10 @@ export class Offers {
   buyerWalletData?: string;
 
   @Property({ fieldName: 'createdAt' })
-  createdAt!: Date;
+  createdAt: Date = new Date();
 
-  @Property({ fieldName: 'updatedAt' })
-  updatedAt!: Date;
+  @Property({ fieldName: 'updatedAt', onUpdate: () => new Date() })
+  updatedAt: Date = new Date();
 
   @ManyToOne({ entity: () => Offerstatuses, fieldName: 'offerStatusId', onUpdateIntegrity: 'cascade', index: 'offerStatusId' })
   offerStatusId!: Offerstatuses;

@@ -2,7 +2,7 @@ import { SqlHighlighter } from "@mikro-orm/sql-highlighter";
 import { Options } from "@mikro-orm/core";
 
 export const config: Options = {
-  dbName: "at",
+  dbName: "atgarant",
   type: "mysql",
   host: process.env.MYSQL_HOST || "127.0.0.1",
   port: Number(process.env.MYSQL_PORT) || 3306,

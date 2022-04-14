@@ -27,10 +27,10 @@ export class Invoices {
   url?: string;
 
   @Property({ fieldName: 'createdAt' })
-  createdAt!: Date;
+  createdAt: Date = new Date();
 
-  @Property({ fieldName: 'updatedAt' })
-  updatedAt!: Date;
+  @Property({ fieldName: 'updatedAt', onUpdate: () => new Date() })
+  updatedAt: Date = new Date();
 
   @ManyToOne({ entity: () => Offers, fieldName: 'offerId', onUpdateIntegrity: 'cascade', onDelete: 'cascade', index: 'offerId' })
   offerId!: Offers;

@@ -30,9 +30,9 @@ export class Users {
   acceptedRules?: number = 0;
 
   @Property({ fieldName: 'createdAt' })
-  createdAt!: Date;
+  createdAt: Date = new Date();
 
-  @Property({ fieldName: 'updatedAt' })
-  updatedAt!: Date;
+  @Property({ fieldName: 'updatedAt', onUpdate: () => new Date() })
+  updatedAt: Date = new Date();
 
 }

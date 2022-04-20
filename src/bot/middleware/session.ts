@@ -1,8 +1,15 @@
 import { session as session_ } from 'grammy'
-import { Session, BotContext } from 'src/types/interfaces';
+import { botOfferDto } from 'src/mikroorm/dto/create-offer.dto';
+import { Offers } from 'src/mikroorm/entities/Offers';
+import { Session, BotContext, BotStep, OfferMode } from 'src/types/interfaces';
 
 const initial = (): Session => ({
-    
+    user: {
+        acceptedRules: 0,
+        mode: OfferMode.default
+    },
+    step: BotStep.default,
+    pendingOffer: new botOfferDto(new Offers())
     // category: { id: undefined, name: undefined },
 })
 

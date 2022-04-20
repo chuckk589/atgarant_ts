@@ -1,1 +1,3 @@
 export const LISTENERS_METADATA = 'LISTENERS_METADATA';
+export const BOT_NAME = 'BOT_NAME';
+export const BOT_OPTIONS = 'BOT_OPTIONS';

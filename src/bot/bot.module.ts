@@ -1,16 +1,28 @@
-import { Module, DynamicModule, Inject } from "@nestjs/common";
+import { Module, DynamicModule, Inject, Provider, Global } from "@nestjs/common";
 import { Bot, Context } from "grammy";
-import { BotContext, GrammyBotOptionsAsync } from "src/types/interfaces";
-import { BotCoreModule } from "./botcore/botcore.module";
+import { createBotFactory } from "src/common/factories";
+import { BOT_NAME, BOT_OPTIONS } from "src/constants";
+import { BotContext, GrammyBotOptions, GrammyBotOptionsAsync } from "src/types/interfaces";
 
+@Global()
 @Module({})
 export class BotModule {
-  constructor() { }
   public static forRootAsync<T extends Context>(options: GrammyBotOptionsAsync): DynamicModule {
+    const BotProvider: Provider = {
+      provide: BOT_NAME,
+      useFactory: async (options: GrammyBotOptions) => await createBotFactory<T>(options),
+      inject: [BOT_OPTIONS],
+    }
+    const BotOptionsProvider: Provider = {
+      provide: BOT_OPTIONS,
+      useFactory: options.useFactory,
+      inject: options.inject || [],
+    }
     return {
       module: BotModule,
-      imports: [BotCoreModule.forRootAsync<T>(options)],
-      exports: [BotCoreModule],
+      imports: options.imports,
+      providers: [BotProvider, BotOptionsProvider],
+      exports: [BotProvider, BotOptionsProvider]
     };
   }
 }

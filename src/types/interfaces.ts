@@ -1,8 +1,10 @@
 import { ModuleMetadata, Type } from "@nestjs/common";
 import { Composer, Context, FilterQuery, Middleware, SessionFlavor } from "grammy";
 import { I18nContextFlavor } from "@grammyjs/i18n";
-import { MenuFlavor } from "@grammyjs/menu";
-import { createOfferDto } from "src/mikroorm/dto/create-offer.dto";
+import { Menu, MenuFlavor } from "@grammyjs/menu";
+import { botOfferDto } from "src/mikroorm/dto/create-offer.dto";
+import { match } from "src/bot/common/helpers";
+import { Router } from '@grammyjs/router'
 
 export interface GrammyBotOptions {
   token: string;
@@ -22,19 +24,114 @@ export interface BotOptionsFactory {
 }
 
 export interface Session {
-  pendingOffer?: createOfferDto
+  user: {
+    acceptedRules: number,
+    mode: OfferMode
+  },
+  step: BotStep,
+  pendingOffer: botOfferDto
 }
-
+export enum OfferMode {
+  edit = "edit",
+  default = "default",
+}
+export class OfferCallbackData {
+  constructor(callback_data: string) {
+    const data = callback_data.split(':')
+    if (data.length !== 4) throw new Error('incorrect OfferCallbackData payload!')
+    this.type = data[0]
+    this.action = data[1]
+    this.mode = data[2] as OfferMode
+    this.payload = data[3]
+  }
+  type: string;
+  action: string;
+  mode: OfferMode;
+  payload: any
+}
 export type BotContext = Context & SessionFlavor<Session> & I18nContextFlavor & MenuFlavor
 
-export interface ListenerMetadata {
+export class ListenerMetadata {
+  constructor(method: TMethod, query: any, key: string | symbol) {
+    this.method = method;
+    this.query = method == TMethod.hears ? match(query) : query;
+    this.key = String(key);
+  }
   method: TMethod;
   query: string | RegExp;
   key: string;
+}
+export class MenuListenerMetadata {
+  constructor(name: string, key: string | symbol) {
+    this.name = name
+    this.key = String(key)
+  }
+  name: string;
+  parent?: string;
+  key: string;
+}
+export class BaseComposer {
+  constructor() { }
+  protected _composer: Composer<any>
+  getComposer(): Composer<any> {
+    return this._composer
+  }
+}
+export class BaseMenu {
+  protected _menu: Menu
+  getMenu(): Menu {
+    return this._menu
+  }
+}
+export class BaseRouter {
+  protected _router: Router<BotContext>
+  getComposer(): Router<BotContext> {
+    return this._router
+  }
+}
+export type callbackQuery = [string, string, string]
+export class PM {
+  constructor(method: string, paymentMethod: string) {
+    const values = paymentMethod.split(' ')
+    this.feeRaw = Number.parseInt(values[0])
+    this.feePercent = Number.parseInt(values[1])
+    this.minSum = Number.parseInt(values[2])
+    this.maxSum = Number.parseInt(values[3])
+    this.id = Number.parseInt(values[4])
+    this.method = method
+  }
+  id: number;
+  method: string;
+  feePercent: number;
+  feeRaw: number;
+  minSum: number;
+  maxSum: number;
+
 }
 export enum TMethod {
   command = "command",
   on = "on",
   use = "use",
-  hears = "hears"
+  hears = "hears",
+  text = "text",
+  menu = "menu",
+  submenu = "submenu",
+  back = "back",
+}
+export enum BotStep {
+  default = "default",
+  rules = "rules",
+  roles = "roles",
+  fee = "fee",
+  contact = "contact",
+  payment = "payment",
+  value = "value",
+  shipping = "shipping",
+  productDetails = "productDetails",
+  shippingDetails = "shippingDetails",
+  productRest = "productRest",
+  rest = "rest",
+  refund = "refund",
+  checkout = "checkout",
+  manage = "manage",
 }

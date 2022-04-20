@@ -1,10 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
-import { load } from './utils/configLoader'
 
 export async function bootstrap() {
-  await load()
+  //await load()
   const app = await NestFactory.create(AppModule);
   //await app.get(MikroORM).getSchemaGenerator().ensureDatabase();
   // await app.get(MikroORM).getSchemaGenerator().updateSchema();

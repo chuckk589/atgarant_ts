@@ -52,16 +52,16 @@ export class Offers {
   updatedAt: Date = new Date();
 
   @ManyToOne({ entity: () => Offerstatuses, fieldName: 'offerStatusId', onUpdateIntegrity: 'cascade', index: 'offerStatusId' })
-  offerStatusId!: Offerstatuses;
+  offerStatus!: Offerstatuses;
 
   @ManyToOne({ entity: () => Users, fieldName: 'partnerId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'partnerId' })
-  partnerId?: Users;
+  partner?: Users;
 
   @ManyToOne({ entity: () => Users, fieldName: 'initiatorId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'initiatorId' })
-  initiatorId?: Users;
+  initiator?: Users;
 
   @ManyToOne({ entity: () => Paymentmethods, fieldName: 'paymentMethodId', onUpdateIntegrity: 'cascade', index: 'paymentMethodId' })
-  paymentMethodId!: Paymentmethods;
+  paymentMethod!: Paymentmethods;
 
 }
 

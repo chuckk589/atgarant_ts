@@ -22,6 +22,7 @@
   },
   "private": true,
   "scripts": {
+    "start:dev": "SET NODE_ENV=development&&nodemon index.ts",
     "gen": "ts-node ./src/utils/generate-entities.ts"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "@coreui/vue-pro": "~3.2.10",
     "@grammyjs/i18n": "^0.5.1",
     "@grammyjs/menu": "^1.0.4",
+    "@grammyjs/router": "^1.1.1",
     "@mikro-orm/core": "^5.1.1",
     "@mikro-orm/entity-generator": "^5.1.1",
     "@mikro-orm/mysql": "^5.1.1",
@@ -41,6 +43,7 @@
     "@nestjs/config": "^2.0.0",
     "@nestjs/core": "^8.4.3",
     "@nestjs/platform-express": "^8.4.3",
+    "@nestjs/serve-static": "^2.2.2",
     "@qiwi/bill-payments-node-js-sdk": "^3.2.1",
     "axios": "^0.23.0",
     "bcrypt": "^5.0.1",
@@ -53,9 +56,11 @@
     "form-data": "^2.3.3",
     "grammy": "^1.7.3",
     "jsonwebtoken": "^8.5.1",
+    "luxon": "^2.3.2",
     "mikro-orm": "^5.1.0",
     "multicoin-address-validator": "^0.5.2",
     "mysql2": "^2.3.2",
+    "nestjs-config": "^1.4.10",
     "nestjs-pino": "^2.5.2",
     "sequelize": "^6.7.0",
     "socket.io": "^4.4.1",
@@ -73,6 +78,7 @@
   "devDependencies": {
     "@babel/core": "^7.13.10",
     "@mikro-orm/cli": "^5.1.1",
+    "@types/luxon": "^2.3.1",
     "@vue/cli-plugin-babel": "^4.5.11",
     "@vue/cli-plugin-e2e-nightwatch": "^4.5.11",
     "@vue/cli-plugin-eslint": "^4.5.11",

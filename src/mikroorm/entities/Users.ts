@@ -1,4 +1,6 @@
-import { Entity, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import { AfterCreate, BeforeCreate, BeforeUpdate, Entity, EventArgs, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import { compare, hash } from 'bcrypt';
+import { Profiles } from './Profiles';
 
 @Entity()
 export class Users {
@@ -35,4 +37,20 @@ export class Users {
   @Property({ fieldName: 'updatedAt', onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
+  @BeforeUpdate()
+  @BeforeCreate()
+  async beforeCreate(): Promise<void> {
+    if (this.password) {
+      this.password = await hash(this.password, 10)
+    }
+  }
+  async comparePassword(password: string): Promise<boolean> {
+    return await compare(password, this.password);
+  }
+  @AfterCreate()
+  afterCreate(args: EventArgs<Users>) {
+    const profile = new Profiles()
+    profile.userId = this
+    args.em.getDriver().nativeInsert('Profiles', profile)
+  }
 }

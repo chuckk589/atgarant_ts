@@ -3,6 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { Offers } from "src/mikroorm/entities/Offers";
 import { Offerstatuses } from "src/mikroorm/entities/Offerstatuses";
 import { Paymentmethods } from "src/mikroorm/entities/Paymentmethods";
+import { Profiles } from "src/mikroorm/entities/Profiles";
 import { BotContext } from "src/types/interfaces";
 import { Users } from '../../mikroorm/entities/Users'
 import { mainKeyboard, offerKeyboard } from "../common/keyboards";
@@ -21,6 +22,7 @@ export class globalService {
         username: ctx.from.username,
         firstName: String(ctx.from.first_name)
       })
+      this.em.persistAndFlush(user)
     }
     return user
   }

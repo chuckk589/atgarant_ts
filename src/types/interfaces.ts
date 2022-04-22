@@ -5,22 +5,24 @@ import { Menu, MenuFlavor } from "@grammyjs/menu";
 import { botOfferDto } from "src/mikroorm/dto/create-offer.dto";
 import { match } from "src/bot/common/helpers";
 import { Router } from '@grammyjs/router'
+import { Offers, OffersRole } from "src/mikroorm/entities/Offers";
+import { Arbitraries } from "src/mikroorm/entities/Arbitraries";
 
 export interface GrammyBotOptions {
   token: string;
   composers?: any[],
   middleware?: any[]
 }
-
+export interface PaymentsOptions {
+  mode: 'coin-payments' | 'btc-core'
+}
 export interface GrammyBotOptionsAsync extends Pick<ModuleMetadata, 'imports'> {
-  useExisting?: Type<BotOptionsFactory>;
-  useClass?: Type<BotOptionsFactory>;
   useFactory?: (...args: any[]) => Promise<GrammyBotOptions> | GrammyBotOptions
   inject?: any[];
 }
-
-export interface BotOptionsFactory {
-  createBotOptions(): Promise<GrammyBotOptions> | GrammyBotOptions;
+export interface PaymentsOptionsAsync {
+  useFactory?: (...args: any[]) => Promise<PaymentsOptions>
+  inject?: any[];
 }
 
 export interface Session {
@@ -89,6 +91,11 @@ export class BaseRouter {
     return this._router
   }
 }
+export class BasePaymentService {
+  getPayLink: (offer: Offers) => Promise<paymentURL> 
+  sellerWithdraw: (offer: botOfferDto) => Promise<string>
+  arbitraryWithdraw: (arb: Arbitraries) => Promise<string>
+}
 export type callbackQuery = [string, string, string]
 export class PM {
   constructor(method: string, paymentMethod: string) {
@@ -106,8 +113,19 @@ export class PM {
   feeRaw: number;
   minSum: number;
   maxSum: number;
-
 }
+export class CommonConfig {
+  constructor(id: string, offerStatus: string) {
+    const values = offerStatus.split(' ')
+    this.value = values[0]
+    this.name = values[1]
+    this.id = Number(id)
+  }
+  id: number;
+  value: string;
+  name: string
+}
+export type paymentURL = { url: string, id: string }
 export enum TMethod {
   command = "command",
   on = "on",

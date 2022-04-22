@@ -33,10 +33,10 @@ export class Invoices {
   updatedAt: Date = new Date();
 
   @ManyToOne({ entity: () => Offers, fieldName: 'offerId', onUpdateIntegrity: 'cascade', onDelete: 'cascade', index: 'offerId' })
-  offerId!: Offers;
+  offer!: Offers;
 
   @ManyToOne({ entity: () => Invoicestatuses, fieldName: 'invoiceStatusId', onUpdateIntegrity: 'cascade', index: 'invoiceStatusId' })
-  invoiceStatusId!: Invoicestatuses;
+  invoiceStatus!: Invoicestatuses;
 
 }
 

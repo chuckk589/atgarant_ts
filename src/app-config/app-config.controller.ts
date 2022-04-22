@@ -1,6 +1,6 @@
 import { Controller, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PM } from 'src/types/interfaces';
+import { CommonConfig, PM } from 'src/types/interfaces';
 
 @Injectable()
 export class AppConfigService {
@@ -13,5 +13,17 @@ export class AppConfigService {
     get payments(): PM[] {
         const keys = Object.keys(process.env).filter(k => k.includes('paymentMethod'))
         return keys.map(k => new PM(k.split('_').pop(), process.env[k]))
+    }
+    offerStatus<T = string | number>(idOrValue: T): CommonConfig {
+        const statuses = Object.keys(process.env)
+            .filter(k => k.includes('offerStatus'))
+            .map(k => new CommonConfig(k.split('_').pop(), process.env[k]))
+        return typeof idOrValue == 'number' ? statuses.find(s => s.id === idOrValue) : statuses.find(s => s.value === String(idOrValue))
+    }
+    invoiceStatus<T = string | number>(idOrValue: T): CommonConfig {
+        const statuses = Object.keys(process.env)
+            .filter(k => k.includes('invoiceStatus'))
+            .map(k => new CommonConfig(k.split('_').pop(), process.env[k]))
+        return typeof idOrValue == 'number' ? statuses.find(s => s.id === idOrValue) : statuses.find(s => s.value === String(idOrValue))
     }
 }

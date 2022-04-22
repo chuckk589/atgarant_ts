@@ -6,11 +6,11 @@ import i18n from 'src/bot/middleware/i18n';
 import { BOT_NAME } from 'src/constants';
 import { botOfferDto } from 'src/mikroorm/dto/create-offer.dto';
 import { Offers } from 'src/mikroorm/entities/Offers';
-import { BotContext, OfferMode } from 'src/types/interfaces';
+import { BotContext, BotStep, OfferMode } from 'src/types/interfaces';
 import { AppEventsService } from './app-events.service';
 import { offerController } from '../bot/offer/offer.controller'
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
-import { manageOfferMenu } from 'src/bot/common/keyboards';
+import { mainKeyboard, manageOfferMenu } from 'src/bot/common/keyboards';
 
 // type OfferExtend = {
 //     offerStatus: { name: string };
@@ -24,10 +24,23 @@ export class AppEventsController {
     constructor(
         private readonly appEventsService: AppEventsService,
         private readonly appConfigService: AppConfigService,
+        private readonly offerController: offerController,
         @Inject(forwardRef(() => BOT_NAME)) private bot: Bot<BotContext>,
         @InjectPinoLogger('AppEventsController') private readonly logger: PinoLogger
         // @Inject(BOT_NAME) private bot: Bot<BotContext>
     ) { }
+    async offerRejectInitiated(payload: any, ctx: BotContext) {
+        const offer = await this.appEventsService.rejectOfferById(payload, 'denied')
+        await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
+        const destination = this.appEventsService.getOppositeChatId(offer, ctx.from.id)
+        await this.bot.api.sendMessage(destination, ctx.i18n.t('offerRejected', { id: payload }))
+    }
+    async offerEditInitiated(payload: any, ctx: BotContext) {
+        const offerData = await this.appEventsService.getOfferById(payload)
+        ctx.session.pendingOffer = new botOfferDto(offerData)
+        ctx.session.step = BotStep.roles
+        await ctx.reply(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMenu() })
+    }
     checkoutMessage(offer: botOfferDto, code: string) {
         const paymentMethod = this.appConfigService.payments.find(p => p.id == offer.paymentMethodId)
         return i18n.t(code, 'orderCheckout') +
@@ -47,8 +60,12 @@ export class AppEventsController {
 
     }
     // TODO payment link generation implementation  
-    async offerAccepted(payload: any, from: string) {
+    async offerAccepted(payload: any) {
         const offerData = await this.appEventsService.getOfferById(payload)
+        const roleData = this.appEventsService.usersByRoles(offerData)
+        this.appEventsService.updateOfferStatus(offerData, 'accepted')
+        this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'offerAccepted', { id: offerData.id, roleAction: i18n.t(roleData.buyer.locale, 'buyerOfferAccepted', { payLink: 'NOT IMPLEMENTED YET' }) }))
+        this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'offerAccepted', { id: offerData.id, roleAction: i18n.t(roleData.seller.locale, 'sellerOfferAccepted') }))
     }
     async offerCreated(offer: Offers | number, from: string) {
         if (typeof offer === 'number') {

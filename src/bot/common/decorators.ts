@@ -34,7 +34,6 @@ export function MenuController<T extends { new(...args: any[]): {} }>(constructo
     return class extends constructor {
         _menu = fn(() => {
             const menus: MenuListenerMetadata[] = Reflect.getMetadata(LISTENERS_METADATA, constructor.prototype)
-            console.log(menus.length)
             if (menus.length !== 1) throw new Error('only 1 menu instance is allowed per menu module')
             const that = <any>this
             return that[menus[0].key]

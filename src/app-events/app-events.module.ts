@@ -5,7 +5,7 @@ import { AppEventsController } from './app-events.controller';
 import { AppEventsService } from './app-events.service';
 
 @Module({
-  imports: [],
+  imports: [offerModule],
   providers: [AppEventsService, AppEventsController],
   exports: [AppEventsController]
 })

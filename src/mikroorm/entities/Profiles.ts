@@ -2,7 +2,8 @@ import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import { Users } from './Users';
 
 @Entity()
-export class Profiles {
+export class 
+Profiles {
 
   @PrimaryKey()
   id!: number;
@@ -37,4 +38,5 @@ export class Profiles {
   @ManyToOne({ entity: () => Users, fieldName: 'userId', onUpdateIntegrity: 'cascade', onDelete: 'cascade', nullable: true, index: 'userId' })
   userId?: Users;
 
+  
 }

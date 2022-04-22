@@ -33,13 +33,13 @@ export class Arbitraries {
   updatedAt: Date = new Date();
 
   @ManyToOne({ entity: () => Offers, fieldName: 'offerId', onUpdateIntegrity: 'cascade', onDelete: 'cascade', index: 'offerId' })
-  offerId!: Offers;
+  offer!: Offers;
 
   @ManyToOne({ entity: () => Users, fieldName: 'initiatorId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'initiatorId' })
-  initiatorId?: Users;
+  initiator?: Users;
 
   @ManyToOne({ entity: () => Users, fieldName: 'arbiterId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'arbiterId' })
-  arbiterId?: Users;
+  arbiter?: Users;
 
 }
 

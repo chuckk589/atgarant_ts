@@ -42,6 +42,7 @@
     "@nestjs/common": "^8.4.4",
     "@nestjs/config": "^2.0.0",
     "@nestjs/core": "^8.4.3",
+    "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^8.4.3",
     "@nestjs/serve-static": "^2.2.2",
     "@qiwi/bill-payments-node-js-sdk": "^3.2.1",
@@ -78,6 +79,7 @@
   "devDependencies": {
     "@babel/core": "^7.13.10",
     "@mikro-orm/cli": "^5.1.1",
+    "@types/bcrypt": "^5.0.0",
     "@types/luxon": "^2.3.1",
     "@vue/cli-plugin-babel": "^4.5.11",
     "@vue/cli-plugin-e2e-nightwatch": "^4.5.11",

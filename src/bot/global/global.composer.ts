@@ -92,60 +92,44 @@ export class globalComposer extends BaseComposer {
   @On("callback_query:data")
   callbackHandler = async (ctx: BotContext) => {
     const data = new OfferCallbackData(ctx.update.callback_query.data)
-    console.log(data)
     //accept button click
     if (data.action == 'admit') {
-      //accept button clicked right after offer creation by initiator process
+      //accept button clicked right after offer creation by initiator 
       if (data.mode == OfferMode.default) {
-        ctx.deleteMessage()
+        await ctx.deleteMessage()
         const offer = await this.globalService.createOffer(ctx)
-        this.AppEventsController.offerCreated(offer, String(ctx.from.id))
-        await ctx.reply(ctx.i18n.t('offerCreated'))
+        await this.AppEventsController.offerCreated(offer, String(ctx.from.id))
       }
       //accept button clicked after receiving an offer and NOT editing it
       else if (data.mode == OfferMode.edit) {
-        ctx.deleteMessage()
-        this.AppEventsController.offerAccepted(data.payload, String(ctx.from.id))
-        await ctx.reply(ctx.i18n.t('offerCreated'))
+        await ctx.deleteMessage()
+        await this.AppEventsController.offerAccepted(data.payload)
+      }
+      await ctx.reply(ctx.i18n.t('offerCreated'))
+    }
+    else if (data.action == 'edit') {
+      //edit button clicked right after offer creation by initiator 
+      if (data.mode == OfferMode.default) {
+        ctx.session.step = BotStep.roles
+        await ctx.reply(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMenu() })
+      }
+      //edit button clicked after receiving an offer
+      //need to write offer into receiving end session
+      else if (data.mode == OfferMode.edit) {
+        await ctx.deleteMessage()
+        await this.AppEventsController.offerEditInitiated(data.payload, ctx)
+      }
+    }
+    else if (data.action == 'reject') {
+      if (data.mode == OfferMode.default) {
+        ctx.session.step = BotStep.default
+        await ctx.deleteMessage()
+        await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
+      }else if (data.mode == OfferMode.edit) {
+        await ctx.deleteMessage()
+        await this.AppEventsController.offerRejectInitiated(data.payload, ctx)
       }
     }
 
   }
 }
-// await cleanUp(ctx)
-// await ctx.deleteMessage(ctx.update.callback_query.message.message_id).catch(() => { })
-// const offerId = ctx.update.callback_query.data.split('_').pop()
-// const offerData = await fetchOfferDetails(offerId)
-// const seller = offerData.role === 'seller' ? 'initiator' : 'partner'
-// const buyer = offerData.role === 'buyer' ? 'initiator' : 'partner'
-// payments.getPayLink(offerData)
-//     .then(payLink => {
-//         offer.update({
-//             offerStatusId: sequelize.literal(`(SELECT id FROM offerstatuses WHERE value = 'accepted')`)
-//         }, { where: { id: offerId } })
-//         bot.telegram.sendMessage(offerData[buyer].chat_id, i18n.t(offerData[buyer].locale, 'offerAccepted', { id: offerId, roleAction: i18n.t(offerData[buyer].locale, 'buyerOfferAccepted', { payLink: payLink.url }) }))
-//         bot.telegram.sendMessage(offerData[seller].chat_id, i18n.t(offerData[seller].locale, 'offerAccepted', { id: offerId, roleAction: i18n.t(offerData[buyer].locale, 'sellerOfferAccepted') }))
-//         //dev purposes
-//         // setTimeout(() => {
-//         //     if(offerData.paymentMethod.value === 'paymentMethod_QIWI' || offerData.paymentMethod.value === 'paymentMethod_CARD'){
-//         //         axios.post('http://localhost:777/v1/payment/qiwi/', {
-//         //             bill:{
-//         //                 status:{
-//         //                     value:'PAID'
-//         //                 },
-//         //                 billId:payLink.id
-//         //             }
-//         //         })
-//         //     }else{
-//         //         axios.post('http://localhost:777/v1/payment/crypto/', {
-//         //             status: '100',
-//         //             txn_id: payLink.id
-//         //         })
-//         //     }
-//         // }, 3*1000);
-//     })
-//     .catch(er => {
-//         console.log(er)
-//         bot.telegram.sendMessage(offerData.partner.chat_id, i18n.t(offerData.partner.locale, 'offerError'))
-//     })
-//     .finally(() => { return ctx.scene.enter('mainMenu') })

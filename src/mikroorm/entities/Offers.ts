@@ -1,6 +1,7 @@
-import { Entity, Enum, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { AfterCreate, Entity, Enum, EventArgs, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import { Offerstatuses } from './Offerstatuses';
 import { Paymentmethods } from './Paymentmethods';
+import { Profiles } from './Profiles';
 import { Users } from './Users';
 
 @Entity()
@@ -63,6 +64,13 @@ export class Offers {
   @ManyToOne({ entity: () => Paymentmethods, fieldName: 'paymentMethodId', onUpdateIntegrity: 'cascade', index: 'paymentMethodId' })
   paymentMethod!: Paymentmethods;
 
+  @AfterCreate()
+  async afterCreate(args: EventArgs<Offers>): Promise<void> {
+    const seller = args.entity.role === 'seller' ? 'initiator' : 'partner'
+    const buyer = args.entity.role === 'buyer' ? 'initiator' : 'partner'
+    args.em.getConnection().execute(`UPDATE profiles SET offersAsBuyer = offersAsBuyer + 1, totalOfferValueRub = totalOfferValueRub + ${this.offerValue} WHERE userId = ${this[buyer].id}`)
+    args.em.getConnection().execute(`UPDATE profiles SET offersAsSeller = offersAsSeller + 1, totalOfferValueRub = totalOfferValueRub + ${this.offerValue} WHERE userId = ${this[seller].id}`)
+  }
 }
 
 export enum OffersRole {

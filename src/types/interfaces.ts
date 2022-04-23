@@ -91,10 +91,11 @@ export class BaseRouter {
     return this._router
   }
 }
-export class BasePaymentService {
-  getPayLink: (offer: Offers) => Promise<paymentURL> 
-  sellerWithdraw: (offer: botOfferDto) => Promise<string>
-  arbitraryWithdraw: (arb: Arbitraries) => Promise<string>
+export abstract class BasePaymentController {
+  abstract init: () => Promise<void>
+  abstract getPayLink: (offer: Offers) => Promise<paymentURL>
+  abstract sellerWithdraw: (offer: botOfferDto) => Promise<string>
+  abstract arbitraryWithdraw: (arb: Arbitraries) => Promise<string>
 }
 export type callbackQuery = [string, string, string]
 export class PM {
@@ -152,4 +153,5 @@ export enum BotStep {
   refund = "refund",
   checkout = "checkout",
   manage = "manage",
+  offer = "offer",
 }

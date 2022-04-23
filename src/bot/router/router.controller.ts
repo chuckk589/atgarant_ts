@@ -2,8 +2,8 @@ import { Router } from "@grammyjs/router";
 import { BaseComposer, BaseRouter, BotContext, BotStep, OfferMode } from "src/types/interfaces";
 import { RouterController, Use } from "../common/decorators";
 import { routerService } from './router.service'
-import { offerController } from '../offer/offer.controller'
-import { AppConfigService } from "src/app-config/app-config.controller";
+import { offerController } from '../offer-menu/offer.controller'
+import { AppConfigService } from "src/app-config/app-config.service";
 import { DateTime } from 'luxon'
 import { Controller, Inject, Injectable } from "@nestjs/common";
 import { Bot } from "grammy";
@@ -12,6 +12,7 @@ import { AppEventsController } from "../../app-events/app-events.controller";
 import { Offers } from "src/mikroorm/entities/Offers";
 import { botOfferDto } from "src/mikroorm/dto/create-offer.dto";
 import { manageOfferMenu } from "../common/keyboards";
+import { checkoutMessage } from "../common/helpers";
 
 @Injectable()
 @RouterController
@@ -89,7 +90,58 @@ export class routerController extends BaseRouter {
       ctx.session.pendingOffer.refundDetails = ctx.message.text
       ctx.session.pendingOffer.initiator_chatId = String(ctx.from.id)
       ctx.session.step = BotStep.checkout
-      await ctx.reply(this.AppEventsController.checkoutMessage(ctx.session.pendingOffer, ctx.i18n.locale()), { reply_markup: manageOfferMenu(0, ctx.i18n.locale(), OfferMode.default) })
+      await ctx.reply(checkoutMessage(ctx.session.pendingOffer, ctx.i18n.locale()), { reply_markup: manageOfferMenu(0, ctx.i18n.locale(), OfferMode.default) })
+    })
+    .route(BotStep.offer, async ctx => {
+      if (ctx.message && ctx.message.text && Number(ctx.message.text)) {
+        const offer = await this.routerService.fetchOffer(Number(ctx.message.text))
+        if (!offer) return
+        await ctx.reply(checkoutMessage(new botOfferDto(offer), ctx.i18n.locale()))
+      }
+      //   ry { markups.actionsGroup(ctx, off, isSeller(off, ctx.from.id))
+      //     this.cleanUp(ctx)
+      //     const off = await offer.findOne({
+      //         where: {
+      //             id: ctx.message.text,
+      //             [Op.or]: [
+      //                 sequelize.literal(`offer.partnerId = (SELECT id from users WHERE chat_id = '${ctx.from.id}')`),
+      //                 sequelize.literal(`offer.initiatorId = (SELECT id from users WHERE chat_id = '${ctx.from.id}')`),
+      //             ]
+      //         },
+      //         include: [{
+      //             model: user,
+      //             as: 'initiator'
+      //         }, {
+      //             model: user,
+      //             as: 'partner'
+      //         }, {
+      //             model: offerStatus
+      //         }, {
+      //             model: paymentMethod
+      //         }, {
+      //             model: review,
+      //             include: [{
+      //                 model: user,
+      //                 as: 'author',
+      //                 where: {
+      //                     chat_id: ctx.from.id
+      //                 }
+      //             }]
+      //         }, {
+      //             model: invoice,
+      //             where: {
+      //                 type: 'in'
+      //             }
+      //         }]
+      //     })
+      //     if (off) {
+      //         ctx.wizard.state.currentOffer = off
+      //         ctx.reply(utilities.composeOfferMessage(ctx, off), markups.actionsGroup(ctx, off, isSeller(off, ctx.from.id)))
+      //             .then(r => ctx.session.menuId = r.message_id)
+      //     }
+      // } catch (error) {
+      //     console.log(error)
+      // }
     })
     .otherwise(ctx => { console.log('otherwise') })
 

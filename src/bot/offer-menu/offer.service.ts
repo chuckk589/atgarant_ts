@@ -16,11 +16,12 @@ export class offerService {
   ) { }
 
   async acceptRules(ctx: BotContext) {
-    let user = await this.em.findOne(Users, { chatId: String(ctx.from.id) })
-    if (!user) {
-      user.acceptedRules = 1
-    }
-    await this.em.persistAndFlush(user)
+    // let user = await this.em.findOne(Users, {})
+    // if (!user) {
+    //   user.acceptedRules = 1
+    // }
+    // await this.em.persistAndFlush(user)
+    await this.em.nativeUpdate(Users, { chatId: String(ctx.from.id) }, { acceptedRules: 1 })
   }
-  
+
 }

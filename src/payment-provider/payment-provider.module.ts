@@ -1,41 +1,76 @@
+import { MikroORM } from '@mikro-orm/core';
 import { DynamicModule, Module, Provider } from '@nestjs/common';
-import { PaymentProviderController } from './payment-provider.controller';
-import { PAYMENT_SERVICE, PAYMENT_SERVICE_OPTIONS } from 'src/constants';
-import { PaymentsModule } from 'src/payments/payments.module';
+import { PAYMENTS_CONTROLLER} from 'src/constants';
+import { Configs } from 'src/mikroorm/entities/Configs';
 import { PaymentsOptionsAsync, PaymentsOptions } from 'src/types/interfaces';
-import { BtcCoreService } from './BTC.service';
-import { CoinPaymentsService } from './CP.service';
+import { BtcCoreController } from './btc-core/btc-core.controller';
+import { BtcCoreService } from './btc-core/btc-core.service';
+import { CoinPayController } from './coin-pay/coin-pay.controller';
+import { CoinPayService } from './coin-pay/coin-pay.service';
+import { HttpModule } from '@nestjs/axios'
 
-@Module({})
+@Module({
+  providers: [
+    CoinPayController,
+    CoinPayService,
+    BtcCoreController,
+    BtcCoreService
+  ],
+  exports: [CoinPayController, BtcCoreController]
+})
 export class PaymentProviderModule {
-  public static forRootAsync(options: PaymentsOptionsAsync): DynamicModule {
-    const PaymentsServiceProvider: Provider = {
-      provide: PAYMENT_SERVICE,
-      useFactory: (options: PaymentsOptions) => this.resolveClass(options),
-      inject: [PAYMENT_SERVICE_OPTIONS],
-    }
+  public static forRootAsync(options?: PaymentsOptionsAsync): DynamicModule {
     const PaymentsOptionsProvider: Provider = {
-      provide: PAYMENT_SERVICE_OPTIONS,
-      useFactory: options.useFactory,
-      inject: options.inject || [],
+      provide: PAYMENTS_CONTROLLER,
+      useFactory: async (orm: MikroORM, a: CoinPayController, b: BtcCoreController) => {
+        const config = await orm.em.findOne(Configs, { name: 'PAYMENT_SERVICE' })
+        return config.value == 'btc-core' ? b : a
+      },
+      inject: [MikroORM, CoinPayController, BtcCoreController],
     }
     return {
       module: PaymentProviderModule,
-      providers: [
-        PaymentProviderController,
-        PaymentsServiceProvider,
-        PaymentsOptionsProvider,
-        {
-          provide: 'wtf',
-          useExisting: PAYMENT_SERVICE,
-        }
-      ],
-      exports: [
-        PaymentProviderController,
-      ]
+      providers: [PaymentsOptionsProvider],
+      exports: [PaymentsOptionsProvider],
+      imports: []
     }
   }
-  static resolveClass(options: PaymentsOptions) {
-    return options.mode == 'btc-core' ? BtcCoreService : CoinPaymentsService
-  }
 }
+  // const PaymentsServiceProvider: Provider = {
+  //   provide: PAYMENT_SERVICE,
+  //   useFactory: (options: PaymentsOptions) => this.resolveClass(options),
+  //   inject: [PAYMENT_SERVICE_OPTIONS],
+  // }
+  // const PaymentsOptionsProvider: Provider = {
+  //   provide: PAYMENT_SERVICE_OPTIONS,
+  //   useFactory: options.useFactory,
+  //   inject: options.inject || [],
+  // }
+  // return {
+  //   module: PaymentProviderModule,
+  //   providers: [
+  //     PaymentsServiceProvider,
+  //     PaymentsOptionsProvider,
+  //   ],
+  //   exports: [
+  //     PaymentsServiceProvider,
+  //     PaymentsOptionsProvider,
+  //   ]
+  // }
+  // const PaymentsOptionsProvider: Provider = {
+  //   inject: [MikroORM, CoinPayController, BtcCoreController],
+  //   provide: 'TEST',
+  //   useFactory: async (orm: MikroORM, a: CoinPayController, b: BtcCoreController) => {
+  //     const config = await orm.em.findOne(Configs, { name: 'PAYMENT_SERVICE' })
+  //     return config.value == 'btc-core' ? b : a
+  //   }
+  // }
+  // return {
+  //   module: PaymentProviderModule,
+  //   providers: [PaymentsOptionsProvider],
+  //   exports: [PaymentsOptionsProvider]
+  // }
+
+  // static resolveClass(options: PaymentsOptions) {
+  //   return options.mode == 'btc-core' ? new BtcCoreController(BtcCoreService) : new CoinPayController(CoinPayService)
+  // }

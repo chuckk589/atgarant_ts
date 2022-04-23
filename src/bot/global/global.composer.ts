@@ -1,14 +1,15 @@
 
-import { AppConfigService } from "src/app-config/app-config.controller";
-import { OffersFeePayer, OffersRole } from "src/mikroorm/entities/Offers";
+import { AppConfigService } from "src/app-config/app-config.service";
+import { Offers, OffersFeePayer, OffersRole } from "src/mikroorm/entities/Offers";
 import { BaseComposer, BotContext, BotStep, callbackQuery, OfferCallbackData, OfferMode } from "src/types/interfaces";
 import { Command, ComposerController, Hears, On, Use, } from "../common/decorators";
 import { accountKeyboard, arbitraryKeyboard, mainKeyboard, offerKeyboard } from "../common/keyboards";
-import { offerController } from "../offer/offer.controller";
+import { offerController } from "../offer-menu/offer.controller";
 import { globalService } from './global.service'
 import { AppEventsController } from '../../app-events/app-events.controller';
 import { Inject, forwardRef } from "@nestjs/common";
 import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
+import { getOffersMessage } from "../common/helpers";
 
 @ComposerController
 export class globalComposer extends BaseComposer {
@@ -16,6 +17,7 @@ export class globalComposer extends BaseComposer {
     private readonly globalService: globalService,
     private readonly AppConfigService: AppConfigService,
     private readonly offerController: offerController,
+    //@Inject('TEST') private readonly a: any,
     //@Inject(AppEventsController) private readonly AppEventsController: AppEventsController
     private readonly AppEventsController: AppEventsController,
     @InjectPinoLogger('globalComposer') private readonly logger: PinoLogger
@@ -33,6 +35,7 @@ export class globalComposer extends BaseComposer {
   start: Function = async (ctx: BotContext) => {
     const user = await this.globalService.fetchUser(ctx)
     ctx.i18n.locale(user.locale)
+    ctx.session.step = BotStep.default
     ctx.session.user.acceptedRules = user.acceptedRules
     await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
   }
@@ -89,6 +92,17 @@ export class globalComposer extends BaseComposer {
   @Hears('info')
   info: Function = async (ctx: BotContext) => await ctx.reply(ctx.i18n.t('info'))
 
+  @Hears('allOffers')
+  allOffers = async (ctx: BotContext) => {
+    const offers = await this.globalService.fetchOffers(ctx.from.id)
+    if (offers.length) {
+      await ctx.reply(ctx.i18n.t('offerHistory') + getOffersMessage(offers, ctx.from.id))
+      ctx.session.step = BotStep.offer
+    } else {
+      await ctx.reply(ctx.i18n.t('noData'))
+    }
+  }
+
   @On("callback_query:data")
   callbackHandler = async (ctx: BotContext) => {
     const data = new OfferCallbackData(ctx.update.callback_query.data)
@@ -125,7 +139,7 @@ export class globalComposer extends BaseComposer {
         ctx.session.step = BotStep.default
         await ctx.deleteMessage()
         await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
-      }else if (data.mode == OfferMode.edit) {
+      } else if (data.mode == OfferMode.edit) {
         await ctx.deleteMessage()
         await this.AppEventsController.offerRejectInitiated(data.payload, ctx)
       }

@@ -1,6 +1,6 @@
 import { Menu as MenuGrammy } from "@grammyjs/menu";
 import { Injectable, SetMetadata } from "@nestjs/common";
-import { AppConfigService } from "src/app-config/app-config.controller";
+import { AppConfigService } from "src/app-config/app-config.service";
 import { Offers } from "src/mikroorm/entities/Offers";
 import { BaseMenu, BotContext, BotStep, PM } from "src/types/interfaces";
 import { Menu, MenuController } from "../common/decorators";
@@ -136,24 +136,6 @@ export class offerController extends BaseMenu {
           })
           break
         }
-        // case BotStep.checkout: {
-        //   range.text(label({ text: 'rejectOffer' }), ctx => {
-        //     ctx.session.step = BotStep.default
-        //     ctx.deleteMessage()
-        //   })
-        //   range.text(label({ text: 'admitOffer' }), async ctx => {
-        //     ctx.session.step = BotStep.default
-        //     ctx.deleteMessage()
-        //     const offer = await this.offerService.createOffer(ctx)
-        //     this.AppEventsController.offerCreated(offer, String(ctx.from.id))
-        //     await ctx.reply(ctx.i18n.t('offerCreated'))
-        //   })
-        //   range.text(label({ text: 'back' }), ctx => {
-        //     ctx.editMessageText(ctx.i18n.t('askProductRefundTime'))
-        //     ctx.session.step = BotStep.refund
-        //   })
-        //   break
-        // }
       }
       return range
     })

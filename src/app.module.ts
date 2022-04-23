@@ -1,8 +1,9 @@
 import { Inject, Module } from '@nestjs/common';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { LoggerModule } from 'nestjs-pino';
+import { HttpModule } from '@nestjs/axios'
 import { BotModule } from 'src/bot/bot.module';
-import { botOptionsProvider, ORMOptionsProvider, paymentsOptionsProvider } from './common/providers';
+import { botOptionsProvider, ORMOptionsProvider } from './common/providers';
 import { BotContext } from './types/interfaces';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -25,9 +26,9 @@ import { PaymentProviderModule } from './payment-provider/payment-provider.modul
     AppConfigModule.forRootAsync(),
     AppEventsModule,
     UserModule,
-    PaymentsModule.forRootAsync(paymentsOptionsProvider),
+    PaymentsModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }

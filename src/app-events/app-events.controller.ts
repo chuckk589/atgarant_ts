@@ -1,71 +1,71 @@
 import { Controller, forwardRef, Inject } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { Bot } from 'grammy';
-import { AppConfigService } from 'src/app-config/app-config.controller';
+import { AppConfigService } from 'src/app-config/app-config.service';
 import i18n from 'src/bot/middleware/i18n';
-import { BOT_NAME } from 'src/constants';
+import { BOT_NAME, PAYMENTS_CONTROLLER } from 'src/constants';
 import { botOfferDto } from 'src/mikroorm/dto/create-offer.dto';
 import { Offers } from 'src/mikroorm/entities/Offers';
-import { BotContext, BotStep, OfferMode } from 'src/types/interfaces';
+import { BasePaymentController, BotContext, BotStep, OfferMode } from 'src/types/interfaces';
 import { AppEventsService } from './app-events.service';
-import { offerController } from '../bot/offer/offer.controller'
+import { offerController } from 'src/bot/offer-menu/offer.controller'
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { mainKeyboard, manageOfferMenu } from 'src/bot/common/keyboards';
+import { checkoutMessage, getOppositeChatId, usersByRoles } from 'src/bot/common/helpers';
 
-// type OfferExtend = {
-//     offerStatus: { name: string };
-//     initiator: { username?: string, chat_id?: string }
-//     partner: { username?: string, chat_id?: string }
-//  @Inject(BOT_NAME) private options: any
-// };
 
 @Controller()
 export class AppEventsController {
+    async offerPayoutProcessed(txn_id: string) {
+        const offer = await this.appEventsService.getOfferByTxnId(txn_id)
+        const roleData = usersByRoles(offer)
+        if (offer.offerStatus.value === 'arbitrary') {
+            await this.appEventsService.closeArbitraryOfferAttempt(offer.id)
+        } else {
+            await this.appEventsService.updateOfferStatus<Offers>(offer, 'closed')
+            this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPayoutComplete', { id: offer.id }))
+        }
+    }
+    async offerPayed(txn_id: string) {
+        const offer = await this.appEventsService.getOfferByTxnId(txn_id)
+        const roleData = usersByRoles(offer)
+        await this.appEventsService.updateOfferStatus<Offers>(offer, 'payed')
+        this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'buyerOfferPayed', { id: offer.id }))
+        this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPayed', { id: offer.id }))
+    }
+    
     constructor(
         private readonly appEventsService: AppEventsService,
         private readonly appConfigService: AppConfigService,
         private readonly offerController: offerController,
         @Inject(forwardRef(() => BOT_NAME)) private bot: Bot<BotContext>,
-        @InjectPinoLogger('AppEventsController') private readonly logger: PinoLogger
+        @InjectPinoLogger('AppEventsController') private readonly logger: PinoLogger,
+        @Inject(PAYMENTS_CONTROLLER) private PaymentController: BasePaymentController
         // @Inject(BOT_NAME) private bot: Bot<BotContext>
-    ) { }
+    ) {
+        setTimeout(() => {
+           // this.offerPayoutProcessed('eeeer')
+        }, 1000);
+    }
     async offerRejectInitiated(payload: any, ctx: BotContext) {
-        const offer = await this.appEventsService.rejectOfferById(payload, 'denied')
+        const offer = await this.appEventsService.updateOfferStatus<number>(payload, 'denied')
         await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
-        const destination = this.appEventsService.getOppositeChatId(offer, ctx.from.id)
+        const destination = getOppositeChatId(offer, ctx.from.id)
         await this.bot.api.sendMessage(destination, ctx.i18n.t('offerRejected', { id: payload }))
     }
     async offerEditInitiated(payload: any, ctx: BotContext) {
-        const offerData = await this.appEventsService.getOfferById(payload)
-        ctx.session.pendingOffer = new botOfferDto(offerData)
+        const offer = await this.appEventsService.getOfferById(payload)
+        ctx.session.pendingOffer = new botOfferDto(offer)
         ctx.session.step = BotStep.roles
         await ctx.reply(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMenu() })
     }
-    checkoutMessage(offer: botOfferDto, code: string) {
-        const paymentMethod = this.appConfigService.payments.find(p => p.id == offer.paymentMethodId)
-        return i18n.t(code, 'orderCheckout') +
-            i18n.t(code, 'orderCheckoutFeePayer') + ': ' + i18n.t(code, offer.feePayer) + '\n' +
-            i18n.t(code, 'orderValue') + ': ' + offer.offerValue + ' p\n' +
-            i18n.t(code, 'orderCheckoutPaymentMethod') + ': ' + i18n.t(code, paymentMethod.method) + '\n' +
-            i18n.t(code, 'orderCheckoutFee') + ': ' + offer.feeBaked + ' p\n' +
-            i18n.t(code, 'orderCheckoutEstimatedShipping') + ': ' + new Date(offer.estimatedShipping).toLocaleDateString() + '\n' +
-            i18n.t(code, 'orderCheckoutProductDetails') + ': ' + offer.productDetails + '\n' +
-            i18n.t(code, 'orderCheckoutProductAdditionalDetails') + ': ' + (offer.productAdditionalDetails || i18n.t(code, 'notDefined')) + '\n' +
-            i18n.t(code, 'orderCheckoutRestDetails') + ': ' + (offer.restDetails || i18n.t(code, 'notDefined')) + '\n' +
-            i18n.t(code, 'orderCheckoutRefundDetails') + ': ' + offer.refundDetails + '\n' +
-            i18n.t(code, 'orderCheckoutSellerWalletData') + ': ' + (offer.sellerWalletData || i18n.t(code, 'notDefined')) + '\n' +
-            i18n.t(code, 'orderCheckoutOfferStatus') + ': ' + offer.offerStatus + '\n' +
-            i18n.t(code, 'buyer') + ': ' + (offer.role === 'buyer' ? offer.initiator_chatId : offer.partner_chatId) + '\n' +
-            i18n.t(code, 'seller') + ': ' + (offer.role === 'seller' ? offer.initiator_chatId : offer.partner_chatId)
-
-    }
-    // TODO payment link generation implementation  
     async offerAccepted(payload: any) {
-        const offerData = await this.appEventsService.getOfferById(payload)
-        const roleData = this.appEventsService.usersByRoles(offerData)
-        this.appEventsService.updateOfferStatus(offerData, 'accepted')
-        this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'offerAccepted', { id: offerData.id, roleAction: i18n.t(roleData.buyer.locale, 'buyerOfferAccepted', { payLink: 'NOT IMPLEMENTED YET' }) }))
-        this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'offerAccepted', { id: offerData.id, roleAction: i18n.t(roleData.seller.locale, 'sellerOfferAccepted') }))
+        const offer = await this.appEventsService.getOfferById(payload)
+        const roleData = usersByRoles(offer)
+        this.appEventsService.updateOfferStatus<Offers>(offer, 'accepted')
+        const link = await this.PaymentController.getPayLink(offer)
+        this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'offerAccepted', { id: offer.id, roleAction: i18n.t(roleData.buyer.locale, 'buyerOfferAccepted', { payLink: link.url }) }))
+        this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'offerAccepted', { id: offer.id, roleAction: i18n.t(roleData.seller.locale, 'sellerOfferAccepted') }))
     }
     async offerCreated(offer: Offers | number, from: string) {
         if (typeof offer === 'number') {
@@ -73,7 +73,7 @@ export class AppEventsController {
         }
         const destination = from === offer.partner.chatId ? 'initiator' : 'partner'
         const destLocale = offer[destination].locale
-        const offerString = this.checkoutMessage(new botOfferDto(offer), destLocale)
+        const offerString = checkoutMessage(new botOfferDto(offer), destLocale)
         this.bot.api.sendMessage(offer[destination].chatId, i18n.t(destLocale, 'offerReceived') + '\n' + offerString, { reply_markup: manageOfferMenu(offer.id, destLocale, OfferMode.edit) })
     }
 

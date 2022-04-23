@@ -11,6 +11,8 @@ import { routerModule } from "src/bot/router/router.module";
 import { MikroORM } from "@mikro-orm/core";
 import { GrammyBotOptionsAsync, ListenerMetadata, PaymentsOptions, PaymentsOptionsAsync, TMethod } from "src/types/interfaces";
 import { Configs } from "src/mikroorm/entities/Configs";
+import { CoinPayController } from '../payment-provider/coin-pay/coin-pay.controller'
+import { BtcCoreController } from '../payment-provider/btc-core/btc-core.controller';
 
 export const ORMOptionsProvider: MikroOrmModuleAsyncOptions = {
     inject: [ConfigService],
@@ -37,10 +39,18 @@ export const botOptionsProvider: GrammyBotOptionsAsync = {
     }
 }
 
-export const paymentsOptionsProvider: PaymentsOptionsAsync = {
-    inject: [MikroORM],
-    useFactory: async (orm: MikroORM) => {
-        const config = await orm.em.findOne(Configs, { name: 'PAYMENT_SERVICE' })
-        return { mode: config.value } as PaymentsOptions
-    }
-}
+// export const paymentsOptionsProvider: PaymentsOptionsAsync = {
+//     inject: [MikroORM],
+//     useFactory: async (orm: MikroORM) => {
+//         const config = await orm.em.findOne(Configs, { name: 'PAYMENT_SERVICE' })
+//         return { mode: config.value } as PaymentsOptions
+//     }
+// }
+// export const paymentsOptionsProvider: any = {
+//     inject: [MikroORM],
+//     provide: 'TEST',
+//     useFactory: async (orm: MikroORM, CoinPayController: CoinPayController, BtcCoreController: BtcCoreController) => {
+//         const config = await orm.em.findOne(Configs, { name: 'PAYMENT_SERVICE' })
+//         return config.value == 'btc-core' ? BtcCoreController : CoinPayController
+//     }
+// }

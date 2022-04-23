@@ -7,7 +7,7 @@ import { Offerstatuses } from 'src/mikroorm/entities/Offerstatuses';
 import { Paymentmethods } from 'src/mikroorm/entities/Paymentmethods';
 import { Profiles } from 'src/mikroorm/entities/Profiles';
 import { Users } from 'src/mikroorm/entities/Users';
-import { AppConfigService } from './app-config.controller';
+import { AppConfigService } from './app-config.service';
 
 @Global()
 @Module({
@@ -30,9 +30,9 @@ export class AppConfigModule {
     const configs = await this.em.find(Configs, {})
     configs.map(config => process.env[config.name!] = config.value);
 
-    const options = process.env.PAYMENT_SERVICE == 'btc-core' ? { value: 'paymentMethod_BTC' } : {}
-    const paymentMethods = await this.em.find(Paymentmethods, options)
-    paymentMethods.map(paymentMethod => process.env[paymentMethod.value!] = `${paymentMethod.feeRaw} ${paymentMethod.feePercent} ${paymentMethod.minSum} ${paymentMethod.maxSum} ${paymentMethod.id}`);
+    //const options = process.env.PAYMENT_SERVICE == 'btc-core' ? { value: 'paymentMethod_BTC' } : {}
+    const paymentMethods = await this.em.find(Paymentmethods, {})
+    paymentMethods.map(paymentMethod => process.env[paymentMethod.value] = `${paymentMethod.feeRaw} ${paymentMethod.feePercent} ${paymentMethod.minSum} ${paymentMethod.maxSum} ${paymentMethod.id}`);
 
     const offerStatuses = await this.em.find(Offerstatuses, {})
     offerStatuses.map(offerStatus => process.env[`offerStatus_${offerStatus.id}`] = `${offerStatus.value} ${offerStatus.name}`);

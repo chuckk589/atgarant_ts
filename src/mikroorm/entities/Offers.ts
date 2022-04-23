@@ -1,4 +1,5 @@
-import { AfterCreate, Entity, Enum, EventArgs, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { AfterCreate, Collection, Entity, Enum, EventArgs, ManyToOne, OneToMany, PrimaryKey, Property } from '@mikro-orm/core';
+import { Invoices } from './Invoices';
 import { Offerstatuses } from './Offerstatuses';
 import { Paymentmethods } from './Paymentmethods';
 import { Profiles } from './Profiles';
@@ -64,6 +65,8 @@ export class Offers {
   @ManyToOne({ entity: () => Paymentmethods, fieldName: 'paymentMethodId', onUpdateIntegrity: 'cascade', index: 'paymentMethodId' })
   paymentMethod!: Paymentmethods;
 
+  @OneToMany(() => Invoices, invoice => invoice.offer)
+  invoices = new Collection<Invoices>(this);
   @AfterCreate()
   async afterCreate(args: EventArgs<Offers>): Promise<void> {
     const seller = args.entity.role === 'seller' ? 'initiator' : 'partner'

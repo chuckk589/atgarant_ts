@@ -72,6 +72,18 @@ export class MenuListenerMetadata {
   parent?: string;
   key: string;
 }
+export type NewArbResponse = {
+  error: boolean;
+  errorMessage?: string
+  inviteLink?: string;
+  chat_id?: string;
+}
+export type NewArbitraryOptions = {
+  chatData: NewArbResponse
+  offerId: number
+  reason: string
+  issuerId: number
+}
 export class BaseComposer {
   constructor() { }
   protected _composer: Composer<any>
@@ -100,7 +112,7 @@ export abstract class BasePaymentController {
 export type callbackQuery = [string, string, string]
 export class PM {
   constructor(method: string, paymentMethod: string) {
-    const values = paymentMethod.split(' ')
+    const values = paymentMethod.split(':')
     this.feeRaw = Number.parseInt(values[0])
     this.feePercent = Number.parseInt(values[1])
     this.minSum = Number.parseInt(values[2])
@@ -117,7 +129,7 @@ export class PM {
 }
 export class CommonConfig {
   constructor(id: string, offerStatus: string) {
-    const values = offerStatus.split(' ')
+    const values = offerStatus.split(':')
     this.value = values[0]
     this.name = values[1]
     this.id = Number(id)
@@ -154,4 +166,8 @@ export enum BotStep {
   checkout = "checkout",
   manage = "manage",
   offer = "offer",
+  //menu edit steps
+  setWallet = "setWallet",
+  setArbitrary = "setArbitrary",
+  setFeedback = "setFeedback",
 }

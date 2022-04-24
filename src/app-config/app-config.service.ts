@@ -18,7 +18,7 @@ export class AppConfigService {
         const statuses = Object.keys(process.env)
             .filter(k => k.includes('offerStatus'))
             .map(k => new CommonConfig(k.split('_').pop(), process.env[k]))
-        return typeof idOrValue == 'number' ? statuses.find(s => s.id === idOrValue) : statuses.find(s => s.value === String(idOrValue))
+        return typeof idOrValue == 'number' ? statuses.find(s => s.id === idOrValue) : statuses.find(s => s.value === String(idOrValue) || s.name === String(idOrValue))
     }
     invoiceStatus<T = string | number>(idOrValue: T): CommonConfig {
         const statuses = Object.keys(process.env)

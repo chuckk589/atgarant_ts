@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { AppEventsController } from "src/app-events/app-events.controller";
 import { AppEventsModule } from "src/app-events/app-events.module";
 import { BotModule } from "../bot.module";
+import { OfferEditMenuModule } from "../offer-edit-menu/offer-edit-menu.module";
 import { offerController } from "../offer-menu/offer.controller";
 import { offerModule } from "../offer-menu/offer.module";
 import { offerService } from "../offer-menu/offer.service";
@@ -10,7 +11,7 @@ import { routerService } from "./router.service";
 
 
 @Module({
-    imports: [offerModule, AppEventsModule],
+    imports: [offerModule, OfferEditMenuModule, AppEventsModule],
     providers: [routerService, routerController],
     exports: [routerController]
 })

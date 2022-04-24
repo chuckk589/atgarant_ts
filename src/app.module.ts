@@ -16,6 +16,7 @@ import { BOT_NAME } from './constants';
 import { UserModule } from './user/user.module';
 import { PaymentsModule } from './payments/payments.module';
 import { PaymentProviderModule } from './payment-provider/payment-provider.module';
+import { TelegramModule } from './telegram/telegram.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PaymentProviderModule } from './payment-provider/payment-provider.modul
     AppEventsModule,
     UserModule,
     PaymentsModule,
+    TelegramModule,
   ],
   controllers: [],
   providers: [],

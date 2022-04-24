@@ -1,5 +1,7 @@
-import { AfterCreate, BeforeCreate, BeforeUpdate, Entity, EventArgs, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import { AfterCreate, BeforeCreate, BeforeUpdate, Collection, Entity, EventArgs, OneToMany, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 import { compare, hash } from 'bcrypt';
+import { Arbitraries } from './Arbitraries';
+import { Invoices } from './Invoices';
 import { Profiles } from './Profiles';
 
 @Entity()
@@ -36,6 +38,9 @@ export class Users {
 
   @Property({ fieldName: 'updatedAt', onUpdate: () => new Date() })
   updatedAt: Date = new Date();
+
+  @OneToMany(() => Arbitraries, arb => arb.arbiter)
+  arbs = new Collection<Arbitraries>(this);
 
   @BeforeUpdate()
   @BeforeCreate()

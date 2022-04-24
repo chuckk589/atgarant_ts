@@ -5,7 +5,7 @@ import { routerService } from './router.service'
 import { offerController } from '../offer-menu/offer.controller'
 import { AppConfigService } from "src/app-config/app-config.service";
 import { DateTime } from 'luxon'
-import { Controller, Inject, Injectable } from "@nestjs/common";
+import { Catch, Controller, Inject, Injectable } from "@nestjs/common";
 import { Bot } from "grammy";
 import { BOT_NAME } from "src/constants";
 import { AppEventsController } from "../../app-events/app-events.controller";
@@ -13,14 +13,17 @@ import { Offers } from "src/mikroorm/entities/Offers";
 import { botOfferDto } from "src/mikroorm/dto/create-offer.dto";
 import { manageOfferMenu } from "../common/keyboards";
 import { checkoutMessage } from "../common/helpers";
+import { OfferEditMenuController } from 'src/bot/offer-edit-menu/offer-edit-menu.controller'
 
 @Injectable()
+@Catch()
 @RouterController
 export class routerController extends BaseRouter {
   constructor(
 
     private readonly routerService: routerService,
     private readonly offerController: offerController,
+    private readonly OfferEditMenuController: OfferEditMenuController,
     private readonly AppConfigService: AppConfigService,
     private readonly AppEventsController: AppEventsController,
   ) {
@@ -94,9 +97,15 @@ export class routerController extends BaseRouter {
     })
     .route(BotStep.offer, async ctx => {
       if (ctx.message && ctx.message.text && Number(ctx.message.text)) {
-        const offer = await this.routerService.fetchOffer(Number(ctx.message.text))
-        if (!offer) return
-        await ctx.reply(checkoutMessage(new botOfferDto(offer), ctx.i18n.locale()))
+        try {
+
+          const offer = await this.routerService.fetchOffer(Number(ctx.message.text))
+          if (!offer) return
+          ctx.session.pendingOffer = new botOfferDto(offer)
+          await ctx.reply(checkoutMessage(new botOfferDto(offer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMenu() })
+        } catch (error) {
+          console.log(error)
+        }
       }
       //   ry { markups.actionsGroup(ctx, off, isSeller(off, ctx.from.id))
       //     this.cleanUp(ctx)
@@ -142,7 +151,60 @@ export class routerController extends BaseRouter {
       // } catch (error) {
       //     console.log(error)
       // }
+
     })
-    .otherwise(ctx => { console.log('otherwise') })
+    .route(BotStep.setWallet, async ctx => {
+      ctx.session.step = BotStep.default
+      await this.routerService.setWallet(ctx)
+      await ctx.reply(ctx.i18n.t('dataUpdated'))
+    })
+    .route(BotStep.setArbitrary, async ctx => {
+      ctx.session.step = BotStep.default
+      //await this.AppEventsController.openArbitrary()
+      await ctx.reply(ctx.i18n.t('dataUpdated'))
+    })
+    .otherwise(ctx => { console.log(ctx.message) })
 
 }
+// exports.createArbitrary = async (arbData) => {
+//   try {
+//       const Arbitraries = await user.findAll({
+//           include: [{
+//               model: arbitrary
+//           }],
+//           where: {
+//               role: 2 //shame?
+//           }
+//       })
+//       if (!Arbitraries.length) throw new Error('Not enough arbitators')
+//       const bestFit = Arbitraries.sort((a, b) => {
+//           return a.arbitraries.length - b.arbitraries.length
+//       })[0]
+//       const offerData = await fetchOfferDetails(arbData.offerId)
+//       const seller = offerData.role === 'seller' ? 'initiator' : 'partner'
+//       const buyer = offerData.role === 'buyer' ? 'initiator' : 'partner'
+//       const chatData = await Arbitrary.newArbitrary(arbData.offerId).catch(err => { throw new Error(err) })
+//       const newStatus = await offerStatus.findOne({ where: { value: 'arbitrary' } })
+//       await arbitrary.create({
+//           reason: arbData.reason,
+//           chat_id: chatData.chat_id,
+//           status: 'active',
+//           offerId: arbData.offerId,
+//           initiatorId: arbData.initiatorId,
+//           arbiterId: bestFit.id
+//       })
+//       await offer.update({
+//           offerStatusId: newStatus.id
+//       }, {
+//           where: { id: offerData.id }
+//       })
+//       bot.telegram.sendMessage(offerData[buyer].chat_id, i18n.t(offerData[buyer].locale, 'arbitraryCreated', { id: arbData.offerId, inviteLink: chatData.inviteLink }))
+//       bot.telegram.sendMessage(offerData[seller].chat_id, i18n.t(offerData[seller].locale, 'arbitraryCreated', { id: arbData.offerId, inviteLink: chatData.inviteLink }))
+//       bot.telegram.sendMessage(`-${chatData.chat_id}`, utils.composeOfferMessage(i18n.repository.ru, offerData))
+//       bot.telegram.sendMessage(bestFit.chat_id, i18n.t(bestFit.locale, 'arbiterPoke', { id: arbData.offerId, inviteLink: chatData.inviteLink }))
+//       return newStatus
+//   } catch (error) {
+//       console.log(error)
+//       return error
+//   }
+// }

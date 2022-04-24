@@ -10,6 +10,7 @@ import { AppEventsController } from '../../app-events/app-events.controller';
 import { Inject, forwardRef } from "@nestjs/common";
 import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
 import { getOffersMessage } from "../common/helpers";
+import { OfferEditMenuController } from 'src/bot/offer-edit-menu/offer-edit-menu.controller'
 
 @ComposerController
 export class globalComposer extends BaseComposer {
@@ -17,6 +18,7 @@ export class globalComposer extends BaseComposer {
     private readonly globalService: globalService,
     private readonly AppConfigService: AppConfigService,
     private readonly offerController: offerController,
+    private readonly OfferEditMenuController: OfferEditMenuController,
     //@Inject('TEST') private readonly a: any,
     //@Inject(AppEventsController) private readonly AppEventsController: AppEventsController
     private readonly AppEventsController: AppEventsController,
@@ -30,6 +32,9 @@ export class globalComposer extends BaseComposer {
 
   @Use()
   menu = this.offerController.getMenu()
+
+  @Use()
+  menu1 = this.OfferEditMenuController.getMenu()
 
   @Command('start')
   start: Function = async (ctx: BotContext) => {
@@ -112,7 +117,7 @@ export class globalComposer extends BaseComposer {
       if (data.mode == OfferMode.default) {
         await ctx.deleteMessage()
         const offer = await this.globalService.createOffer(ctx)
-        await this.AppEventsController.offerCreated(offer, String(ctx.from.id))
+        await this.AppEventsController.offerCreated<Offers>(offer, String(ctx.from.id))
       }
       //accept button clicked after receiving an offer and NOT editing it
       else if (data.mode == OfferMode.edit) {

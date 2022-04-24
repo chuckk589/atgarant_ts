@@ -18,7 +18,9 @@ export class botOfferDto {
         this.refundDetails = offer.refundDetails
         this.sellerWalletData = offer.sellerWalletData
         this.offerStatus = offer.offerStatus?.name || 'На согласовании'
+        this.id = offer.id
     }
+    id?: number
     initiator_chatId: string;
     role: OffersRole;
     sellerWalletData: string;

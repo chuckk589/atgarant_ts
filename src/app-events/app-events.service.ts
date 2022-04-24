@@ -6,9 +6,32 @@ import { AppConfigService } from 'src/app-config/app-config.service';
 import { Offerstatuses } from 'src/mikroorm/entities/Offerstatuses';
 import { Invoices } from 'src/mikroorm/entities/Invoices';
 import { Invoicestatuses } from 'src/mikroorm/entities/Invoicestatuses';
+import { NewArbitraryOptions, NewArbResponse } from 'src/types/interfaces';
+import { Arbitraries, ArbitrariesStatus } from 'src/mikroorm/entities/Arbitraries';
+import { Reviews, ReviewsRate } from 'src/mikroorm/entities/Reviews';
 
 @Injectable()
 export class AppEventsService {
+   async createNewReview(recipientId: number, authorId: number, feedback: string, rate: ReviewsRate, offerId: number) {
+        const review = this.em.create(Reviews, {
+            author: authorId,
+            recipient: recipientId,
+            offer: offerId,
+            rate: rate,
+            text: feedback
+        })
+        await this.em.persistAndFlush(review)
+    }
+    async createNewArbitrary(options: NewArbitraryOptions) {
+        const arb = this.em.create(Arbitraries, {
+            reason: options.reason,
+            chatId: options.chatData.chat_id,
+            status: ArbitrariesStatus.ACTIVE,
+            offer: options.offerId,
+            initiator: options.issuerId
+        })
+        await this.em.persistAndFlush(arb)
+    }
     async closeArbitraryOfferAttempt(offerId: number) {
         const waitStatus = this.AppConfigService.invoiceStatus<string>('waiting')
         const count = await this.em.findAndCount(Invoices, { offer: offerId, invoiceStatus: waitStatus.id })
@@ -24,7 +47,7 @@ export class AppEventsService {
     constructor(
         private readonly em: EntityManager,
         private readonly AppConfigService: AppConfigService,
-    ) { 
+    ) {
     }
     async getOfferById(id: number): Promise<Offers> {
         const offer = await this.em.findOneOrFail(Offers, { id: id }, { populate: ['partner', 'initiator'] })
@@ -42,5 +65,20 @@ export class AppEventsService {
         await this.em.persistAndFlush(offer)
         return offer
     }
-    
+    async getLeastBusyMod(): Promise<Users> {
+        const moderators = await this.em.find(Users, { role: 2 }, {
+            populate: ['arbs'],
+            populateWhere: {
+                arbs: {
+                    status: {
+                        $in: ['active', 'disputed']
+                    }
+                }
+            }
+        })
+        const sorted = moderators.sort((a, b) => {
+            return a.arbs.length - b.arbs.length
+        })
+        return sorted.length ? sorted[0] : undefined
+    }
 }

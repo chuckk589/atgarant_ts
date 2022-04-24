@@ -6,6 +6,7 @@ import { AppConfigService } from "src/app-config/app-config.service";
 import { botOfferDto } from "src/mikroorm/dto/create-offer.dto";
 import i18n from '../middleware/i18n'
 import { Offers } from "src/mikroorm/entities/Offers";
+import { isSeller } from "../common/helpers";
 
 
 
@@ -17,7 +18,7 @@ export class routerService {
   ) { }
   async fetchOffer(id: number): Promise<Offers> {
     const offer = await this.em.findOne(Offers, { id: id },
-      { populate: ['initiator', 'partner', 'invoices', 'paymentMethod', 'invoices'] }
+      { populate: ['initiator', 'partner', 'invoices', 'paymentMethod', 'invoices', 'offerStatus'] }
     )
     return offer
   }
@@ -30,5 +31,24 @@ export class routerService {
     })
     return user
   }
-
+  async setWallet(ctx: BotContext) {
+    const _isSeller = isSeller(ctx)
+    await this.em.nativeUpdate(Offers, { id: ctx.session.pendingOffer.id },
+      {
+        [_isSeller ? 'sellerWalletData' : 'buyerWalletData']: ctx.message.text
+      })
+  }
+  //   offer.update({
+  //     [isSeller(ctx.wizard.state.currentOffer, ctx.from.id) ? 'sellerWalletData' : 'buyerWalletData']: ctx.message.text
+  // }, {
+  //     where: { id: ctx.wizard.state.currentOffer.id }
+  // })
+  //     .then(r => {
+  //         ctx.reply(ctx.i18n.t('dataUpdated'), markups.mainGroup(ctx))
+  //         return ctx.wizard.back()
+  //     })
+  //     .catch(r => {
+  //         ctx.reply(ctx.i18n.t('wrongData'))
+  //     })
+  // }
 }

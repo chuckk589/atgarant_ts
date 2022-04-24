@@ -8,7 +8,7 @@ export async function bootstrap() {
   // await app.get(MikroORM).getSchemaGenerator().updateSchema();
   app.setGlobalPrefix('api/v1');
   app.useLogger(app.get(Logger));
-  app.useGlobalFilters(new AllExceptionsFilter());
+  // app.useGlobalFilters(new AllExceptionsFilter());
   await app.listen(3000);
 }
 import { Catch, ArgumentsHost } from '@nestjs/common';

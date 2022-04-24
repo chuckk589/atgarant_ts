@@ -36,8 +36,21 @@ export const checkoutMessage = (offer: botOfferDto, code: string) => {
         i18n.t(code, 'buyer') + ': ' + (offer.role === 'buyer' ? offer.initiator_chatId : offer.partner_chatId) + '\n' +
         i18n.t(code, 'seller') + ': ' + (offer.role === 'seller' ? offer.initiator_chatId : offer.partner_chatId)
 }
-export const getOppositeChatId = (offer: Offers, from: number): string => {
-    return offer.initiator.chatId === String(from) ? offer.partner.chatId : offer.initiator.chatId
+/**
+ * Extracts opposite user from passed offer
+ * may be unsafe in case user ids reach telegram chat id values
+ * @param from id or chatid
+ */
+export const getOppositeUser = (offer: Offers, from: number | string): Users => {
+    return offer.initiator.chatId === String(from) || offer.initiator.id === Number(from) ? offer.partner : offer.initiator
+}
+/**
+ * Extracts self from passed offer
+ * may be unsafe in case user ids reach telegram chat id values
+ * @param from id or chatid
+ */
+export const getSelf = (offer: Offers, from: number | string): Users => {
+    return offer.initiator.chatId === String(from) || offer.initiator.id === Number(from) ? offer.initiator : offer.partner
 }
 export const getOffersMessage = (offers: Offers[], chatId: number): string => {
     const message = offers.reduce((sum, cur) => {
@@ -48,7 +61,7 @@ export const getOffersMessage = (offers: Offers[], chatId: number): string => {
         } else {
             currencyString = `${invoices.reduce((s, c) => s + c.value, 0)} ${cur.paymentMethod.value.split('_').pop()}`
         }
-        sum += `ID ${cur.id}: ${getOppositeChatId(cur, chatId)} - ${currencyString} - ${cur.offerStatus.name} \n`
+        sum += `ID ${cur.id}: ${getOppositeUser(cur, chatId).chatId} - ${currencyString} - ${cur.offerStatus.name} \n`
         return sum
     }, '')
     return message
@@ -61,3 +74,5 @@ export const usersByRoles = (offer: Offers): { seller: Users, buyer: Users } => 
         buyer: offer[buyer]
     }
 }
+export const isInitiator = (ctx: BotContext): boolean => ctx.session.pendingOffer.initiator_chatId === String(ctx.from.id)
+export const isSeller = (ctx: BotContext): boolean => (ctx.session.pendingOffer.role === 'seller' ? ctx.session.pendingOffer.initiator_chatId : ctx.session.pendingOffer.partner_chatId) == String(ctx.from.id)

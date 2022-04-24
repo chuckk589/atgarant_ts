@@ -3,7 +3,7 @@ import { OfferEditMenuService } from './offer-edit-menu.service';
 import { OfferEditMenuController } from './offer-edit-menu.controller';
 
 @Module({
-  controllers: [OfferEditMenuController],
-  providers: [OfferEditMenuService]
+  providers: [OfferEditMenuService, OfferEditMenuController],
+  exports: [OfferEditMenuController],
 })
-export class OfferEditMenuModule {}
+export class OfferEditMenuModule { }

@@ -32,11 +32,11 @@ export class AppConfigModule {
 
     //const options = process.env.PAYMENT_SERVICE == 'btc-core' ? { value: 'paymentMethod_BTC' } : {}
     const paymentMethods = await this.em.find(Paymentmethods, {})
-    paymentMethods.map(paymentMethod => process.env[paymentMethod.value] = `${paymentMethod.feeRaw} ${paymentMethod.feePercent} ${paymentMethod.minSum} ${paymentMethod.maxSum} ${paymentMethod.id}`);
+    paymentMethods.map(paymentMethod => process.env[paymentMethod.value] = `${paymentMethod.feeRaw}:${paymentMethod.feePercent}:${paymentMethod.minSum}:${paymentMethod.maxSum}:${paymentMethod.id}`);
 
     const offerStatuses = await this.em.find(Offerstatuses, {})
-    offerStatuses.map(offerStatus => process.env[`offerStatus_${offerStatus.id}`] = `${offerStatus.value} ${offerStatus.name}`);
+    offerStatuses.map(offerStatus => process.env[`offerStatus_${offerStatus.id}`] = `${offerStatus.value}:${offerStatus.name}`);
     const invoiceStatuses = await this.em.find(Invoicestatuses, {})
-    invoiceStatuses.map(invoiceStatus => process.env[`invoiceStatus_${invoiceStatus.id}`] = `${invoiceStatus.value} ${invoiceStatus.name}`);
+    invoiceStatuses.map(invoiceStatus => process.env[`invoiceStatus_${invoiceStatus.id}`] = `${invoiceStatus.value}:${invoiceStatus.name}`);
   }
 }

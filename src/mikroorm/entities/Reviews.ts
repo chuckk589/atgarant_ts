@@ -21,13 +21,13 @@ export class Reviews {
   updatedAt: Date = new Date();
 
   @ManyToOne({ entity: () => Offers, fieldName: 'offerId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'offerId' })
-  offerId?: Offers;
+  offer?: Offers;
 
   @ManyToOne({ entity: () => Users, fieldName: 'recipientId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'recipientId' })
-  recipientId?: Users;
+  recipient?: Users;
 
   @ManyToOne({ entity: () => Users, fieldName: 'authorId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'authorId' })
-  authorId?: Users;
+  author?: Users;
 
 }
 

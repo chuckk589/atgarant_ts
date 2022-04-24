@@ -6,9 +6,10 @@ import { AppEventsModule } from "src/app-events/app-events.module";
 import { AppEventsService } from "src/app-events/app-events.service";
 import { AppEventsController } from "src/app-events/app-events.controller";
 import { PaymentProviderModule } from "src/payment-provider/payment-provider.module";
+import { OfferEditMenuModule } from "../offer-edit-menu/offer-edit-menu.module";
 
 @Module({
-    imports: [offerModule, AppEventsModule, PaymentProviderModule.forRootAsync()],
+    imports: [offerModule, OfferEditMenuModule, AppEventsModule, PaymentProviderModule.forRootAsync()],
     providers: [globalService, globalComposer],
     exports: [globalComposer],
 })

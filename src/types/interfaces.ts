@@ -31,7 +31,8 @@ export interface Session {
     mode: OfferMode
   },
   step: BotStep,
-  pendingOffer: botOfferDto
+  pendingOffer: botOfferDto, 
+  editedOffer: Offers
 }
 export enum OfferMode {
   edit = "edit",
@@ -109,6 +110,7 @@ export abstract class BasePaymentController {
   abstract sellerWithdraw: (offer: botOfferDto) => Promise<string>
   abstract arbitraryWithdraw: (arb: Arbitraries) => Promise<string>
 }
+export type ArbModeratorReview = { buyerPayout: number, sellerPayout: number, comment: string }
 export type callbackQuery = [string, string, string]
 export class PM {
   constructor(method: string, paymentMethod: string) {

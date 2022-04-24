@@ -18,7 +18,7 @@ export class routerService {
   ) { }
   async fetchOffer(id: number): Promise<Offers> {
     const offer = await this.em.findOne(Offers, { id: id },
-      { populate: ['initiator', 'partner', 'invoices', 'paymentMethod', 'invoices', 'offerStatus'] }
+      { populate: ['initiator', 'partner', 'invoices' , 'reviews' ] }
     )
     return offer
   }
@@ -33,22 +33,6 @@ export class routerService {
   }
   async setWallet(ctx: BotContext) {
     const _isSeller = isSeller(ctx)
-    await this.em.nativeUpdate(Offers, { id: ctx.session.pendingOffer.id },
-      {
-        [_isSeller ? 'sellerWalletData' : 'buyerWalletData']: ctx.message.text
-      })
+    await this.em.nativeUpdate(Offers, { id: ctx.session.editedOffer.id }, { [_isSeller ? 'sellerWalletData' : 'buyerWalletData']: ctx.message.text })
   }
-  //   offer.update({
-  //     [isSeller(ctx.wizard.state.currentOffer, ctx.from.id) ? 'sellerWalletData' : 'buyerWalletData']: ctx.message.text
-  // }, {
-  //     where: { id: ctx.wizard.state.currentOffer.id }
-  // })
-  //     .then(r => {
-  //         ctx.reply(ctx.i18n.t('dataUpdated'), markups.mainGroup(ctx))
-  //         return ctx.wizard.back()
-  //     })
-  //     .catch(r => {
-  //         ctx.reply(ctx.i18n.t('wrongData'))
-  //     })
-  // }
 }

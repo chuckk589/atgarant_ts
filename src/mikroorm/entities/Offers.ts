@@ -3,6 +3,7 @@ import { Invoices } from './Invoices';
 import { Offerstatuses } from './Offerstatuses';
 import { Paymentmethods } from './Paymentmethods';
 import { Profiles } from './Profiles';
+import { Reviews } from './Reviews';
 import { Users } from './Users';
 
 @Entity()
@@ -67,6 +68,10 @@ export class Offers {
 
   @OneToMany(() => Invoices, invoice => invoice.offer)
   invoices = new Collection<Invoices>(this);
+
+  @OneToMany(() => Reviews, review => review.offer)
+  reviews = new Collection<Reviews>(this);
+  
   @AfterCreate()
   async afterCreate(args: EventArgs<Offers>): Promise<void> {
     const seller = args.entity.role === 'seller' ? 'initiator' : 'partner'

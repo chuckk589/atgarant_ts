@@ -6,13 +6,13 @@ import { AppConfigService } from 'src/app-config/app-config.service';
 import { Offerstatuses } from 'src/mikroorm/entities/Offerstatuses';
 import { Invoices } from 'src/mikroorm/entities/Invoices';
 import { Invoicestatuses } from 'src/mikroorm/entities/Invoicestatuses';
-import { NewArbitraryOptions, NewArbResponse } from 'src/types/interfaces';
+import { NewArbitraryOptions, ArbModeratorReview } from 'src/types/interfaces';
 import { Arbitraries, ArbitrariesStatus } from 'src/mikroorm/entities/Arbitraries';
 import { Reviews, ReviewsRate } from 'src/mikroorm/entities/Reviews';
 
 @Injectable()
 export class AppEventsService {
-   async createNewReview(recipientId: number, authorId: number, feedback: string, rate: ReviewsRate, offerId: number) {
+    async createNewReview(recipientId: number, authorId: number, feedback: string, rate: ReviewsRate, offerId: number) {
         const review = this.em.create(Reviews, {
             author: authorId,
             recipient: recipientId,
@@ -21,6 +21,9 @@ export class AppEventsService {
             text: feedback
         })
         await this.em.persistAndFlush(review)
+    }
+    async applyArbUpdate(arbData: Arbitraries) {
+        await this.em.persistAndFlush(arbData)
     }
     async createNewArbitrary(options: NewArbitraryOptions) {
         const arb = this.em.create(Arbitraries, {
@@ -52,6 +55,10 @@ export class AppEventsService {
     async getOfferById(id: number): Promise<Offers> {
         const offer = await this.em.findOneOrFail(Offers, { id: id }, { populate: ['partner', 'initiator'] })
         return offer
+    }
+    async getArbById(id: number): Promise<Arbitraries> {
+        const arb = await this.em.findOneOrFail(Arbitraries, { id: id }, { populate: ['offer'] })
+        return arb
     }
     async updateOfferStatus<T = Offers | number>(payload: T, status: string): Promise<Offers> {
         const offerstatus = this.AppConfigService.offerStatus(status)

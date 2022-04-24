@@ -6,7 +6,7 @@ import i18n from 'src/bot/middleware/i18n';
 import { BOT_NAME, PAYMENTS_CONTROLLER } from 'src/constants';
 import { botOfferDto } from 'src/mikroorm/dto/create-offer.dto';
 import { Offers } from 'src/mikroorm/entities/Offers';
-import { BasePaymentController, BotContext, BotStep, OfferMode } from 'src/types/interfaces';
+import { ArbModeratorReview, BasePaymentController, BotContext, BotStep, OfferMode } from 'src/types/interfaces';
 import { AppEventsService } from './app-events.service';
 import { offerController } from 'src/bot/offer-menu/offer.controller'
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
@@ -14,12 +14,14 @@ import { mainKeyboard, manageOfferMenu } from 'src/bot/common/keyboards';
 import { checkoutMessage, getOppositeUser, getSelf, usersByRoles } from 'src/bot/common/helpers';
 import { TelegramGateway } from 'src/telegram/telegram.gateway'
 import { ReviewsRate } from 'src/mikroorm/entities/Reviews';
+import { Arbitraries, ArbitrariesStatus } from 'src/mikroorm/entities/Arbitraries';
+import { Offerstatuses } from 'src/mikroorm/entities/Offerstatuses';
 
 //TODO: global app event response type with newstatus field
 //TODO: try catch error for every event
 @Controller()
 export class AppEventsController {
-    async openArbitrary<T = Offers | number>(offer: T, reason: string, issuerChatId: number): Promise<boolean> {
+    async arbOpened<T = Offers | number>(offer: T, reason: string, issuerChatId: number): Promise<Offerstatuses> {
         let offerData: Offers = offer instanceof Offers ? offer : await this.appEventsService.getOfferById(<any>offer)
         const mod = await this.appEventsService.getLeastBusyMod()
         const roleData = usersByRoles(offerData)
@@ -30,7 +32,36 @@ export class AppEventsController {
         this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'arbitraryCreated', { id: offerData.id, inviteLink: chatData.inviteLink }))
         this.bot.api.sendMessage(`-${chatData.chat_id}`, checkoutMessage(new botOfferDto(offerData), 'ru'))
         this.bot.api.sendMessage(mod.chatId, i18n.t(mod.locale, 'arbiterPoke', { id: offerData.id, inviteLink: chatData.inviteLink }))
-        return true
+        return this.appConfigService.offerStatus<string>('arbitrary')
+    }
+    async arbClosed<T = Arbitraries | number>(arb: T, modReview: ArbModeratorReview) {
+        let arbData: Arbitraries = arb instanceof Arbitraries ? arb : await this.appEventsService.getArbById(<any>arb)
+        let message: string
+        if (arbData.status == ArbitrariesStatus.ACTIVE) {
+            arbData.status = ArbitrariesStatus.CLOSED
+            message = i18n.t('ru', 'arbitraryClosed', { id: arbData.offer.id })
+        } else if (arbData.status === ArbitrariesStatus.DISPUTED) {
+            arbData.status = ArbitrariesStatus.CLOSEDF
+            message = i18n.t('ru', 'arbitraryClosedFinally', { id: arbData.offer.id })
+            await this.appEventsService.updateOfferStatus<Offers>(arbData.offer, 'closed')
+        }
+        arbData.comment = modReview.comment
+        arbData.sellerPayout = modReview.sellerPayout
+        arbData.buyerPayout = modReview.buyerPayout
+        await this.appEventsService.applyArbUpdate(arbData)
+        if (modReview.buyerPayout || modReview.sellerPayout) {
+            message += `\n${i18n.t('ru', 'arbitraryClosedCustomPayout', { buyer: modReview.buyerPayout, seller: modReview.sellerPayout })}`
+            await this.PaymentController.arbitraryWithdraw(arbData)
+        }
+        this.bot.api.sendMessage(`-${arbData.chatId}`, message)
+    }
+    async arbDisputed<T = Arbitraries | number>(arb: T, issuerChatId: number) {
+        let arbData: Arbitraries = arb instanceof Arbitraries ? arb : await this.appEventsService.getArbById(<any>arb)
+        arbData.status = ArbitrariesStatus.DISPUTED
+        await this.appEventsService.applyArbUpdate(arbData)
+        const roleData = usersByRoles(arbData.offer)
+        const issuerRole = roleData.seller.chatId == String(issuerChatId) ? 'seller' : 'buyer'
+        this.bot.api.sendMessage(`-${arbData.chatId}`, i18n.t('ru', 'disputeOpened', { initiator: i18n.t('ru', issuerRole) }))
     }
     async offerPayoutProcessed(txn_id: string) {
         const offer = await this.appEventsService.getOfferByTxnId(txn_id)
@@ -49,13 +80,13 @@ export class AppEventsController {
         this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'buyerOfferPayed', { id: offer.id }))
         this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPayed', { id: offer.id }))
     }
-    async offerShipped<T = Offers | number>(offer: T) {
+    async offerShipped<T = Offers | number>(offer: T): Promise<Offerstatuses> {
         let offerData: Offers = offer instanceof Offers ? offer : await this.appEventsService.getOfferById(<any>offer)
         const roleData = usersByRoles(offerData)
         await this.appEventsService.updateOfferStatus<Offers>(offerData, 'shipped')
         this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'buyerOfferShipped', { id: offerData.id }))
         this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'buyerOfferShipped', { id: offerData.id }))
-        //return newStatus
+        return this.appConfigService.offerStatus<string>('shipped')
     }
     async offerFeedback<T = Offers | number>(offer: T, feedback: string, issuerChatId: number, rate: ReviewsRate) {
         let offerData: Offers = offer instanceof Offers ? offer : await this.appEventsService.getOfferById(<any>offer)
@@ -65,31 +96,22 @@ export class AppEventsController {
         const _rate: string = i18n.t(recipient.locale, rate)
         this.bot.api.sendMessage(recipient.chatId, i18n.t(recipient.locale, 'feedbackReceived', { id: offerData.id, rate: _rate, feedback: feedback }))
     }
-    async offerArrived<T = Offers | number>(offer: T) {
+    async offerArrived<T = Offers | number>(offer: T): Promise<Offerstatuses> {
         let offerData: Offers = offer instanceof Offers ? offer : await this.appEventsService.getOfferById(<any>offer)
         const roleData = usersByRoles(offerData)
         await this.appEventsService.updateOfferStatus<Offers>(offerData, 'arrived')
         this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'buyerOfferArrived', { id: offerData.id }))
         this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferArrived', { id: offerData.id }))
+        return this.appConfigService.offerStatus<string>('arrived')
     }
-    async offerPaymentRequested<T = Offers | number>(offer: T) {
+    async offerPaymentRequested<T = Offers | number>(offer: T): Promise<Offerstatuses> {
         let offerData: Offers = offer instanceof Offers ? offer : await this.appEventsService.getOfferById(<any>offer)
         const roleData = usersByRoles(offerData)
         await this.appEventsService.updateOfferStatus<Offers>(offerData, 'awaitingPayment')
-        //     payments.sellerWithdraw(offerData)
-    //     bot.telegram.sendMessage(offerData[seller].chat_id, i18n.t(offerData[seller].locale, 'sellerOfferPaymentRequested', { id: offerData.id }))
+        this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPaymentRequested', { id: offerData.id }))
+        return this.appConfigService.offerStatus<string>('awaitingPayment')
+        //TODO: FIX this.PaymentController.sellerWithdraw()
     }
-    // exports.offerRequestPayment = async (offerData) => {
-    //     if (!offerData) offerData = await fetchOfferDetails(offerData)
-    //     const seller = offerData.role === 'seller' ? 'initiator' : 'partner'
-    //     await offer.update({
-    //         offerStatusId: sequelize.literal(`(SELECT id from offerstatuses WHERE value = 'awaitingPayment')`)
-    //     }, {
-    //         where: { id: offerData.id }
-    //     })
-    //     payments.sellerWithdraw(offerData)
-    //     bot.telegram.sendMessage(offerData[seller].chat_id, i18n.t(offerData[seller].locale, 'sellerOfferPaymentRequested', { id: offerData.id }))
-    // }
     constructor(
         private readonly appEventsService: AppEventsService,
         private readonly appConfigService: AppConfigService,

@@ -9,8 +9,8 @@ const initial = (): Session => ({
         mode: OfferMode.default
     },
     step: BotStep.default,
-    pendingOffer: new botOfferDto(new Offers())
-    // category: { id: undefined, name: undefined },
+    pendingOffer: new botOfferDto(new Offers()),
+    editedOffer: new Offers()
 })
 
 function getSessionKey(ctx: BotContext): string | undefined {

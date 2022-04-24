@@ -16,7 +16,6 @@ import { checkoutMessage } from "../common/helpers";
 import { OfferEditMenuController } from 'src/bot/offer-edit-menu/offer-edit-menu.controller'
 
 @Injectable()
-@Catch()
 @RouterController
 export class routerController extends BaseRouter {
   constructor(
@@ -28,7 +27,6 @@ export class routerController extends BaseRouter {
     private readonly AppEventsController: AppEventsController,
   ) {
     super()
-
   }
 
   @Use()
@@ -97,61 +95,11 @@ export class routerController extends BaseRouter {
     })
     .route(BotStep.offer, async ctx => {
       if (ctx.message && ctx.message.text && Number(ctx.message.text)) {
-        try {
-
-          const offer = await this.routerService.fetchOffer(Number(ctx.message.text))
-          if (!offer) return
-          ctx.session.pendingOffer = new botOfferDto(offer)
-          await ctx.reply(checkoutMessage(new botOfferDto(offer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMenu() })
-        } catch (error) {
-          console.log(error)
-        }
+        const offer = await this.routerService.fetchOffer(Number(ctx.message.text))
+        if (!offer) return
+        ctx.session.editedOffer = offer
+        await ctx.reply(checkoutMessage(new botOfferDto(offer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMenu() })
       }
-      //   ry { markups.actionsGroup(ctx, off, isSeller(off, ctx.from.id))
-      //     this.cleanUp(ctx)
-      //     const off = await offer.findOne({
-      //         where: {
-      //             id: ctx.message.text,
-      //             [Op.or]: [
-      //                 sequelize.literal(`offer.partnerId = (SELECT id from users WHERE chat_id = '${ctx.from.id}')`),
-      //                 sequelize.literal(`offer.initiatorId = (SELECT id from users WHERE chat_id = '${ctx.from.id}')`),
-      //             ]
-      //         },
-      //         include: [{
-      //             model: user,
-      //             as: 'initiator'
-      //         }, {
-      //             model: user,
-      //             as: 'partner'
-      //         }, {
-      //             model: offerStatus
-      //         }, {
-      //             model: paymentMethod
-      //         }, {
-      //             model: review,
-      //             include: [{
-      //                 model: user,
-      //                 as: 'author',
-      //                 where: {
-      //                     chat_id: ctx.from.id
-      //                 }
-      //             }]
-      //         }, {
-      //             model: invoice,
-      //             where: {
-      //                 type: 'in'
-      //             }
-      //         }]
-      //     })
-      //     if (off) {
-      //         ctx.wizard.state.currentOffer = off
-      //         ctx.reply(utilities.composeOfferMessage(ctx, off), markups.actionsGroup(ctx, off, isSeller(off, ctx.from.id)))
-      //             .then(r => ctx.session.menuId = r.message_id)
-      //     }
-      // } catch (error) {
-      //     console.log(error)
-      // }
-
     })
     .route(BotStep.setWallet, async ctx => {
       ctx.session.step = BotStep.default
@@ -160,8 +108,8 @@ export class routerController extends BaseRouter {
     })
     .route(BotStep.setArbitrary, async ctx => {
       ctx.session.step = BotStep.default
-      //await this.AppEventsController.openArbitrary()
-      await ctx.reply(ctx.i18n.t('dataUpdated'))
+      ctx.session.editedOffer.offerStatus = await this.AppEventsController.arbOpened<Offers>(ctx.session.editedOffer, ctx.message.text, ctx.from.id)
+      await ctx.reply(checkoutMessage(new botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMenu() })
     })
     .otherwise(ctx => { console.log(ctx.message) })
 

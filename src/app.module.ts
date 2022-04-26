@@ -17,6 +17,9 @@ import { UserModule } from './user/user.module';
 import { PaymentsModule } from './payments/payments.module';
 import { PaymentProviderModule } from './payment-provider/payment-provider.module';
 import { TelegramModule } from './telegram/telegram.module';
+import { AuthService } from './auth/auth.service';
+import { AuthModule } from './auth/auth.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -25,12 +28,13 @@ import { TelegramModule } from './telegram/telegram.module';
     BotModule.forRootAsync<BotContext>(botOptionsProvider),
     ServeStaticModule.forRoot({ rootPath: join(__dirname, '../public') }),
     AppConfigModule.forRootAsync(),
-    AppEventsModule,
     UserModule,
     PaymentsModule,
     TelegramModule,
+    ScheduleModule.forRoot(),
+    AuthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [AuthService],
 })
 export class AppModule { }

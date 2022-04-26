@@ -4,16 +4,14 @@ import { Menu, MenuController } from '../common/decorators';
 import { Menu as MenuGrammy } from "@grammyjs/menu";
 import { OfferEditMenuService } from './offer-edit-menu.service';
 import { AppConfigService } from "src/app-config/app-config.service";
-import { isInitiator, isSeller } from 'src/bot/common/helpers'
+import { isInitiator, isSeller, leftReview } from 'src/bot/common/helpers'
 import { AppEventsController } from "src/app-events/app-events.controller";
 import { Offers } from 'src/mikroorm/entities/Offers';
+import { feedbackMenu } from '../common/keyboards';
 
-@Injectable()
 @MenuController
 export class OfferEditMenuController extends BaseMenu {
   constructor(
-    private readonly offerEditMenuService: OfferEditMenuService,
-    private readonly AppConfigService: AppConfigService,
     private readonly AppEventsController: AppEventsController,
   ) {
     super()
@@ -23,7 +21,7 @@ export class OfferEditMenuController extends BaseMenu {
     .dynamic((ctx, range) => {
       const status = ctx.session.editedOffer.offerStatus
       const _isSeller = isSeller(ctx)
-      console.log(ctx.session.editedOffer)
+      const _canLeaveReview = leftReview(ctx.session.editedOffer.reviews, ctx.from.id)
       range.text(ctx.i18n.t('setWallet'), async (ctx) => {
         ctx.session.step = BotStep.setWallet
         await ctx.reply(ctx.i18n.t('askWallet'))
@@ -47,14 +45,10 @@ export class OfferEditMenuController extends BaseMenu {
         ctx.session.step = BotStep.setArbitrary
         ctx.reply(ctx.i18n.t('askArbitraryReason'))
       })
-      status.value === 'closed' && range.text(ctx.i18n.t('leaveFeedback'), async (ctx) => {
-        ctx.session.step = BotStep.setFeedback
-        // if (!ctx.wizard.state.currentOffer.reviews.length) {
-        //   ctx.reply(ctx.i18n.t('feedbackGroup'), markups.feedbackGroup(ctx)).then(r => ctx.session.menuId = r.message_id)
-        //   return ctx.wizard.next();
-        // } else {
-        //   return ctx.reply(ctx.i18n.t('feedbackExists'))
-        // }
+      status.value === 'closed' && _canLeaveReview && range.text(ctx.i18n.t('leaveFeedback'), async (ctx) => {
+        await ctx.reply(ctx.i18n.t('feedbackGroup'), { reply_markup: feedbackMenu(ctx.session.editedOffer.id, ctx.i18n.locale()) })
       })
+      return range
     })
+    .row()
 }

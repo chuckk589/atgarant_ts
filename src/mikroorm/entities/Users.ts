@@ -1,8 +1,9 @@
-import { AfterCreate, BeforeCreate, BeforeUpdate, Collection, Entity, EventArgs, OneToMany, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import { AfterCreate, BeforeCreate, BeforeUpdate, Collection, Entity, EventArgs, OneToMany, OneToOne, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 import { compare, hash } from 'bcrypt';
 import { Arbitraries } from './Arbitraries';
 import { Invoices } from './Invoices';
 import { Profiles } from './Profiles';
+import { Violations } from './Violations';
 
 @Entity()
 export class Users {
@@ -42,6 +43,12 @@ export class Users {
   @OneToMany(() => Arbitraries, arb => arb.arbiter)
   arbs = new Collection<Arbitraries>(this);
 
+  @OneToOne(() => Profiles, profile => profile.user, { owner: true, orphanRemoval: true })
+  profile: Profiles;
+
+  @OneToMany(() => Violations, violation => violation.user)
+  violations = new Collection<Violations>(this);
+  
   @BeforeUpdate()
   @BeforeCreate()
   async beforeCreate(): Promise<void> {
@@ -55,7 +62,7 @@ export class Users {
   @AfterCreate()
   afterCreate(args: EventArgs<Users>) {
     const profile = new Profiles()
-    profile.userId = this
+    profile.user = this
     args.em.getDriver().nativeInsert('Profiles', profile)
   }
 }

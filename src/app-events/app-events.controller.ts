@@ -6,7 +6,7 @@ import i18n from 'src/bot/middleware/i18n';
 import { BOT_NAME, PAYMENTS_CONTROLLER } from 'src/constants';
 import { botOfferDto } from 'src/mikroorm/dto/create-offer.dto';
 import { Offers } from 'src/mikroorm/entities/Offers';
-import { ArbModeratorReview, BasePaymentController, BotContext, BotStep, OfferMode } from 'src/types/interfaces';
+import { ArbModeratorReview, BasePaymentController, BotContext, BotStep } from 'src/types/interfaces';
 import { AppEventsService } from './app-events.service';
 import { offerController } from 'src/bot/offer-menu/offer.controller'
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
@@ -16,6 +16,7 @@ import { TelegramGateway } from 'src/telegram/telegram.gateway'
 import { ReviewsRate } from 'src/mikroorm/entities/Reviews';
 import { Arbitraries, ArbitrariesStatus } from 'src/mikroorm/entities/Arbitraries';
 import { Offerstatuses } from 'src/mikroorm/entities/Offerstatuses';
+import { Invoices } from 'src/mikroorm/entities/Invoices';
 
 //TODO: global app event response type with newstatus field
 //TODO: try catch error for every event
@@ -55,13 +56,14 @@ export class AppEventsController {
         }
         this.bot.api.sendMessage(`-${arbData.chatId}`, message)
     }
-    async arbDisputed<T = Arbitraries | number>(arb: T, issuerChatId: number) {
+    async arbDisputed<T = Arbitraries | number>(arb: T, issuerChatId: number): Promise<ArbitrariesStatus> {
         let arbData: Arbitraries = arb instanceof Arbitraries ? arb : await this.appEventsService.getArbById(<any>arb)
         arbData.status = ArbitrariesStatus.DISPUTED
         await this.appEventsService.applyArbUpdate(arbData)
         const roleData = usersByRoles(arbData.offer)
         const issuerRole = roleData.seller.chatId == String(issuerChatId) ? 'seller' : 'buyer'
         this.bot.api.sendMessage(`-${arbData.chatId}`, i18n.t('ru', 'disputeOpened', { initiator: i18n.t('ru', issuerRole) }))
+        return ArbitrariesStatus.DISPUTED
     }
     async offerPayoutProcessed(txn_id: string) {
         const offer = await this.appEventsService.getOfferByTxnId(txn_id)
@@ -76,6 +78,7 @@ export class AppEventsController {
     async offerPayed(txn_id: string) {
         const offer = await this.appEventsService.getOfferByTxnId(txn_id)
         const roleData = usersByRoles(offer)
+        await this.appEventsService.updateInvoiceStatus(txn_id, 'success')
         await this.appEventsService.updateOfferStatus<Offers>(offer, 'payed')
         this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'buyerOfferPayed', { id: offer.id }))
         this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPayed', { id: offer.id }))
@@ -136,7 +139,7 @@ export class AppEventsController {
         const offer = await this.appEventsService.getOfferById(payload)
         ctx.session.pendingOffer = new botOfferDto(offer)
         ctx.session.step = BotStep.roles
-        await ctx.reply(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMenu() })
+        await ctx.reply(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMiddleware() })
     }
     async offerAccepted(payload: any) {
         const offer = await this.appEventsService.getOfferById(payload)
@@ -151,7 +154,7 @@ export class AppEventsController {
         const destination = getOppositeUser(offerData, from)
         const destLocale = destination.locale
         const offerString = checkoutMessage(new botOfferDto(offerData), destLocale)
-        this.bot.api.sendMessage(destination.chatId, i18n.t(destLocale, 'offerReceived') + '\n' + offerString, { reply_markup: manageOfferMenu(offerData.id, destLocale, OfferMode.edit) })
+        this.bot.api.sendMessage(destination.chatId, i18n.t(destLocale, 'offerReceived') + '\n' + offerString, { reply_markup: manageOfferMenu(offerData.id, destLocale, 'edit') })
     }
 
 }

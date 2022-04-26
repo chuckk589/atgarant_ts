@@ -1,16 +1,18 @@
 
 import { AppConfigService } from "src/app-config/app-config.service";
 import { Offers, OffersFeePayer, OffersRole } from "src/mikroorm/entities/Offers";
-import { BaseComposer, BotContext, BotStep, callbackQuery, OfferCallbackData, OfferMode } from "src/types/interfaces";
+import { BaseComposer, BotContext, BotStep, callbackQuery, OfferCallbackData } from "src/types/interfaces";
 import { Command, ComposerController, Hears, On, Use, } from "../common/decorators";
-import { accountKeyboard, arbitraryKeyboard, mainKeyboard, offerKeyboard } from "../common/keyboards";
+import { accountKeyboard, arbitraryKeyboard, findUserMenu, mainKeyboard, offerKeyboard } from "../common/keyboards";
 import { offerController } from "../offer-menu/offer.controller";
 import { globalService } from './global.service'
 import { AppEventsController } from '../../app-events/app-events.controller';
 import { Inject, forwardRef } from "@nestjs/common";
 import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
-import { getOffersMessage } from "../common/helpers";
+import { getArbMessage, getOffersMessage, usersQueryMessage } from "../common/helpers";
 import { OfferEditMenuController } from 'src/bot/offer-edit-menu/offer-edit-menu.controller'
+import { ArbEditMenuController } from 'src/bot/arb-edit-menu/arb-edit-menu.controller'
+import { InlineKeyboard } from "grammy";
 
 @ComposerController
 export class globalComposer extends BaseComposer {
@@ -19,11 +21,9 @@ export class globalComposer extends BaseComposer {
     private readonly AppConfigService: AppConfigService,
     private readonly offerController: offerController,
     private readonly OfferEditMenuController: OfferEditMenuController,
-    //@Inject('TEST') private readonly a: any,
-    //@Inject(AppEventsController) private readonly AppEventsController: AppEventsController
+    private readonly ArbEditMenuController: ArbEditMenuController,
     private readonly AppEventsController: AppEventsController,
-    @InjectPinoLogger('globalComposer') private readonly logger: PinoLogger
-
+    @InjectPinoLogger('globalComposer') private readonly logger: PinoLogger,
   ) {
     super()
   }
@@ -31,10 +31,13 @@ export class globalComposer extends BaseComposer {
   url: string = this.AppConfigService.get<string>('url', { infer: true })
 
   @Use()
-  menu = this.offerController.getMenu()
+  menu = this.offerController.getMiddleware()
 
   @Use()
-  menu1 = this.OfferEditMenuController.getMenu()
+  menu1 = this.OfferEditMenuController.getMiddleware()
+
+  @Use()
+  menu2 = this.ArbEditMenuController.getMiddleware()
 
   @Command('start')
   start: Function = async (ctx: BotContext) => {
@@ -42,6 +45,11 @@ export class globalComposer extends BaseComposer {
     ctx.i18n.locale(user.locale)
     ctx.session.step = BotStep.default
     ctx.session.user.acceptedRules = user.acceptedRules
+    await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
+  }
+  @Hears('back')
+  back: Function = async (ctx: BotContext) => {
+    ctx.session.step = BotStep.default
     await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
   }
   //* OFFERS BLOCK
@@ -74,7 +82,7 @@ export class globalComposer extends BaseComposer {
     //ctx.session.step = ctx.session.user.acceptedRules ? BotStep.roles : BotStep.rules
 
     const message = ctx.session.user.acceptedRules ? ctx.i18n.t('askRole') : ctx.i18n.t('offerWarning')
-    await ctx.reply(message, { reply_markup: this.offerController.getMenu() })
+    await ctx.reply(message, { reply_markup: this.offerController.getMiddleware() })
   }
   //* OFFERS BLOCK
   @Hears('arbitraries')
@@ -83,6 +91,51 @@ export class globalComposer extends BaseComposer {
     await ctx.replyWithPhoto(imageurl, { caption: ctx.i18n.t('arbitraries'), reply_markup: arbitraryKeyboard(ctx) })
   }
 
+  @Hears('allOffers')
+  allOffers = async (ctx: BotContext) => {
+    const offers = await this.globalService.fetchOffers(ctx.from.id)
+    if (offers.length) {
+      await ctx.reply(ctx.i18n.t('offerHistory') + getOffersMessage(offers, ctx.from.id))
+      ctx.session.step = BotStep.offer
+    } else {
+      await ctx.reply(ctx.i18n.t('noData'))
+    }
+  }
+
+  @Hears('activeOffers')
+  activeOffers = async (ctx: BotContext) => {
+    const offers = await this.globalService.fetchActiveOffers(ctx.from.id)
+    if (offers.length) {
+      await ctx.reply(ctx.i18n.t('offerHistory') + getOffersMessage(offers, ctx.from.id))
+      ctx.session.step = BotStep.offer
+    } else {
+      await ctx.reply(ctx.i18n.t('noData'))
+    }
+  }
+  //* OFFERS BLOCK
+  //* ARBITRARY BLOCK
+  @Hears('activeArbitraries')
+  activeArbitraries: Function = async (ctx: BotContext) => {
+    const arbitraries = await this.globalService.fetchActiveArbs(ctx.from.id)
+    if (arbitraries.length) {
+      await ctx.reply(getArbMessage(arbitraries, ctx.from.id, ctx.i18n.locale()))
+      ctx.session.step = BotStep.arbitrary
+    } else {
+      await ctx.reply(ctx.i18n.t('noData'))
+    }
+  }
+
+  @Hears('allArbitraries')
+  allArbitraries: Function = async (ctx: BotContext) => {
+    const arbitraries = await this.globalService.fetchAllArbs(ctx.from.id)
+    if (arbitraries.length) {
+      await ctx.reply(getArbMessage(arbitraries, ctx.from.id, ctx.i18n.locale()))
+      ctx.session.step = BotStep.arbitrary
+    } else {
+      await ctx.reply(ctx.i18n.t('noData'))
+    }
+  }
+  //* ARBITRARY BLOCK
   @Hears('account')
   account: Function = async (ctx: BotContext) => {
     await ctx.reply(ctx.i18n.t('account'), { reply_markup: accountKeyboard(ctx) })
@@ -97,15 +150,13 @@ export class globalComposer extends BaseComposer {
   @Hears('info')
   info: Function = async (ctx: BotContext) => await ctx.reply(ctx.i18n.t('info'))
 
-  @Hears('allOffers')
-  allOffers = async (ctx: BotContext) => {
-    const offers = await this.globalService.fetchOffers(ctx.from.id)
-    if (offers.length) {
-      await ctx.reply(ctx.i18n.t('offerHistory') + getOffersMessage(offers, ctx.from.id))
-      ctx.session.step = BotStep.offer
-    } else {
-      await ctx.reply(ctx.i18n.t('noData'))
-    }
+  @Hears('findUser')
+  findUser: Function = async (ctx: BotContext) => await ctx.reply(ctx.i18n.t('findUserInfo'), { reply_markup: findUserMenu(ctx) })
+
+  @On('inline_query')
+  inline_query: Function = async (ctx: BotContext) => {
+    const users = await this.globalService.fetchQueryUsers(ctx.inlineQuery.query)
+    await ctx.answerInlineQuery(usersQueryMessage(users))
   }
 
   @On("callback_query:data")
@@ -114,13 +165,13 @@ export class globalComposer extends BaseComposer {
     //accept button click
     if (data.action == 'admit') {
       //accept button clicked right after offer creation by initiator 
-      if (data.mode == OfferMode.default) {
+      if (data.mode == 'default') {
         await ctx.deleteMessage()
         const offer = await this.globalService.createOffer(ctx)
         await this.AppEventsController.offerCreated<Offers>(offer, String(ctx.from.id))
       }
       //accept button clicked after receiving an offer and NOT editing it
-      else if (data.mode == OfferMode.edit) {
+      else if (data.mode == 'edit') {
         await ctx.deleteMessage()
         await this.AppEventsController.offerAccepted(data.payload)
       }
@@ -128,27 +179,34 @@ export class globalComposer extends BaseComposer {
     }
     else if (data.action == 'edit') {
       //edit button clicked right after offer creation by initiator 
-      if (data.mode == OfferMode.default) {
+      if (data.mode == 'default') {
         ctx.session.step = BotStep.roles
-        await ctx.reply(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMenu() })
+        await ctx.reply(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMiddleware() })
       }
       //edit button clicked after receiving an offer
       //need to write offer into receiving end session
-      else if (data.mode == OfferMode.edit) {
+      else if (data.mode == 'edit') {
         await ctx.deleteMessage()
         await this.AppEventsController.offerEditInitiated(data.payload, ctx)
       }
     }
     else if (data.action == 'reject') {
-      if (data.mode == OfferMode.default) {
+      if (data.mode == 'default') {
         ctx.session.step = BotStep.default
         await ctx.deleteMessage()
         await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
-      } else if (data.mode == OfferMode.edit) {
+      } else if (data.mode == 'edit') {
         await ctx.deleteMessage()
         await this.AppEventsController.offerRejectInitiated(data.payload, ctx)
       }
     }
-
+    else if (data.action == 'feedback') {
+      if (data.mode == 'positive') {
+        ctx.session.step = BotStep.setFeedbackP
+      } else {
+        ctx.session.step = BotStep.setFeedbackN
+      }
+      await ctx.reply(ctx.i18n.t('askFeedbackText'))
+    }
   }
 }

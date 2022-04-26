@@ -1,7 +1,7 @@
 import { Keyboard } from "grammy";
 import { InlineKeyboardMarkup } from "grammy/out/platform.node";
 import { Offers } from "src/mikroorm/entities/Offers";
-import { BotContext, OfferMode } from "src/types/interfaces";
+import { BotContext } from "src/types/interfaces";
 import i18n from "../middleware/i18n";
 
 export const mainKeyboard = (ctx: BotContext): Keyboard => {
@@ -25,15 +25,33 @@ export const accountKeyboard = (ctx: BotContext): Keyboard => {
         .text(ctx.i18n.t("back"))
 }
 
-
-
-export const manageOfferMenu = (offerId: number, locale: string, mode: OfferMode): InlineKeyboardMarkup => {
+export const findUserMenu = (ctx: BotContext): InlineKeyboardMarkup => {
+    return {
+        inline_keyboard: [
+            [
+                { switch_inline_query_current_chat: String(ctx.from.id), text: ctx.i18n.t('findUser') },
+            ]
+        ]
+    }
+}
+export const manageOfferMenu = (offerId: number, locale: string, mode: string): InlineKeyboardMarkup => {
     return {
         inline_keyboard: [
             [
                 { callback_data: `offer:edit:${mode}:${offerId}`, text: i18n.t(locale, "editOffer",) },
                 { callback_data: `offer:reject:${mode}:${offerId}`, text: i18n.t(locale, "rejectOffer") },
                 { callback_data: `offer:admit:${mode}:${offerId}`, text: i18n.t(locale, "admitOffer") }
+            ]
+        ]
+    }
+}
+
+export const feedbackMenu = (offerId: number, locale: string): InlineKeyboardMarkup => {
+    return {
+        inline_keyboard: [
+            [
+                { callback_data: `offer:feedback:positive:${offerId}`, text: i18n.t(locale, "positive",) },
+                { callback_data: `offer:feedback:negative:${offerId}`, text: i18n.t(locale, "negative") },
             ]
         ]
     }

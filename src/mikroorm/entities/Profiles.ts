@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, ManyToOne, OneToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import { Users } from './Users';
 
 @Entity()
@@ -35,8 +35,9 @@ Profiles {
   @Property({ fieldName: 'updatedAt', onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @ManyToOne({ entity: () => Users, fieldName: 'userId', onUpdateIntegrity: 'cascade', onDelete: 'cascade', nullable: true, index: 'userId' })
-  userId?: Users;
-
+  // @ManyToOne({ entity: () => Users, fieldName: 'userId', onUpdateIntegrity: 'cascade', onDelete: 'cascade', nullable: true, index: 'userId' })
+  // userId?: Users;
+  @OneToOne(() => Users, user => user.profile)
+  user!: Users;
   
 }

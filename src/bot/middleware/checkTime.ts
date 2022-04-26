@@ -16,5 +16,6 @@ export default async function (ctx: BotContext, next: NextFunction): Promise<voi
         }
 
     } catch (error) {
+        console.log(error)
     }
 };

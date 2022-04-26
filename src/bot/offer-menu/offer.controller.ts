@@ -16,7 +16,6 @@ export class offerController extends BaseMenu {
     private readonly configService: AppConfigService,
   ) {
     super()
-
   }
   @Menu('offer-menu')
   menu = new MenuGrammy<BotContext>("offer-menu")

@@ -9,9 +9,48 @@ import { Users } from '../../mikroorm/entities/Users'
 import { mainKeyboard, offerKeyboard } from "../common/keyboards";
 import { AppConfigService } from 'src/app-config/app-config.service'
 import { InvoicesType } from "src/mikroorm/entities/Invoices";
+import { Arbitraries } from "src/mikroorm/entities/Arbitraries";
 
 @Injectable()
 export class globalService {
+  async fetchAllArbs(chatid: number): Promise<Arbitraries[]> {
+    const arbs = await this.em.find(Arbitraries, {
+      offer: {
+        $or: [
+          { initiator: { chatId: String(chatid) } },
+          { partner: { chatId: String(chatid) } }
+        ]
+      }
+    },
+      { populate: ['offer.initiator', 'offer.partner', 'offer.paymentMethod', 'offer.invoices'] }
+    )
+    return arbs
+  }
+  async fetchActiveArbs(chatid: number): Promise<Arbitraries[]> {
+    const arbs = await this.em.find(Arbitraries, {
+      offer: {
+        $or: [
+          { initiator: { chatId: String(chatid) } },
+          { partner: { chatId: String(chatid) } }
+        ]
+      }
+    },
+      { populate: ['offer.initiator', 'offer.partner', 'offer.paymentMethod', 'offer.invoices'] }
+    )
+    return arbs
+  }
+  async fetchActiveOffers(chatid: number): Promise<Offers[]> {
+    const offers = await this.em.find(Offers, {
+      $or: [
+        { initiator: { chatId: String(chatid) } },
+        { partner: { chatId: String(chatid) } }
+      ],
+      offerStatus: { value: { $nin: ['closed', 'pending'] } }
+    },
+      { populate: ['initiator', 'partner', 'invoices', 'paymentMethod', 'invoices', 'offerStatus'] }
+    )
+    return offers
+  }
   async fetchOffers(chatid: number): Promise<Offers[]> {
     const offers = await this.em.find(Offers, {
       $or: [
@@ -41,6 +80,18 @@ export class globalService {
     }
     return user
   }
+  async fetchQueryUsers(payload: string | number): Promise<Users[]> {
+    const users = await this.em.find(Users, {
+      $or: [
+        { chatId: { $like: String(payload) } },
+        { username: { $like: String(payload) } }
+      ],
+    }, {
+      populate: ['profile', 'violations']
+    })
+    return users
+  }
+
   async createOffer(ctx: BotContext): Promise<Offers> {
     const offerDTO = ctx.session.pendingOffer
     const offerStatus = this.AppConfigService.offerStatus<string>('pending')
@@ -62,5 +113,5 @@ export class globalService {
     await this.em.persistAndFlush(newoffer)
     return newoffer
   }
-  
+
 }

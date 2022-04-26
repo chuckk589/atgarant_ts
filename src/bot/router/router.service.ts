@@ -7,18 +7,39 @@ import { botOfferDto } from "src/mikroorm/dto/create-offer.dto";
 import i18n from '../middleware/i18n'
 import { Offers } from "src/mikroorm/entities/Offers";
 import { isSeller } from "../common/helpers";
+import { Arbitraries } from "src/mikroorm/entities/Arbitraries";
 
 
 
 @Injectable()
 export class routerService {
+  async fetchArb(id: number, chatId: number) {
+    const arb = await this.em.findOneOrFail(Arbitraries, {
+      id: id,
+      offer: {
+        $or: [
+          { initiator: { chatId: String(chatId) } },
+          { partner: { chatId: String(chatId) } }
+        ]
+      }
+    },
+      { populate: ['offer.initiator', 'offer.partner', 'offer.paymentMethod', 'offer.invoices'] }
+    )
+    return arb
+  }
   constructor(
     private readonly em: EntityManager,
     private readonly appConfigService: AppConfigService
   ) { }
-  async fetchOffer(id: number): Promise<Offers> {
-    const offer = await this.em.findOne(Offers, { id: id },
-      { populate: ['initiator', 'partner', 'invoices' , 'reviews' ] }
+  async fetchOffer(id: number, chatId: number): Promise<Offers> {
+    const offer = await this.em.findOne(Offers, {
+      id: id,
+      $or: [
+        { initiator: { chatId: String(chatId) } },
+        { partner: { chatId: String(chatId) } }
+      ],
+    },
+      { populate: ['initiator', 'partner', 'invoices', 'reviews.recipient', 'reviews.author'] }
     )
     return offer
   }

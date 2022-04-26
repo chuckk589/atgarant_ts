@@ -7,6 +7,7 @@ import { match } from "src/bot/common/helpers";
 import { Router } from '@grammyjs/router'
 import { Offers, OffersRole } from "src/mikroorm/entities/Offers";
 import { Arbitraries } from "src/mikroorm/entities/Arbitraries";
+import { InvoicesType } from "src/mikroorm/entities/Invoices";
 
 export interface GrammyBotOptions {
   token: string;
@@ -28,28 +29,26 @@ export interface PaymentsOptionsAsync {
 export interface Session {
   user: {
     acceptedRules: number,
-    mode: OfferMode
+    mode: string
   },
   step: BotStep,
-  pendingOffer: botOfferDto, 
-  editedOffer: Offers
+  pendingOffer: botOfferDto,
+  editedOffer: Offers,
+  editedArb: Arbitraries
 }
-export enum OfferMode {
-  edit = "edit",
-  default = "default",
-}
+
 export class OfferCallbackData {
   constructor(callback_data: string) {
     const data = callback_data.split(':')
     if (data.length !== 4) throw new Error('incorrect OfferCallbackData payload!')
     this.type = data[0]
     this.action = data[1]
-    this.mode = data[2] as OfferMode
+    this.mode = data[2]
     this.payload = data[3]
   }
   type: string;
   action: string;
-  mode: OfferMode;
+  mode: string;
   payload: any
 }
 export type BotContext = Context & SessionFlavor<Session> & I18nContextFlavor & MenuFlavor
@@ -88,27 +87,37 @@ export type NewArbitraryOptions = {
 export class BaseComposer {
   constructor() { }
   protected _composer: Composer<any>
-  getComposer(): Composer<any> {
+  getMiddleware(): Composer<any> {
     return this._composer
   }
 }
 export class BaseMenu {
   protected _menu: Menu
-  getMenu(): Menu {
+  getMiddleware(): Menu {
     return this._menu
   }
 }
 export class BaseRouter {
   protected _router: Router<BotContext>
-  getComposer(): Router<BotContext> {
+  getMiddleware(): Router<BotContext> {
     return this._router
   }
 }
 export abstract class BasePaymentController {
   abstract init: () => Promise<void>
   abstract getPayLink: (offer: Offers) => Promise<paymentURL>
-  abstract sellerWithdraw: (offer: botOfferDto) => Promise<string>
-  abstract arbitraryWithdraw: (arb: Arbitraries) => Promise<string>
+  abstract sellerWithdraw: (offer: Offers) => Promise<void>
+  abstract arbitraryWithdraw: (arb: Arbitraries) => Promise<void>
+  abstract withDraw: (amount: number, address: string, type: InvoicesType, offerId: number, currency: string) => Promise<void>
+}
+
+export type WithDrawOptions = {
+  amount: number;
+  currency: string;
+  type: InvoicesType;
+  txnId: string,
+  offerId: number;
+  url?: string
 }
 export type ArbModeratorReview = { buyerPayout: number, sellerPayout: number, comment: string }
 export type callbackQuery = [string, string, string]
@@ -168,8 +177,10 @@ export enum BotStep {
   checkout = "checkout",
   manage = "manage",
   offer = "offer",
+  arbitrary = "arbitrary",
   //menu edit steps
   setWallet = "setWallet",
   setArbitrary = "setArbitrary",
-  setFeedback = "setFeedback",
+  setFeedbackP = "setFeedbackP",
+  setFeedbackN = "setFeedbackN",
 }

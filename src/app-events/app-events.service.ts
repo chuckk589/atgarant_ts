@@ -12,6 +12,10 @@ import { Reviews, ReviewsRate } from 'src/mikroorm/entities/Reviews';
 
 @Injectable()
 export class AppEventsService {
+    async updateInvoiceStatus(txn_id: string, status: string) {
+        const invoiceStatus = this.AppConfigService.invoiceStatus<string>(status)
+        await this.em.nativeUpdate(Invoices, { txnId: txn_id }, { invoiceStatus: { value: invoiceStatus.value } })
+    }
     async createNewReview(recipientId: number, authorId: number, feedback: string, rate: ReviewsRate, offerId: number) {
         const review = this.em.create(Reviews, {
             author: authorId,
@@ -61,7 +65,7 @@ export class AppEventsService {
         return arb
     }
     async updateOfferStatus<T = Offers | number>(payload: T, status: string): Promise<Offers> {
-        const offerstatus = this.AppConfigService.offerStatus(status)
+        const offerstatus = this.AppConfigService.offerStatus<string>(status)
         let offer: Offers
         if (payload instanceof Offers) {
             offer = payload

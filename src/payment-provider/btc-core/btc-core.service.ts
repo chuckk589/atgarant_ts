@@ -4,7 +4,6 @@ import { Invoices, InvoicesType } from 'src/mikroorm/entities/Invoices';
 import { Offers, OffersFeePayer } from 'src/mikroorm/entities/Offers';
 import axios from 'axios';
 import { AppConfigService } from 'src/app-config/app-config.service'
-import { WithDrawOptions } from 'src/types/interfaces';
 import { Arbitraries, ArbitrariesStatus } from 'src/mikroorm/entities/Arbitraries';
 
 
@@ -61,7 +60,6 @@ export class BtcCoreService {
 
     constructor(
         private readonly em: EntityManager,
-        private readonly AppConfigService: AppConfigService,
     ) { }
     private rubToBTC = async (rub: number | number[]) => {
         const response = await axios.get<MoneyConvertResponse>('https://cdn.moneyconvert.net/api/latest.json')

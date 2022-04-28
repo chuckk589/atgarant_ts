@@ -4,6 +4,7 @@ import { Offers } from "src/mikroorm/entities/Offers";
 import { BotContext } from "src/types/interfaces";
 import i18n from "../middleware/i18n";
 
+// keyboards
 export const mainKeyboard = (ctx: BotContext): Keyboard => {
     return new Keyboard()
         .text(ctx.i18n.t("offers")).text(ctx.i18n.t("arbitraries")).text(ctx.i18n.t("account")).row()
@@ -24,7 +25,18 @@ export const accountKeyboard = (ctx: BotContext): Keyboard => {
         .text(ctx.i18n.t("accountWeb")).text(ctx.i18n.t("findUser")).text(ctx.i18n.t("changeLang")).row()
         .text(ctx.i18n.t("back"))
 }
+//inline keyboards
 
+export const languageMenu = (ctx: BotContext): InlineKeyboardMarkup => {
+    return {
+        inline_keyboard: [
+            [
+                { callback_data: 'lang:::ru', text: ctx.i18n.t('ru') },
+                { callback_data: 'lang:::en', text: ctx.i18n.t('en') },
+            ]
+        ]
+    }
+}
 export const findUserMenu = (ctx: BotContext): InlineKeyboardMarkup => {
     return {
         inline_keyboard: [

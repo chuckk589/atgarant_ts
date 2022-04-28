@@ -25,7 +25,7 @@ import { ScheduleModule } from '@nestjs/schedule';
   imports: [
     MikroOrmModule.forRootAsync(ORMOptionsProvider),
     LoggerModule.forRoot(),
-    BotModule.forRootAsync<BotContext>(botOptionsProvider),
+    BotModule.forRootAsync(botOptionsProvider),
     ServeStaticModule.forRoot({ rootPath: join(__dirname, '../public') }),
     AppConfigModule.forRootAsync(),
     UserModule,

@@ -1,13 +1,16 @@
 import { ModuleMetadata, Type } from "@nestjs/common";
-import { Composer, Context, FilterQuery, Middleware, SessionFlavor } from "grammy";
-import { I18nContextFlavor } from "@grammyjs/i18n";
-import { Menu, MenuFlavor } from "@grammyjs/menu";
+import { Api, Composer, Context, FilterQuery, Middleware, SessionFlavor } from "grammy";
+import { I18nContext, I18nContextFlavor } from "@grammyjs/i18n";
+//import { Menu, MenuFlavor } from "@grammyjs/menu";
 import { botOfferDto } from "src/mikroorm/dto/create-offer.dto";
 import { match } from "src/bot/common/helpers";
 import { Router } from '@grammyjs/router'
 import { Offers, OffersRole } from "src/mikroorm/entities/Offers";
 import { Arbitraries } from "src/mikroorm/entities/Arbitraries";
 import { InvoicesType } from "src/mikroorm/entities/Invoices";
+import { Menu, MenuControlPanel, MenuFlavor } from 'src/bot/plugins/menu/menu-extended'
+import { Update, UserFromGetMe } from "@grammyjs/types";
+import { Message } from "@grammyjs/menu/out/deps.node";
 
 export interface GrammyBotOptions {
   token: string;
@@ -31,6 +34,7 @@ export interface Session {
     acceptedRules: number,
     mode: string
   },
+  menuId: number,
   step: BotStep,
   pendingOffer: botOfferDto,
   editedOffer: Offers,
@@ -51,8 +55,50 @@ export class OfferCallbackData {
   mode: string;
   payload: any
 }
-export type BotContext = Context & SessionFlavor<Session> & I18nContextFlavor & MenuFlavor
 
+export class BotContext extends Context implements SessionFlavor<Session>, I18nContextFlavor, MenuFlavor {
+  constructor(update: Update, api: Api, me: UserFromGetMe) {
+    super(update, api, me);
+    this.cleanAndReply = async (text: string, other?: any, signal?: any) => {
+      await this.clean()
+      return this.reply(text, other, signal)
+    }
+    this.replyAndSave = async (text: string, other?: any, signal?: any) => {
+      await this.reply(text, other, signal).then(r => this.session.menuId = r.message_id)
+    }
+    this.cleanReplySave = async (text: string, other?: any, signal?: any) => {
+      await this.clean()
+      await this.replyAndSave(text, other, signal)
+    }
+    this.clean = async () => {
+      if (this.session.menuId) {
+        await this.api.deleteMessage(this.from.id, this.session.menuId).catch()
+        this.session.menuId = undefined
+      }
+    }
+    this.save = async (messageId: number) => {
+      this.session.menuId = messageId
+      console.log('save', messageId, this.session.menuId)
+    }
+  }
+  i18n: I18nContext;
+  menu: MenuControlPanel;
+  match: string
+  clean: () => Promise<void>
+  cleanAndReply: (text: string, other?: any, signal?: any) => Promise<Message.TextMessage>;
+  replyAndSave: (text: string, other?: any, signal?: any) => Promise<void>;
+  cleanReplySave: (text: string, other?: any, signal?: any) => Promise<void>;
+  save: (messageId: number) => {}
+
+  get session(): Session {
+    throw new Error("Method not implemented.");
+  }
+  set session(session: Session) {
+    throw new Error("Method not implemented.");
+  }
+
+}
+//export type BotContext = Context & SessionFlavor<Session> & I18nContextFlavor & MenuFlavor & Cleaner
 export class ListenerMetadata {
   constructor(method: TMethod, query: any, key: string | symbol) {
     this.method = method;

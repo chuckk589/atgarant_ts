@@ -40,7 +40,7 @@ export class routerController extends BaseRouter {
         } else {
           ctx.session.step = BotStep.fee
           ctx.session.pendingOffer.partner_chatId = user.chatId
-          await ctx.reply(ctx.i18n.t('askFeePayer'), { reply_markup: this.offerController.getMiddleware() })
+          await ctx.cleanReplySave(ctx.i18n.t('askFeePayer'), { reply_markup: this.offerController.getMiddleware() })
         }
       } else {
         await ctx.reply(ctx.i18n.t('userNotFound', { user: ctx.message.text }))
@@ -53,7 +53,7 @@ export class routerController extends BaseRouter {
         ctx.session.pendingOffer.offerValue = value
         ctx.session.pendingOffer.feeBaked = Math.max(value * paymentMethod.feePercent / 100, paymentMethod.feeRaw)
         ctx.session.step = BotStep.shipping
-        await ctx.reply(ctx.i18n.t('askEstimatedShipping'), { reply_markup: this.offerController.getMiddleware() })
+        await ctx.cleanReplySave(ctx.i18n.t('askEstimatedShipping'), { reply_markup: this.offerController.getMiddleware() })
       } else {
         ctx.reply(ctx.i18n.t('wrongDataOfferValue', { minSum: paymentMethod.minSum, maxSum: paymentMethod.maxSum }))
       }
@@ -63,7 +63,7 @@ export class routerController extends BaseRouter {
       if (date.isValid) {
         ctx.session.pendingOffer.estimatedShipping = date.toJSDate()
         ctx.session.step = BotStep.productDetails
-        await ctx.reply(ctx.i18n.t('askProductDetails'), { reply_markup: this.offerController.getMiddleware() })
+        await ctx.cleanReplySave(ctx.i18n.t('askProductDetails'), { reply_markup: this.offerController.getMiddleware() })
       } else {
         await ctx.reply(ctx.i18n.t('wrongData'))
       }
@@ -71,35 +71,35 @@ export class routerController extends BaseRouter {
     .route(BotStep.productDetails, async ctx => {
       ctx.session.pendingOffer.productDetails = ctx.message.text
       ctx.session.step = BotStep.shippingDetails
-      await ctx.reply(ctx.i18n.t('askShippingDetails'), { reply_markup: this.offerController.getMiddleware() })
+      await ctx.cleanReplySave(ctx.i18n.t('askShippingDetails'), { reply_markup: this.offerController.getMiddleware() })
     })
     .route(BotStep.shippingDetails, async ctx => {
       ctx.session.pendingOffer.shippingDetails = ctx.message.text
       ctx.session.step = BotStep.productRest
-      await ctx.reply(ctx.i18n.t('askProductAdditionalDetails'), { reply_markup: this.offerController.getMiddleware() })
+      await ctx.cleanReplySave(ctx.i18n.t('askProductAdditionalDetails'), { reply_markup: this.offerController.getMiddleware() })
     })
     .route(BotStep.productRest, async ctx => {
       ctx.session.pendingOffer.productAdditionalDetails = ctx.message.text
       ctx.session.step = BotStep.rest
-      await ctx.reply(ctx.i18n.t('askRestDetails'), { reply_markup: this.offerController.getMiddleware() })
+      await ctx.cleanReplySave(ctx.i18n.t('askRestDetails'), { reply_markup: this.offerController.getMiddleware() })
     })
     .route(BotStep.rest, async ctx => {
       ctx.session.pendingOffer.restDetails = ctx.message.text
       ctx.session.step = BotStep.refund
-      await ctx.reply(ctx.i18n.t('askProductRefundTime'), { reply_markup: this.offerController.getMiddleware() })
+      await ctx.cleanReplySave(ctx.i18n.t('askProductRefundTime'), { reply_markup: this.offerController.getMiddleware() })
     })
     .route(BotStep.refund, async ctx => {
       ctx.session.pendingOffer.refundDetails = ctx.message.text
       ctx.session.pendingOffer.initiator_chatId = String(ctx.from.id)
       ctx.session.step = BotStep.checkout
-      await ctx.reply(checkoutMessage(ctx.session.pendingOffer, ctx.i18n.locale()), { reply_markup: manageOfferMenu(0, ctx.i18n.locale(), 'default') })
+      await ctx.cleanReplySave(checkoutMessage(ctx.session.pendingOffer, ctx.i18n.locale()), { reply_markup: manageOfferMenu(0, ctx.i18n.locale(), 'default') })
     })
     .route(BotStep.offer, async ctx => {
       if (ctx.message && ctx.message.text && Number(ctx.message.text)) {
         const offer = await this.routerService.fetchOffer(Number(ctx.message.text), ctx.from.id)
         if (!offer) return
         ctx.session.editedOffer = offer
-        await ctx.reply(checkoutMessage(new botOfferDto(offer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() })
+        await ctx.cleanReplySave(checkoutMessage(new botOfferDto(offer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() })
       }
     })
     .route(BotStep.setWallet, async ctx => {
@@ -110,7 +110,7 @@ export class routerController extends BaseRouter {
     .route(BotStep.setArbitrary, async ctx => {
       ctx.session.step = BotStep.default
       ctx.session.editedOffer.offerStatus = await this.AppEventsController.arbOpened<Offers>(ctx.session.editedOffer, ctx.message.text, ctx.from.id)
-      await ctx.reply(checkoutMessage(new botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() })
+      await ctx.cleanReplySave(checkoutMessage(new botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() })
     })
     .route(BotStep.setFeedbackN || BotStep.setFeedbackP, async ctx => {
       const rate = ctx.session.step == BotStep.setFeedbackN ? ReviewsRate.NEGATIVE : ReviewsRate.POSITIVE
@@ -123,9 +123,11 @@ export class routerController extends BaseRouter {
         const arb = await this.routerService.fetchArb(Number(ctx.message.text), ctx.from.id)
         if (!arb) return
         ctx.session.editedArb = arb
-        await ctx.reply(checkoutArbMessage(arb, ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() })
+        await ctx.cleanReplySave(checkoutArbMessage(arb, ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() })
       }
     })
-    .otherwise(ctx => { console.log(ctx.message) })
+    .otherwise(ctx => {
+      ctx.clean()
+    })
 
 }

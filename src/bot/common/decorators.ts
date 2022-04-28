@@ -83,3 +83,4 @@ export function Menu(name: string): PropertyDecorator {
         Reflect.defineMetadata(LISTENERS_METADATA, value, _target);
     };
 };
+

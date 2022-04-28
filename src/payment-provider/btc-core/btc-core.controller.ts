@@ -38,7 +38,6 @@ export class BtcCoreController extends BasePaymentController {
     private readonly AppEventsController: AppEventsController,
   ) {
     super()
-    console.log(('BtcCore constructor'))
   }
   options: BtcCoreOptions
   test: number

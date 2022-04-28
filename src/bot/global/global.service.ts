@@ -13,6 +13,9 @@ import { Arbitraries } from "src/mikroorm/entities/Arbitraries";
 
 @Injectable()
 export class globalService {
+  async updateLocale(chatId: number, locale: string) {
+    await this.em.nativeUpdate(Users, { chatId: String(chatId) }, { locale: locale });
+  }
   async fetchAllArbs(chatid: number): Promise<Arbitraries[]> {
     const arbs = await this.em.find(Arbitraries, {
       offer: {

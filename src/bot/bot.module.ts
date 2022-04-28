@@ -7,10 +7,10 @@ import { BotContext, GrammyBotOptions, GrammyBotOptionsAsync } from "src/types/i
 @Global()
 @Module({})
 export class BotModule {
-  public static forRootAsync<T extends Context>(options: GrammyBotOptionsAsync): DynamicModule {
+  public static forRootAsync(options: GrammyBotOptionsAsync): DynamicModule {
     const BotProvider: Provider = {
       provide: BOT_NAME,
-      useFactory: async (options: GrammyBotOptions) => await createBotFactory<T>(options),
+      useFactory: async (options: GrammyBotOptions) => await createBotFactory(options),
       inject: [BOT_OPTIONS],
     }
     const BotOptionsProvider: Provider = {

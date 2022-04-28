@@ -30,17 +30,17 @@ export class OfferEditMenuController extends BaseMenu {
         ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerShipped<Offers>(ctx.session.editedOffer)
         ctx.menu.update()
         ctx.reply(ctx.i18n.t('dataUpdated'))
-      })//
+      })
       status.value === 'arrived' && _isSeller && ctx.session.pendingOffer.sellerWalletData && range.text(ctx.i18n.t('getPayout'), async (ctx) => {
         ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerPaymentRequested<Offers>(ctx.session.editedOffer)
         ctx.menu.update()
         ctx.reply(ctx.i18n.t('sellerOfferPaymentRequested'))
-      })//
+      })
       status.value === 'shipped' && !_isSeller && ctx.session.pendingOffer.sellerWalletData && range.text(ctx.i18n.t('confirmArrival'), async (ctx) => {
         ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerArrived<Offers>(ctx.session.editedOffer)
         ctx.menu.update()
         ctx.reply(ctx.i18n.t('dataUpdated'))
-      })//
+      })
       status.value !== 'closed' && status.value !== 'arbitrary' && status.value !== 'pending' && range.text(ctx.i18n.t('openArbitrary'), async (ctx) => {
         ctx.session.step = BotStep.setArbitrary
         ctx.reply(ctx.i18n.t('askArbitraryReason'))

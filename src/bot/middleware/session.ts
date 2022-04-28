@@ -12,7 +12,8 @@ const initial = (): Session => ({
     step: BotStep.default,
     pendingOffer: new botOfferDto(new Offers()),
     editedOffer: new Offers(),
-    editedArb: new Arbitraries()
+    editedArb: new Arbitraries(),
+    menuId: undefined,
 })
 
 function getSessionKey(ctx: BotContext): string | undefined {

@@ -3,7 +3,8 @@
     "module": "commonjs",
     "target": "ES2021",
     "lib": [
-      "ES2021"
+      "ES2021",
+      "dom"
     ],
     "sourceMap": true,
     "strict": false,

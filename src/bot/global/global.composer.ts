@@ -3,7 +3,7 @@ import { AppConfigService } from "src/app-config/app-config.service";
 import { Offers, OffersFeePayer, OffersRole } from "src/mikroorm/entities/Offers";
 import { BaseComposer, BotContext, BotStep, callbackQuery, OfferCallbackData } from "src/types/interfaces";
 import { Command, ComposerController, Hears, On, Use, } from "../common/decorators";
-import { accountKeyboard, arbitraryKeyboard, findUserMenu, mainKeyboard, offerKeyboard } from "../common/keyboards";
+import { accountKeyboard, arbitraryKeyboard, findUserMenu, languageMenu, mainKeyboard, offerKeyboard } from "../common/keyboards";
 import { offerController } from "../offer-menu/offer.controller";
 import { globalService } from './global.service'
 import { AppEventsController } from '../../app-events/app-events.controller';
@@ -52,6 +52,7 @@ export class globalComposer extends BaseComposer {
     ctx.session.step = BotStep.default
     await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
   }
+
   //* OFFERS BLOCK
   @Hears('offers')
   offers: Function = async (ctx: BotContext) => {
@@ -60,29 +61,27 @@ export class globalComposer extends BaseComposer {
   }
   @Hears('createOffer')
   createOffer: Function = async (ctx: BotContext) => {
-    // ! uncomment required
-    ctx.session.step = BotStep.refund
-    ctx.session.pendingOffer = {
-      feePayer: OffersFeePayer.BUYER,
-      role: OffersRole.SELLER,
-      paymentMethodId: 1,
-      offerValue: 1111,
-      feeBaked: 111.1,
-      sellerWalletData: '',
-      offerStatus: 'На согласовании',
-      estimatedShipping: new Date(),
-      productDetails: '2',
-      shippingDetails: '22',
-      productAdditionalDetails: '33',
-      restDetails: '22',
-      refundDetails: '11',
-      initiator_chatId: '517717745',
-      partner_chatId: '517717745'
-    }
-    //ctx.session.step = ctx.session.user.acceptedRules ? BotStep.roles : BotStep.rules
-
+    //ctx.session.step = BotStep.refund
+    // ctx.session.pendingOffer = {
+    //   feePayer: OffersFeePayer.BUYER,
+    //   role: OffersRole.SELLER,
+    //   paymentMethodId: 1,
+    //   offerValue: 1111,
+    //   feeBaked: 111.1,
+    //   sellerWalletData: '',
+    //   offerStatus: 'На согласовании',
+    //   estimatedShipping: new Date(),
+    //   productDetails: '2',
+    //   shippingDetails: '22',
+    //   productAdditionalDetails: '33',
+    //   restDetails: '22',
+    //   refundDetails: '11',
+    //   initiator_chatId: '517717745',
+    //   partner_chatId: '517717745'
+    // }
+    ctx.session.step = ctx.session.user.acceptedRules ? BotStep.roles : BotStep.rules
     const message = ctx.session.user.acceptedRules ? ctx.i18n.t('askRole') : ctx.i18n.t('offerWarning')
-    await ctx.reply(message, { reply_markup: this.offerController.getMiddleware() })
+    await ctx.cleanReplySave(message, { reply_markup: this.offerController.getMiddleware() })
   }
   //* OFFERS BLOCK
   @Hears('arbitraries')
@@ -153,6 +152,9 @@ export class globalComposer extends BaseComposer {
   @Hears('findUser')
   findUser: Function = async (ctx: BotContext) => await ctx.reply(ctx.i18n.t('findUserInfo'), { reply_markup: findUserMenu(ctx) })
 
+  @Hears('changeLang')
+  changeLang: Function = async (ctx: BotContext) => await ctx.reply(ctx.i18n.t('languageGroup'), { reply_markup: languageMenu(ctx) })
+
   @On('inline_query')
   inline_query: Function = async (ctx: BotContext) => {
     const users = await this.globalService.fetchQueryUsers(ctx.inlineQuery.query)
@@ -162,51 +164,61 @@ export class globalComposer extends BaseComposer {
   @On("callback_query:data")
   callbackHandler = async (ctx: BotContext) => {
     const data = new OfferCallbackData(ctx.update.callback_query.data)
+    //type:action:mode:payload
     //accept button click
-    if (data.action == 'admit') {
-      //accept button clicked right after offer creation by initiator 
-      if (data.mode == 'default') {
-        await ctx.deleteMessage()
-        const offer = await this.globalService.createOffer(ctx)
-        await this.AppEventsController.offerCreated<Offers>(offer, String(ctx.from.id))
-      }
-      //accept button clicked after receiving an offer and NOT editing it
-      else if (data.mode == 'edit') {
-        await ctx.deleteMessage()
-        await this.AppEventsController.offerAccepted(data.payload)
-      }
-      await ctx.reply(ctx.i18n.t('offerCreated'))
+    if (data.type == 'offer'){
+
     }
-    else if (data.action == 'edit') {
-      //edit button clicked right after offer creation by initiator 
-      if (data.mode == 'default') {
-        ctx.session.step = BotStep.roles
-        await ctx.reply(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMiddleware() })
+      if (data.action == 'admit') {
+        //accept button clicked right after offer creation by initiator 
+        if (data.mode == 'default') {
+          await ctx.deleteMessage()
+          const offer = await this.globalService.createOffer(ctx)
+          await this.AppEventsController.offerCreated<Offers>(offer, String(ctx.from.id))
+        }
+        //accept button clicked after receiving an offer and NOT editing it
+        else if (data.mode == 'edit') {
+          await ctx.deleteMessage()
+          await this.AppEventsController.offerAccepted(data.payload)
+        }
+        await ctx.reply(ctx.i18n.t('offerCreated'))
       }
-      //edit button clicked after receiving an offer
-      //need to write offer into receiving end session
-      else if (data.mode == 'edit') {
-        await ctx.deleteMessage()
-        await this.AppEventsController.offerEditInitiated(data.payload, ctx)
+      else if (data.action == 'edit') {
+        //edit button clicked right after offer creation by initiator 
+        if (data.mode == 'default') {
+          ctx.session.step = BotStep.roles
+          await ctx.cleanReplySave(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMiddleware() })
+        }
+        //edit button clicked after receiving an offer
+        //need to write offer into receiving end session
+        else if (data.mode == 'edit') {
+          await ctx.deleteMessage()
+          await this.AppEventsController.offerEditInitiated(data.payload, ctx)
+        }
       }
-    }
-    else if (data.action == 'reject') {
-      if (data.mode == 'default') {
-        ctx.session.step = BotStep.default
-        await ctx.deleteMessage()
-        await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
-      } else if (data.mode == 'edit') {
-        await ctx.deleteMessage()
-        await this.AppEventsController.offerRejectInitiated(data.payload, ctx)
+      else if (data.action == 'reject') {
+        if (data.mode == 'default') {
+          ctx.session.step = BotStep.default
+          await ctx.deleteMessage()
+          await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
+        } else if (data.mode == 'edit') {
+          await ctx.deleteMessage()
+          await this.AppEventsController.offerRejectInitiated(data.payload, ctx)
+        }
       }
-    }
-    else if (data.action == 'feedback') {
-      if (data.mode == 'positive') {
-        ctx.session.step = BotStep.setFeedbackP
-      } else {
-        ctx.session.step = BotStep.setFeedbackN
+      else if (data.action == 'feedback') {
+        if (data.mode == 'positive') {
+          ctx.session.step = BotStep.setFeedbackP
+        } else {
+          ctx.session.step = BotStep.setFeedbackN
+        }
+        await ctx.reply(ctx.i18n.t('askFeedbackText'))
       }
-      await ctx.reply(ctx.i18n.t('askFeedbackText'))
-    }
+      else if (data.type == 'lang') {
+        const locale = data.payload
+        ctx.i18n.locale(locale)
+        await this.globalService.updateLocale(ctx.from.id, locale)
+        return ctx.reply(ctx.i18n.t('langChanged'), { reply_markup: accountKeyboard(ctx) })
+      }
   }
 }

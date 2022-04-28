@@ -4,16 +4,15 @@
 - [Usage](#usage)
 - [Documentation](#documentation)
 ### Installation
-
+ 1. ENV params 
+    database = [mysql://][user]:[pass]@[host]:[port]/[database]
+    url = [http://][ip]
+    jwt-secret = [any]
 
 #### Usage
 
 ``` bash
-# serve with hot reload at localhost:8080
-npm run serve
 
-# build for production with minification
-npm run build
 
 #prod
 pm2 start index.js --name "atgarant" -- -prod --max-memory-restart 500M
@@ -22,8 +21,6 @@ pm2 start index.js --name "atgarant" -- -prod --max-memory-restart 500M
 npm install --production
 
 ```
-
-For a detailed explanation on how things work, check out the [Vue CLI Guide](https://cli.vuejs.org/guide/).
 
 ### Documentation
 

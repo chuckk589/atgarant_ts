@@ -31,7 +31,7 @@ import { ArbitraryModule } from './arbitrary/arbitrary.module';
     MikroOrmModule.forRootAsync(ORMOptionsProvider),
     LoggerModule.forRoot(),
     BotModule.forRootAsync(botOptionsProvider),
-    ServeStaticModule.forRoot({ rootPath: join(__dirname, '../public') }),
+    ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'public')}),
     AppConfigModule.forRootAsync(),
     UserModule,
     PaymentsModule,

@@ -33,7 +33,7 @@ export class ArbitraryService {
         }
       }
       : {}
-    return await this.em.find(Arbitraries, options, { populate: ['offer.initiator', 'offer.partner'] })
+    return await this.em.find(Arbitraries, options, { populate: ['offer.initiator', 'offer.partner', 'arbiter'] })
   }
 
 }

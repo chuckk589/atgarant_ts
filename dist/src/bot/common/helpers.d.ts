@@ -1,0 +1,30 @@
+import { Collection } from '@mikro-orm/core';
+import { InlineQueryResultArticle } from 'grammy/out/platform.node';
+import { botOfferDto } from 'src/mikroorm/dto/create-offer.dto';
+import { Arbitraries } from 'src/mikroorm/entities/Arbitraries';
+import { Invoices } from 'src/mikroorm/entities/Invoices';
+import { Offers } from 'src/mikroorm/entities/Offers';
+import { Reviews } from 'src/mikroorm/entities/Reviews';
+import { Users } from 'src/mikroorm/entities/Users';
+import { BotContext } from 'src/types/interfaces';
+export declare function match(key: string): RegExp;
+export declare const label: (payload: {
+    text: string;
+    payload?: string;
+}) => (ctx: BotContext) => string;
+export declare const checkoutMessage: (offer: botOfferDto, code: string) => string;
+export declare const checkoutArbMessage: (arb: Arbitraries, code: string) => string;
+export declare const usersQueryMessage: (users: Users[]) => InlineQueryResultArticle[];
+export declare const getInvoiceValue: (invoices: Collection<Invoices>) => number;
+export declare const getInvoiceFee: (invoices: Collection<Invoices>) => number;
+export declare const getOppositeUser: (offer: Offers, from: number | string) => Users;
+export declare const getSelf: (offer: Offers, from: number | string) => Users;
+export declare const getOffersMessage: (offers: Offers[], chatId: number) => string;
+export declare const getArbMessage: (arb: Arbitraries[], chatId: number, code: string) => string;
+export declare const usersByRoles: (offer: Offers) => {
+    seller: Users;
+    buyer: Users;
+};
+export declare const leftReview: (reviews: Collection<Reviews>, from: number | string) => boolean;
+export declare const isInitiator: (ctx: BotContext) => boolean;
+export declare const isSeller: (ctx: BotContext) => boolean;

@@ -22,7 +22,7 @@ export const ORMOptionsProvider: MikroOrmModuleAsyncOptions = {
         return {
             type: 'mysql',
             allowGlobalContext: true,
-            entities: ['./dist/mikroorm/entities/'],
+            entities: ['./dist/src/mikroorm/entities/'],
             entitiesTs: ['./src/mikroorm/entities/'],
             clientUrl: configService.get('database', { infer: true })
         };

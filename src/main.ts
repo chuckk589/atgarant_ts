@@ -9,7 +9,6 @@ export async function bootstrap() {
   //app.useLogger(app.get(Logger));
   app.enableVersioning({ type: VersioningType.URI });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-
   const configService = app.get(AppConfigService);
   await app.listen(configService.get('port'));
 }

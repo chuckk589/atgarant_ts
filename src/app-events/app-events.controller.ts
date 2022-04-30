@@ -16,7 +16,6 @@ import { TelegramGateway } from 'src/telegram/telegram.gateway'
 import { ReviewsRate } from 'src/mikroorm/entities/Reviews';
 import { Arbitraries, ArbitrariesStatus } from 'src/mikroorm/entities/Arbitraries';
 import { Offerstatuses } from 'src/mikroorm/entities/Offerstatuses';
-import { Invoices } from 'src/mikroorm/entities/Invoices';
 
 //TODO: global app event response type with newstatus field
 //TODO: try catch error for every event
@@ -116,8 +115,8 @@ export class AppEventsController {
         const roleData = usersByRoles(offerData)
         await this.appEventsService.updateOfferStatus<Offers>(offerData, 'awaitingPayment')
         this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPaymentRequested', { id: offerData.id }))
+        await this.PaymentController.sellerWithdraw(offerData)
         return this.appConfigService.offerStatus<string>('awaitingPayment')
-        //TODO: FIX this.PaymentController.sellerWithdraw()
     }
     constructor(
         private readonly appEventsService: AppEventsService,
@@ -127,11 +126,7 @@ export class AppEventsController {
         @Inject(forwardRef(() => BOT_NAME)) private bot: Bot<BotContext>,
         @InjectPinoLogger('AppEventsController') private readonly logger: PinoLogger,
         @Inject(PAYMENTS_CONTROLLER) private PaymentController: BasePaymentController
-        // @Inject(BOT_NAME) private bot: Bot<BotContext>
     ) {
-        // setTimeout(async () => {
-        //     await this.openArbitrary('lol', 50, 48)
-        // }, 1000);
     }
     async offerRejectInitiated(payload: any, ctx: BotContext) {
         const offer = await this.appEventsService.updateOfferStatus<number>(payload, 'denied')

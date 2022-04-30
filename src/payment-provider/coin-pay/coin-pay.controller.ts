@@ -33,7 +33,6 @@ export class CoinPayController extends BasePaymentController {
       //TODO: check Coinpayments, QiwiBillPaymentsAPI accessibility
       //TODO: required params
     } catch (error) {
-      console.log(error)
       this.logger.error('CoinPayController init failed!')
       process.exit(1)
     }

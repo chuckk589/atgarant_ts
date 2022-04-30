@@ -162,7 +162,7 @@ export default {
           cur: {},
         },
       },
-      configs: {},
+      configs: { Payments: {} },
       tabs: ["Payments"],
     };
   },
@@ -170,9 +170,12 @@ export default {
     if (!this.isAdmin) {
       this.$router.push("/login");
     }
-    // const socket = io('http://localhost:3000/');webpackHotUpdate
+    console.log(
+      typeof webpackHotUpdate !== "undefined" ? "http://localhost:3000/" : null
+    );
     this.socket = io(
-      typeof webpackHotUpdate !== "undefined" ? "http://localhost:3000/" : null,
+      // typeof webpackHotUpdate !== "undefined" ? "http://localhost:3000/" : null,
+      null,
       { autoConnect: false }
     );
     this.socket.on("done", (result) => {

@@ -11,8 +11,6 @@ module.exports = {
     '@coreui/utils',
     '@coreui/vue-pro',
   ],
-  // use this option for production linking
-  // publicPath: process.env.NODE_ENV === 'production' ? '/vue/demo/3.1.0' : '/'
   devServer: {
     proxy: {
       '^/': {
@@ -24,6 +22,8 @@ module.exports = {
       }
     }
   },
-  outputDir: "./dist",
-  //publicPath: '/dist'
+  outputDir: "./dist/public",
+  publicPath: process.env.NODE_ENV === 'development'
+    ? './'
+    : './'
 }

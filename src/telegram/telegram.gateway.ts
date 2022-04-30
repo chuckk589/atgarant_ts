@@ -6,6 +6,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { AppConfigService } from 'src/app-config/app-config.service'
 import { Inject, forwardRef } from '@nestjs/common';
 import { Bot } from 'grammy';
+import { Socket, Server } from 'socket.io';
 import { BOT_NAME } from 'src/constants';
 import { BotContext, NewArbResponse } from 'src/types/interfaces';
 const input = require('input')
@@ -76,52 +77,39 @@ export class TelegramGateway {
       return sum
     }, '')
     return generatedOutput
-    //console.log(result.messages[0]); // prints the result
   }
-  //TODO: implement
+  //TODO: aint right
   @SubscribeMessage('phoneCode')
-  handleEvent(
+  async handleEvent(
     @MessageBody() data: string,
-    @ConnectedSocket() client: any,
-  ): string {
-    console.log(data,client)
+    @ConnectedSocket() socket: Socket,
+  ): Promise<string> {
+    await this.client.invoke(new Api.auth.LogOut())
+    this.client.start({
+      phoneNumber: data,
+      phoneCode: function () {
+        return new Promise((res, rej) => {
+          socket.on('code', (code, callback) => {
+            callback('got code')
+            res(code)
+          })
+          setTimeout(() => {
+            rej()
+          }, 60 * 1000);
+        })
+      },
+      onError: (err) => {
+        console.log(err)
+        socket.emit('done', { error: err });
+      },
+    }).then(async () => {
+      const newSessionString = this.client.session.save() as any
+      await this.telegramService.updateSessionString(newSessionString)
+      socket.emit('done', { session: newSessionString });
+      process.env.APP_SESSION_STRING = newSessionString
+    })
     return data;
   }
-  // getPhoneCode = (socket) => {
-  //   //console.log('connection')
-  //   socket.on("phoneCode", async (phone, callback) => {
-  //       //console.log(phone);
-  //       callback();
-  //       //await this.client.invoke(new Api.auth.LogOut({}));
-  //       this.client.disconnect()
-  //       this.client = new TelegramClient(new StringSession(), + process.env.APP_API_ID, process.env.APP_API_HASH, { connectionRetries: 5 })
-  //       await this.client.start({
-  //           phoneNumber: phone,
-  //           phoneCode: await function () {
-  //               return new Promise((res, rej) => {
-  //                   socket.on('code', (code, callback) => {
-  //                       callback('got code')
-  //                       res(code)
-  //                   })
-  //                   setTimeout(() => {
-  //                       rej()
-  //                   }, 60 * 1000);
-  //               })
-  //           },
-  //           onError: (err) => {
-  //               socket.emit('done', { error: err });
-  //           },
-  //       }).then(e => {
-  //           config.update({ value: this.client.session.save() }, {
-  //               where: {
-  //                   name: 'APP_SESSION_STRING'
-  //               }
-  //           }).then(() => {
-  //               socket.emit('done', { session: this.client.session.save() });
-  //               process.env.APP_SESSION_STRING = this.client.session.save()
-  //           })
-  //       })
-  //   });
 
   private async devInitConnection() {
     console.log("Loading interactive example...");

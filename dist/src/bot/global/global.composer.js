@@ -51,7 +51,7 @@ let globalComposer = class globalComposer extends interfaces_1.BaseComposer {
             await ctx.reply(ctx.i18n.t('start'), { reply_markup: (0, keyboards_1.mainKeyboard)(ctx) });
         };
         this.offers = async (ctx) => {
-            const imageurl = this.mode === 'development' ? 'https://picsum.photos/200/300' : this.url + '/media/04.jpg';
+            const imageurl = 'https://picsum.photos/200/300';
             await ctx.replyWithPhoto(imageurl, { caption: ctx.i18n.t('offerMenu'), reply_markup: (0, keyboards_1.offerKeyboard)(ctx) });
         };
         this.createOffer = async (ctx) => {
@@ -60,7 +60,7 @@ let globalComposer = class globalComposer extends interfaces_1.BaseComposer {
             await ctx.cleanReplySave(message, { reply_markup: this.offerController.getMiddleware() });
         };
         this.arbitraries = async (ctx) => {
-            const imageurl = this.mode == 'development' ? 'https://picsum.photos/200/300' : this.url + '/media/03.jpg';
+            const imageurl = 'https://picsum.photos/200/300';
             await ctx.replyWithPhoto(imageurl, { caption: ctx.i18n.t('arbitraries'), reply_markup: (0, keyboards_1.arbitraryKeyboard)(ctx) });
         };
         this.allOffers = async (ctx) => {

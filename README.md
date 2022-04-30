@@ -8,6 +8,7 @@
     database = [mysql://][user]:[pass]@[host]:[port]/[database]
     url = [http://][ip]
     jwt-secret = [any]
+    port = [number]
 
 #### Usage
 

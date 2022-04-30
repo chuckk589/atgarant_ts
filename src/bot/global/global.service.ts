@@ -13,6 +13,12 @@ import { Arbitraries } from "src/mikroorm/entities/Arbitraries";
 
 @Injectable()
 export class globalService {
+  async createUserPassword(user: Users): Promise<string> {
+    const password = Math.random().toString(36).substr(2, 11)
+    user.password = password
+    await this.em.persistAndFlush(user)
+    return password
+  }
   async updateLocale(chatId: number, locale: string) {
     await this.em.nativeUpdate(Users, { chatId: String(chatId) }, { locale: locale });
   }

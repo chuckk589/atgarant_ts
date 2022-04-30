@@ -23,6 +23,12 @@ let globalService = class globalService {
         this.em = em;
         this.AppConfigService = AppConfigService;
     }
+    async createUserPassword(user) {
+        const password = Math.random().toString(36).substr(2, 11);
+        user.password = password;
+        await this.em.persistAndFlush(user);
+        return password;
+    }
     async updateLocale(chatId, locale) {
         await this.em.nativeUpdate(Users_1.Users, { chatId: String(chatId) }, { locale: locale });
     }

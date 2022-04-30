@@ -11,7 +11,7 @@ import i18n from '../middleware/i18n'
 
 export function match(key: string): RegExp {
     const locales: string[] = i18n.availableLocales()
-    return new RegExp(locales.map(l => i18n.t(l, key)).join('|'))
+    return new RegExp(locales.map(l => `^${i18n.t(l, key)}$`).join('|'))
 }
 
 // export const label = (ctx: BotContext) => {

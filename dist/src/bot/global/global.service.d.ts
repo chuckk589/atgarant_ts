@@ -7,6 +7,7 @@ import { Arbitraries } from "src/mikroorm/entities/Arbitraries";
 export declare class globalService {
     private readonly em;
     private readonly AppConfigService;
+    createUserPassword(user: Users): Promise<string>;
     updateLocale(chatId: number, locale: string): Promise<void>;
     fetchAllArbs(chatid: number): Promise<Arbitraries[]>;
     fetchActiveArbs(chatid: number): Promise<Arbitraries[]>;

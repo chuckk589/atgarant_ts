@@ -10,7 +10,7 @@ const interfaces_1 = require("../../types/interfaces");
 const i18n_1 = __importDefault(require("../middleware/i18n"));
 function match(key) {
     const locales = i18n_1.default.availableLocales();
-    return new RegExp(locales.map(l => i18n_1.default.t(l, key)).join('|'));
+    return new RegExp(locales.map(l => `^${i18n_1.default.t(l, key)}$`).join('|'));
 }
 exports.match = match;
 const label = (payload) => {

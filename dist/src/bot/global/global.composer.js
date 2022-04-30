@@ -34,8 +34,8 @@ let globalComposer = class globalComposer extends interfaces_1.BaseComposer {
         this.ArbEditMenuController = ArbEditMenuController;
         this.AppEventsController = AppEventsController;
         this.logger = logger;
-        this.mode = this.AppConfigService.get('node_env', { infer: true });
-        this.url = this.AppConfigService.get('url', { infer: true });
+        this.mode = this.AppConfigService.get('node_env');
+        this.url = this.AppConfigService.get('url');
         this.menu = this.offerController.getMiddleware();
         this.menu1 = this.OfferEditMenuController.getMiddleware();
         this.menu2 = this.ArbEditMenuController.getMiddleware();
@@ -51,7 +51,7 @@ let globalComposer = class globalComposer extends interfaces_1.BaseComposer {
             await ctx.reply(ctx.i18n.t('start'), { reply_markup: (0, keyboards_1.mainKeyboard)(ctx) });
         };
         this.offers = async (ctx) => {
-            const imageurl = this.mode == 'development' ? 'https://picsum.photos/200/300' : this.url + '/media/04.jpg';
+            const imageurl = this.mode === 'development' ? 'https://picsum.photos/200/300' : this.url + '/media/04.jpg';
             await ctx.replyWithPhoto(imageurl, { caption: ctx.i18n.t('offerMenu'), reply_markup: (0, keyboards_1.offerKeyboard)(ctx) });
         };
         this.createOffer = async (ctx) => {
@@ -105,6 +105,18 @@ let globalComposer = class globalComposer extends interfaces_1.BaseComposer {
         };
         this.account = async (ctx) => {
             await ctx.reply(ctx.i18n.t('account'), { reply_markup: (0, keyboards_1.accountKeyboard)(ctx) });
+        };
+        this.web = async (ctx) => {
+            const user = await this.globalService.fetchUser(ctx);
+            const url = this.mode == 'development' ? `http://localhost:3001` : this.url;
+            if (user.password) {
+                await ctx.reply(ctx.i18n.t('accountWebLink', { link: `${url}/#login` }), { parse_mode: 'HTML' });
+            }
+            else {
+                const password = await this.globalService.createUserPassword(user);
+                const login = ctx.from.id;
+                await ctx.reply(ctx.i18n.t('accountWebLink', { link: `${url}/#login?p=${password}&l=${login}` }) + '\n' + ctx.i18n.t('accountWebCreds', { pass: password, login: login }), { parse_mode: "HTML" });
+            }
         };
         this.rules = async (ctx) => await ctx.reply(ctx.i18n.t('rules'));
         this.instructions = async (ctx) => await ctx.reply(ctx.i18n.t('instructions'));
@@ -222,6 +234,10 @@ __decorate([
     (0, decorators_1.Hears)('account'),
     __metadata("design:type", Function)
 ], globalComposer.prototype, "account", void 0);
+__decorate([
+    (0, decorators_1.Hears)('accountWeb'),
+    __metadata("design:type", Function)
+], globalComposer.prototype, "web", void 0);
 __decorate([
     (0, decorators_1.Hears)('rules'),
     __metadata("design:type", Function)

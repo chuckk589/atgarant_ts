@@ -4,11 +4,11 @@
 - [Usage](#usage)
 - [Documentation](#documentation)
 ### Installation
- 1. ENV params 
-    database = [mysql://][user]:[pass]@[host]:[port]/[database]
-    url = [http://][ip]
-    jwt-secret = [any]
-    port = [number]
+ 1. ENV params  
+    database = [mysql://][user]:[pass]@[host]:[port]/[database]  
+    url = [http://][ip]  
+    jwt-secret = [any]  
+    port = [number]  
 
 #### Usage
 

@@ -30,6 +30,7 @@ export declare class globalComposer extends BaseComposer {
     activeArbitraries: Function;
     allArbitraries: Function;
     account: Function;
+    web: Function;
     rules: Function;
     instructions: Function;
     info: Function;

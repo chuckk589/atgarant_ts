@@ -55,7 +55,9 @@ export class globalComposer extends BaseComposer {
   //* OFFERS BLOCK
   @Hears('offers')
   offers: Function = async (ctx: BotContext) => {
-    const imageurl = this.mode === 'development' ? 'https://picsum.photos/200/300' : this.url + '/media/04.jpg';
+    //FIXME:
+   // const imageurl = this.mode === 'development' ? 'https://picsum.photos/200/300' : this.url + '/media/04.jpg';
+    const imageurl = 'https://picsum.photos/200/300'
     await ctx.replyWithPhoto(imageurl, { caption: ctx.i18n.t('offerMenu'), reply_markup: offerKeyboard(ctx) })
   }
   @Hears('createOffer')
@@ -85,7 +87,9 @@ export class globalComposer extends BaseComposer {
   //* OFFERS BLOCK
   @Hears('arbitraries')
   arbitraries: Function = async (ctx: BotContext) => {
-    const imageurl = this.mode == 'development' ? 'https://picsum.photos/200/300' : this.url + '/media/03.jpg';
+    //FIXME:
+    //const imageurl = this.mode == 'development' ? 'https://picsum.photos/200/300' : this.url + '/media/03.jpg';
+    const imageurl = 'https://picsum.photos/200/300'
     await ctx.replyWithPhoto(imageurl, { caption: ctx.i18n.t('arbitraries'), reply_markup: arbitraryKeyboard(ctx) })
   }
   

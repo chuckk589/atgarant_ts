@@ -15,7 +15,7 @@ module.exports = {
   // publicPath: process.env.NODE_ENV === 'production' ? '/vue/demo/3.1.0' : '/'
   devServer: {
     proxy: {
-      '^/v1': {
+      '^/': {
         target: 'http://localhost:3000',
         changeOrigin: true,
       },
@@ -25,5 +25,5 @@ module.exports = {
     }
   },
   outputDir: "./dist",
-  publicPath: '/dist'
+  //publicPath: '/dist'
 }

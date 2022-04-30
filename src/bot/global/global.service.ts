@@ -74,12 +74,12 @@ export class globalService {
   async fetchUser(ctx: BotContext): Promise<Users> {
     let user = await this.em.findOne(Users, { chatId: String(ctx.from.id) })
     if (!user) {
-      user = await this.em.create(Users, {
+      user = this.em.create(Users, {
         chatId: String(ctx.from.id),
         username: ctx.from.username,
         firstName: String(ctx.from.first_name)
       })
-      this.em.persistAndFlush(user)
+      await this.em.persistAndFlush(user)
     }
     return user
   }

@@ -10,17 +10,22 @@ export class AuthService {
     private readonly em: EntityManager,
   ) { }
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.em.findOne(Users, username);
-    if (user && user.password === pass) {
+  async validateUser(chatId: string | number, pass: string): Promise<any> {
+    const user = await this.em.findOne(Users, { chatId: String(chatId) });
+    if (user && user.comparePassword(pass)) {
       const { password, ...result } = user;
       return result;
     }
     return null;
   }
 
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.userId };
+  async login(user: Users) {
+    const payload = {
+      username: user.username,
+      chat_id: user.chatId,
+      sub: user.id,
+      role: user.role
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };

@@ -5,6 +5,7 @@ import { AppConfigService } from 'src/app-config/app-config.service';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
@@ -13,11 +14,11 @@ import { LocalStrategy } from './strategies/local.strategy';
       inject: [AppConfigService],
       useFactory: (configService: AppConfigService) => ({
         secret: configService.get<string>('jwt-secret'),
-        signOptions: { expiresIn: `60s` }
+        signOptions: { expiresIn: `7d` }
       })
     })
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
-  exports: [AuthService],
+  providers: [LocalStrategy, JwtStrategy, AuthService],
+  controllers: [AuthController],
 })
 export class AuthModule { }

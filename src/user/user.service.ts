@@ -1,19 +1,19 @@
+import { EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { Users } from 'src/mikroorm/entities/Users';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    private readonly em: EntityManager
+  ) { }
+  async findAll() {
+    return await this.em.find(Users, {})
   }
 
-  findAll() {
-    return `This action returns all user`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    return await this.em.findOne(Users, { id: id })
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

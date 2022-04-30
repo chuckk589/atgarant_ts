@@ -22,6 +22,9 @@ import { Invoices } from 'src/mikroorm/entities/Invoices';
 //TODO: try catch error for every event
 @Controller()
 export class AppEventsController {
+    /**
+     * @param {any} issuerChatId:number chatid or userid
+     */
     async arbOpened<T = Offers | number>(offer: T, reason: string, issuerChatId: number): Promise<Offerstatuses> {
         let offerData: Offers = offer instanceof Offers ? offer : await this.appEventsService.getOfferById(<any>offer)
         const mod = await this.appEventsService.getLeastBusyMod()
@@ -35,7 +38,7 @@ export class AppEventsController {
         this.bot.api.sendMessage(mod.chatId, i18n.t(mod.locale, 'arbiterPoke', { id: offerData.id, inviteLink: chatData.inviteLink }))
         return this.appConfigService.offerStatus<string>('arbitrary')
     }
-    async arbClosed<T = Arbitraries | number>(arb: T, modReview: ArbModeratorReview) {
+    async arbClosed<T = Arbitraries | number>(arb: T, modReview: ArbModeratorReview): Promise<ArbitrariesStatus> {
         let arbData: Arbitraries = arb instanceof Arbitraries ? arb : await this.appEventsService.getArbById(<any>arb)
         let message: string
         if (arbData.status == ArbitrariesStatus.ACTIVE) {
@@ -55,6 +58,7 @@ export class AppEventsController {
             await this.PaymentController.arbitraryWithdraw(arbData)
         }
         this.bot.api.sendMessage(`-${arbData.chatId}`, message)
+        return arbData.status
     }
     async arbDisputed<T = Arbitraries | number>(arb: T, issuerChatId: number): Promise<ArbitrariesStatus> {
         let arbData: Arbitraries = arb instanceof Arbitraries ? arb : await this.appEventsService.getArbById(<any>arb)

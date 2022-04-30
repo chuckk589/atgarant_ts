@@ -57,7 +57,10 @@ export class Users {
     }
   }
   async comparePassword(password: string): Promise<boolean> {
-    return await compare(password, this.password);
+    if(this.password){
+      return await compare(password, this.password);
+    }
+    return true
   }
   @AfterCreate()
   afterCreate(args: EventArgs<Users>) {

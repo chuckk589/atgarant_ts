@@ -2,6 +2,9 @@ import { Entity, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 
 @Entity()
 export class Configs {
+  constructor(payload: any) {
+    Object.assign(this, payload);
+  }
 
   @PrimaryKey()
   id!: number;

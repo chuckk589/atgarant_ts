@@ -1,23 +1,16 @@
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from 'nestjs-pino';
+import { AppConfigService } from './app-config/app-config.service';
 import { AppModule } from './app.module';
 
 export async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  //await app.get(MikroORM).getSchemaGenerator().ensureDatabase();
-  // await app.get(MikroORM).getSchemaGenerator().updateSchema();
-  app.setGlobalPrefix('api/v1');
-  app.useLogger(app.get(Logger));
-  // app.useGlobalFilters(new AllExceptionsFilter());
-  await app.listen(3000);
-}
-import { Catch, ArgumentsHost } from '@nestjs/common';
-import { BaseExceptionFilter } from '@nestjs/core';
+  //app.useLogger(app.get(Logger));
+  app.enableVersioning({ type: VersioningType.URI });
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
-@Catch()
-export class AllExceptionsFilter extends BaseExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
-    super.catch(exception, host);
-    console.log('wtf')
-  }
+  const configService = app.get(AppConfigService);
+  await app.listen(configService.get('port'));
 }
+

@@ -17,9 +17,14 @@ import { UserModule } from './user/user.module';
 import { PaymentsModule } from './payments/payments.module';
 import { PaymentProviderModule } from './payment-provider/payment-provider.module';
 import { TelegramModule } from './telegram/telegram.module';
-import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ViolationModule } from './violation/violation.module';
+import { ReviewModule } from './review/review.module';
+import { OfferModule } from './offer/offer.module';
+import { LinkModule } from './link/link.module';
+import { ConfigModule } from './config/config.module';
+import { ArbitraryModule } from './arbitrary/arbitrary.module';
 
 @Module({
   imports: [
@@ -33,8 +38,14 @@ import { ScheduleModule } from '@nestjs/schedule';
     TelegramModule,
     ScheduleModule.forRoot(),
     AuthModule,
+    ViolationModule,
+    ReviewModule,
+    OfferModule,
+    LinkModule,
+    ConfigModule,
+    ArbitraryModule,
   ],
   controllers: [],
-  providers: [AuthService],
+  providers: [],
 })
 export class AppModule { }

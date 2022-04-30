@@ -17,16 +17,14 @@ export class TelegramGateway {
     @InjectPinoLogger('TelegramGateway') private readonly logger: PinoLogger,
     private readonly AppConfigService: AppConfigService,
     @Inject(forwardRef(() => BOT_NAME)) private bot: Bot<BotContext>,
-  ) { }
-  //TODO: set to false
-  private clientStatus: boolean = true
+  ) {
+    this.init()
+  }
+  private clientStatus: boolean = false
   private client: TelegramClient
 
   init = async () => {
     try {
-      // TODO: uncomment
-      this.clientStatus = true
-      return
       const stringSession = new StringSession(this.AppConfigService.get('APP_SESSION_STRING'));
       this.client = new TelegramClient(
         stringSession,
@@ -40,33 +38,27 @@ export class TelegramGateway {
     }
   }
   newArbitraryChat = async (offerId: number): Promise<NewArbResponse> => {
-    if (!this.clientStatus) return { error: true, errorMessage: 'telegram client is not active atm' }
-    try {
-      // TODO: uncomment
-      // const botData = await this.bot.api.getMe()
-      // const botUsername = `@${botData.username}`
-      // const newChat: any = await this.client.invoke(
-      //   new Api.channels.CreateChannel(
-      //     {
-      //       broadcast: false,
-      //       megagroup: true,
-      //       about: '',
-      //       title: `Арбитраж по сделке ${offerId}`
-      //     }
-      //   ))
-      // await this.client.invoke(new Api.channels.InviteToChannel({
-      //   channel: +`-100${newChat.chats[0].id}`,
-      //   users: [botUsername],
-      // }))
-      // const inviteLink = await this.client.invoke(new Api.channels.GetFullChannel({ channel: newChat.chats[0].id }))
-      // return ({error: false, inviteLink: inviteLink.fullChat.exportedInvite.link, chat_id: `100${newChat.chats[0].id}` })
-      return ({ error: false, inviteLink: ' inviteLink.fullChat.exportedInvite.link', chat_id: '`100${newChat.chats[0].id}`' })
-    } catch (error) {
-      return { error: true, errorMessage: error }
-    }
+    if (!this.clientStatus) throw new Error('TelegramGateway clientStatus false')
+    const botData = await this.bot.api.getMe()
+    const botUsername = `@${botData.username}`
+    const newChat: any = await this.client.invoke(
+      new Api.channels.CreateChannel(
+        {
+          broadcast: false,
+          megagroup: true,
+          about: '',
+          title: `Арбитраж по сделке ${offerId}`
+        }
+      ))
+    await this.client.invoke(new Api.channels.InviteToChannel({
+      channel: +`-100${newChat.chats[0].id}`,
+      users: [botUsername],
+    }))
+    const inviteLink = await this.client.invoke(new Api.channels.GetFullChannel({ channel: newChat.chats[0].id }))
+    return ({ error: false, inviteLink: inviteLink.fullChat.exportedInvite.link, chat_id: `100${newChat.chats[0].id}` })
   }
-  getChatHistory = async (arbId: number) => {
-    if (!this.clientStatus) return { error: true, errorMessage: 'telegram client is not active atm' }
+  getChatHistory = async (arbId: number): Promise<string> => {
+    if (!this.clientStatus) throw new Error('TelegramGateway clientStatus false')
     const arb = await this.telegramService.getArbitrary(arbId)
     const result: any = await this.client.invoke(new Api.messages.GetHistory({
       peer: -1 * Number(arb.chatId)
@@ -87,13 +79,14 @@ export class TelegramGateway {
     //console.log(result.messages[0]); // prints the result
   }
   //TODO: implement
-  // @SubscribeMessage('phoneCode')
-  // handleEvent(
-  //   @MessageBody() data: string,
-  //   @ConnectedSocket() client: Socket,
-  //   ): string {
-  //   return data;
-  // }
+  @SubscribeMessage('phoneCode')
+  handleEvent(
+    @MessageBody() data: string,
+    @ConnectedSocket() client: any,
+  ): string {
+    console.log(data,client)
+    return data;
+  }
   // getPhoneCode = (socket) => {
   //   //console.log('connection')
   //   socket.on("phoneCode", async (phone, callback) => {

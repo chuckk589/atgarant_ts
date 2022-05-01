@@ -1,12 +1,12 @@
 import { ModuleMetadata } from "@nestjs/common";
 import { Api, Composer, Context, SessionFlavor } from "grammy";
 import { I18nContext, I18nContextFlavor } from "@grammyjs/i18n";
+import { Menu, MenuControlPanel, MenuFlavor } from "@grammyjs/menu";
 import { botOfferDto } from "src/mikroorm/dto/create-offer.dto";
 import { Router } from '@grammyjs/router';
 import { Offers } from "src/mikroorm/entities/Offers";
 import { Arbitraries } from "src/mikroorm/entities/Arbitraries";
 import { InvoicesType } from "src/mikroorm/entities/Invoices";
-import { Menu, MenuControlPanel, MenuFlavor } from 'src/bot/plugins/menu/menu-extended';
 import { Update, UserFromGetMe } from "@grammyjs/types";
 import { Message } from "@grammyjs/menu/out/deps.node";
 export interface GrammyBotOptions {
@@ -45,8 +45,8 @@ export declare class OfferCallbackData {
 }
 export declare class BotContext extends Context implements SessionFlavor<Session>, I18nContextFlavor, MenuFlavor {
     constructor(update: Update, api: Api, me: UserFromGetMe);
-    i18n: I18nContext;
     menu: MenuControlPanel;
+    i18n: I18nContext;
     match: string;
     clean: () => Promise<void>;
     cleanAndReply: (text: string, other?: any, signal?: any) => Promise<Message.TextMessage>;

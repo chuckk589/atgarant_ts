@@ -116,14 +116,14 @@ let routerController = class routerController extends interfaces_1.BaseRouter {
             }
         })
             .route(interfaces_1.BotStep.setWallet, async (ctx) => {
-            ctx.session.step = interfaces_1.BotStep.default;
+            ctx.session.step = interfaces_1.BotStep.offer;
             await this.routerService.setWallet(ctx);
             await ctx.reply(ctx.i18n.t('dataUpdated'));
         })
             .route(interfaces_1.BotStep.setArbitrary, async (ctx) => {
             try {
                 ctx.session.editedOffer.offerStatus = await this.AppEventsController.arbOpened(ctx.session.editedOffer, ctx.message.text, ctx.from.id);
-                ctx.session.step = interfaces_1.BotStep.default;
+                ctx.session.step = interfaces_1.BotStep.offer;
                 await ctx.cleanReplySave((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() });
             }
             catch (error) {
@@ -134,7 +134,7 @@ let routerController = class routerController extends interfaces_1.BaseRouter {
             .route(interfaces_1.BotStep.setFeedbackN || interfaces_1.BotStep.setFeedbackP, async (ctx) => {
             try {
                 const rate = ctx.session.step == interfaces_1.BotStep.setFeedbackN ? Reviews_1.ReviewsRate.NEGATIVE : Reviews_1.ReviewsRate.POSITIVE;
-                ctx.session.step = interfaces_1.BotStep.default;
+                ctx.session.step = interfaces_1.BotStep.offer;
                 await this.AppEventsController.offerFeedback(ctx.session.editedOffer, ctx.message.text, ctx.from.id, rate);
                 await ctx.reply(ctx.i18n.t('feedbackLeft'));
             }

@@ -1,14 +1,13 @@
 import { ModuleMetadata, Type } from "@nestjs/common";
 import { Api, Composer, Context, FilterQuery, Middleware, SessionFlavor } from "grammy";
 import { I18nContext, I18nContextFlavor } from "@grammyjs/i18n";
-//import { Menu, MenuFlavor } from "@grammyjs/menu";
+import { Menu, MenuControlPanel, MenuFlavor } from "@grammyjs/menu";
 import { botOfferDto } from "src/mikroorm/dto/create-offer.dto";
 import { match } from "src/bot/common/helpers";
 import { Router } from '@grammyjs/router'
 import { Offers, OffersRole } from "src/mikroorm/entities/Offers";
 import { Arbitraries } from "src/mikroorm/entities/Arbitraries";
 import { InvoicesType } from "src/mikroorm/entities/Invoices";
-import { Menu, MenuControlPanel, MenuFlavor } from 'src/bot/plugins/menu/menu-extended'
 import { Update, UserFromGetMe } from "@grammyjs/types";
 import { Message } from "@grammyjs/menu/out/deps.node";
 
@@ -81,8 +80,8 @@ export class BotContext extends Context implements SessionFlavor<Session>, I18nC
       console.log('save', messageId, this.session.menuId)
     }
   }
-  i18n: I18nContext;
   menu: MenuControlPanel;
+  i18n: I18nContext;
   match: string
   clean: () => Promise<void>
   cleanAndReply: (text: string, other?: any, signal?: any) => Promise<Message.TextMessage>;

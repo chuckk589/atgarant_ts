@@ -17,9 +17,9 @@ export declare class globalComposer extends BaseComposer {
     constructor(globalService: globalService, AppConfigService: AppConfigService, offerController: offerController, OfferEditMenuController: OfferEditMenuController, ArbEditMenuController: ArbEditMenuController, AppEventsController: AppEventsController, logger: PinoLogger);
     mode: string;
     url: string;
-    menu: import("../plugins/menu/menu-extended").Menu<import("grammy").Context>;
-    menu1: import("../plugins/menu/menu-extended").Menu<import("grammy").Context>;
-    menu2: import("../plugins/menu/menu-extended").Menu<import("grammy").Context>;
+    menu: import("@grammyjs/menu").Menu<import("grammy").Context>;
+    menu1: import("@grammyjs/menu").Menu<import("grammy").Context>;
+    menu2: import("@grammyjs/menu").Menu<import("grammy").Context>;
     start: Function;
     back: Function;
     offers: Function;

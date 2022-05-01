@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.offerController = void 0;
+const menu_1 = require("@grammyjs/menu");
 const app_config_service_1 = require("../../app-config/app-config.service");
 const Offers_1 = require("../../mikroorm/entities/Offers");
 const interfaces_1 = require("../../types/interfaces");
@@ -17,13 +18,12 @@ const decorators_1 = require("../common/decorators");
 const helpers_1 = require("../common/helpers");
 const keyboards_1 = require("../common/keyboards");
 const offer_service_1 = require("./offer.service");
-const menu_extended_1 = require("../plugins/menu/menu-extended");
 let offerController = class offerController extends interfaces_1.BaseMenu {
     constructor(offerService, configService) {
         super();
         this.offerService = offerService;
         this.configService = configService;
-        this.menu = new menu_extended_1.Menu("offer-menu")
+        this.menu = new menu_1.Menu("offer-menu")
             .dynamic((ctx, range) => {
             switch (ctx.session.step) {
                 case interfaces_1.BotStep.rules: {

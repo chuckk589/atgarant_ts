@@ -21,7 +21,7 @@ let AuthService = class AuthService {
     }
     async validateUser(chatId, pass) {
         const user = await this.em.findOne(Users_1.Users, { chatId: String(chatId) });
-        if (user && user.comparePassword(pass)) {
+        if (user && await user.comparePassword(pass)) {
             const { password, ...result } = user;
             return result;
         }

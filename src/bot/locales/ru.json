@@ -31,7 +31,7 @@
     "askShippingDetails": "Укажите способ передачи товара",
     "askProductAdditionalDetails": "Укажите подробную информацию о товаре",
     "askRestDetails": "Укажите всю прочую информацию",
-    "askProductRefundTime": "Укажите в течении какого времени покупатель должэен проверить товар",
+    "askProductRefundTime": "Укажите в течении какого времени покупатель должен проверить товар",
     "editOffer": "Изменить сделку",
     "rejectOffer": "Отменить сделку",
     "admitOffer": "Согласовать сделку",
@@ -120,5 +120,12 @@
     "closed": "Предварительное решение",
     "closedF": "Закрыт",
     "active": "В процессе",
-    "disputed": "Оспаривается"
+    "disputed": "Оспаривается",
+    "arbCreationFailed":"Что-то пошло не так!",
+    "arbDisputeFailed":"Что-то пошло не так!",
+    "offerShippingFailed":"Что-то пошло не так!",
+    "feedbackFailed":"Что-то пошло не так!",
+    "arrivalFailed":"Что-то пошло не так!",
+    "paymentRequestFailed":"Что-то пошло не так!",
+    "offerAcceptionFailed":"Что-то пошло не так!"
 }

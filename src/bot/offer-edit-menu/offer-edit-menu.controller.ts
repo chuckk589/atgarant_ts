@@ -8,11 +8,13 @@ import { isInitiator, isSeller, leftReview } from 'src/bot/common/helpers'
 import { AppEventsController } from "src/app-events/app-events.controller";
 import { Offers } from 'src/mikroorm/entities/Offers';
 import { feedbackMenu } from '../common/keyboards';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @MenuController
 export class OfferEditMenuController extends BaseMenu {
   constructor(
     private readonly AppEventsController: AppEventsController,
+    @InjectPinoLogger('OfferEditMenuController') private readonly logger: PinoLogger,
   ) {
     super()
   }
@@ -22,24 +24,40 @@ export class OfferEditMenuController extends BaseMenu {
       const status = ctx.session.editedOffer.offerStatus
       const _isSeller = isSeller(ctx)
       const _canLeaveReview = leftReview(ctx.session.editedOffer.reviews, ctx.from.id)
-      range.text(ctx.i18n.t('setWallet'), async (ctx) => {
+      if (status.value == 'denied') return range
+      status.value !== 'closed' && range.text(ctx.i18n.t('setWallet'), async (ctx) => {
         ctx.session.step = BotStep.setWallet
         await ctx.reply(ctx.i18n.t('askWallet'))
       })
       status.value === 'payed' && _isSeller && range.text(ctx.i18n.t('confirmShipping'), async (ctx) => {
-        ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerShipped<Offers>(ctx.session.editedOffer)
-        ctx.menu.update()
-        ctx.reply(ctx.i18n.t('dataUpdated'))
+        try {
+          ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerShipped<Offers>(ctx.session.editedOffer)
+          ctx.menu.update()
+          ctx.reply(ctx.i18n.t('dataUpdated'))
+        } catch (error) {
+          this.logger.error(error)
+          ctx.reply(ctx.i18n.t('offerShippingFailed'))
+        }
       })
       status.value === 'arrived' && _isSeller && ctx.session.pendingOffer.sellerWalletData && range.text(ctx.i18n.t('getPayout'), async (ctx) => {
-        ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerPaymentRequested<Offers>(ctx.session.editedOffer)
-        ctx.menu.update()
-        ctx.reply(ctx.i18n.t('sellerOfferPaymentRequested'))
+        try {
+          ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerPaymentRequested<Offers>(ctx.session.editedOffer)
+          ctx.menu.update()
+          ctx.reply(ctx.i18n.t('sellerOfferPaymentRequested'))
+        } catch (error) {
+          this.logger.error(error)
+          ctx.reply(ctx.i18n.t('paymentRequestFailed'))
+        }
       })
       status.value === 'shipped' && !_isSeller && ctx.session.pendingOffer.sellerWalletData && range.text(ctx.i18n.t('confirmArrival'), async (ctx) => {
-        ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerArrived<Offers>(ctx.session.editedOffer)
-        ctx.menu.update()
-        ctx.reply(ctx.i18n.t('dataUpdated'))
+        try {
+          ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerArrived<Offers>(ctx.session.editedOffer)
+          ctx.menu.update()
+          ctx.reply(ctx.i18n.t('dataUpdated'))
+        } catch (error) {
+          this.logger.error(error)
+          ctx.reply(ctx.i18n.t('arrivalFailed'))
+        }
       })
       status.value !== 'closed' && status.value !== 'arbitrary' && status.value !== 'pending' && range.text(ctx.i18n.t('openArbitrary'), async (ctx) => {
         ctx.session.step = BotStep.setArbitrary

@@ -15,7 +15,10 @@ import { manageOfferMenu } from "../common/keyboards";
 import { checkoutArbMessage, checkoutMessage } from "../common/helpers";
 import { OfferEditMenuController } from 'src/bot/offer-edit-menu/offer-edit-menu.controller'
 import { ReviewsRate } from "src/mikroorm/entities/Reviews";
+import { ArbEditMenuController } from 'src/bot/arb-edit-menu/arb-edit-menu.controller'
+import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
 
+//TODO:  Route decorator
 @Injectable()
 @RouterController
 export class routerController extends BaseRouter {
@@ -24,8 +27,10 @@ export class routerController extends BaseRouter {
     private readonly routerService: routerService,
     private readonly offerController: offerController,
     private readonly OfferEditMenuController: OfferEditMenuController,
+    private readonly ArbEditMenuController: ArbEditMenuController,
     private readonly AppConfigService: AppConfigService,
     private readonly AppEventsController: AppEventsController,
+    @InjectPinoLogger('routerController') private readonly logger: PinoLogger,
   ) {
     super()
   }
@@ -108,22 +113,32 @@ export class routerController extends BaseRouter {
       await ctx.reply(ctx.i18n.t('dataUpdated'))
     })
     .route(BotStep.setArbitrary, async ctx => {
-      ctx.session.step = BotStep.default
-      ctx.session.editedOffer.offerStatus = await this.AppEventsController.arbOpened<Offers>(ctx.session.editedOffer, ctx.message.text, ctx.from.id)
-      await ctx.cleanReplySave(checkoutMessage(new botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() })
+      try {
+        ctx.session.editedOffer.offerStatus = await this.AppEventsController.arbOpened<Offers>(ctx.session.editedOffer, ctx.message.text, ctx.from.id)
+        ctx.session.step = BotStep.default
+        await ctx.cleanReplySave(checkoutMessage(new botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() })
+      } catch (error) {
+        this.logger.error(error)
+        await ctx.reply(ctx.i18n.t('arbCreationFailed'))
+      }
     })
     .route(BotStep.setFeedbackN || BotStep.setFeedbackP, async ctx => {
-      const rate = ctx.session.step == BotStep.setFeedbackN ? ReviewsRate.NEGATIVE : ReviewsRate.POSITIVE
-      ctx.session.step = BotStep.default
-      await this.AppEventsController.offerFeedback<Offers>(ctx.session.editedOffer, ctx.message.text, ctx.from.id, rate)
-      await ctx.reply(ctx.i18n.t('feedbackLeft'))
+      try {
+        const rate = ctx.session.step == BotStep.setFeedbackN ? ReviewsRate.NEGATIVE : ReviewsRate.POSITIVE
+        ctx.session.step = BotStep.default
+        await this.AppEventsController.offerFeedback<Offers>(ctx.session.editedOffer, ctx.message.text, ctx.from.id, rate)
+        await ctx.reply(ctx.i18n.t('feedbackLeft'))
+      } catch (error) {
+        this.logger.error(error)
+        await ctx.reply(ctx.i18n.t('feedbackFailed'))
+      }
     })
     .route(BotStep.arbitrary, async ctx => {
       if (ctx.message && ctx.message.text && Number(ctx.message.text)) {
         const arb = await this.routerService.fetchArb(Number(ctx.message.text), ctx.from.id)
         if (!arb) return
         ctx.session.editedArb = arb
-        await ctx.cleanReplySave(checkoutArbMessage(arb, ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() })
+        await ctx.cleanReplySave(checkoutArbMessage(arb, ctx.i18n.locale()), { reply_markup: this.ArbEditMenuController.getMiddleware() })
       }
     })
     .otherwise(ctx => {

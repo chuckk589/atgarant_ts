@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.routerController = void 0;
 const router_1 = require("@grammyjs/router");
@@ -24,14 +27,18 @@ const keyboards_1 = require("../common/keyboards");
 const helpers_1 = require("../common/helpers");
 const offer_edit_menu_controller_1 = require("../offer-edit-menu/offer-edit-menu.controller");
 const Reviews_1 = require("../../mikroorm/entities/Reviews");
+const arb_edit_menu_controller_1 = require("../arb-edit-menu/arb-edit-menu.controller");
+const nestjs_pino_1 = require("nestjs-pino");
 let routerController = class routerController extends interfaces_1.BaseRouter {
-    constructor(routerService, offerController, OfferEditMenuController, AppConfigService, AppEventsController) {
+    constructor(routerService, offerController, OfferEditMenuController, ArbEditMenuController, AppConfigService, AppEventsController, logger) {
         super();
         this.routerService = routerService;
         this.offerController = offerController;
         this.OfferEditMenuController = OfferEditMenuController;
+        this.ArbEditMenuController = ArbEditMenuController;
         this.AppConfigService = AppConfigService;
         this.AppEventsController = AppEventsController;
+        this.logger = logger;
         this.router = new router_1.Router((ctx) => ctx.session.step)
             .route(interfaces_1.BotStep.contact, async (ctx) => {
             const user = await this.routerService.fetchContact(ctx);
@@ -114,15 +121,27 @@ let routerController = class routerController extends interfaces_1.BaseRouter {
             await ctx.reply(ctx.i18n.t('dataUpdated'));
         })
             .route(interfaces_1.BotStep.setArbitrary, async (ctx) => {
-            ctx.session.step = interfaces_1.BotStep.default;
-            ctx.session.editedOffer.offerStatus = await this.AppEventsController.arbOpened(ctx.session.editedOffer, ctx.message.text, ctx.from.id);
-            await ctx.cleanReplySave((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() });
+            try {
+                ctx.session.editedOffer.offerStatus = await this.AppEventsController.arbOpened(ctx.session.editedOffer, ctx.message.text, ctx.from.id);
+                ctx.session.step = interfaces_1.BotStep.default;
+                await ctx.cleanReplySave((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() });
+            }
+            catch (error) {
+                this.logger.error(error);
+                await ctx.reply(ctx.i18n.t('arbCreationFailed'));
+            }
         })
             .route(interfaces_1.BotStep.setFeedbackN || interfaces_1.BotStep.setFeedbackP, async (ctx) => {
-            const rate = ctx.session.step == interfaces_1.BotStep.setFeedbackN ? Reviews_1.ReviewsRate.NEGATIVE : Reviews_1.ReviewsRate.POSITIVE;
-            ctx.session.step = interfaces_1.BotStep.default;
-            await this.AppEventsController.offerFeedback(ctx.session.editedOffer, ctx.message.text, ctx.from.id, rate);
-            await ctx.reply(ctx.i18n.t('feedbackLeft'));
+            try {
+                const rate = ctx.session.step == interfaces_1.BotStep.setFeedbackN ? Reviews_1.ReviewsRate.NEGATIVE : Reviews_1.ReviewsRate.POSITIVE;
+                ctx.session.step = interfaces_1.BotStep.default;
+                await this.AppEventsController.offerFeedback(ctx.session.editedOffer, ctx.message.text, ctx.from.id, rate);
+                await ctx.reply(ctx.i18n.t('feedbackLeft'));
+            }
+            catch (error) {
+                this.logger.error(error);
+                await ctx.reply(ctx.i18n.t('feedbackFailed'));
+            }
         })
             .route(interfaces_1.BotStep.arbitrary, async (ctx) => {
             if (ctx.message && ctx.message.text && Number(ctx.message.text)) {
@@ -130,7 +149,7 @@ let routerController = class routerController extends interfaces_1.BaseRouter {
                 if (!arb)
                     return;
                 ctx.session.editedArb = arb;
-                await ctx.cleanReplySave((0, helpers_1.checkoutArbMessage)(arb, ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() });
+                await ctx.cleanReplySave((0, helpers_1.checkoutArbMessage)(arb, ctx.i18n.locale()), { reply_markup: this.ArbEditMenuController.getMiddleware() });
             }
         })
             .otherwise(ctx => {
@@ -145,11 +164,14 @@ __decorate([
 routerController = __decorate([
     (0, common_1.Injectable)(),
     decorators_1.RouterController,
+    __param(6, (0, nestjs_pino_1.InjectPinoLogger)('routerController')),
     __metadata("design:paramtypes", [router_service_1.routerService,
         offer_controller_1.offerController,
         offer_edit_menu_controller_1.OfferEditMenuController,
+        arb_edit_menu_controller_1.ArbEditMenuController,
         app_config_service_1.AppConfigService,
-        app_events_controller_1.AppEventsController])
+        app_events_controller_1.AppEventsController,
+        nestjs_pino_1.PinoLogger])
 ], routerController);
 exports.routerController = routerController;
 //# sourceMappingURL=router.controller.js.map

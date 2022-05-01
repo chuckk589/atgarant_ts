@@ -12,7 +12,7 @@ export class AuthService {
 
   async validateUser(chatId: string | number, pass: string): Promise<any> {
     const user = await this.em.findOne(Users, { chatId: String(chatId) });
-    if (user && user.comparePassword(pass)) {
+    if (user && await user.comparePassword(pass)) {
       const { password, ...result } = user;
       return result;
     }

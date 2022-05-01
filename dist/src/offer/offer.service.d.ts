@@ -11,5 +11,5 @@ export declare class OfferService {
     createArb(id: string, body: CreateArbDto): Promise<Offerstatuses>;
     offerAction(id: string): Promise<Offerstatuses>;
     constructor(em: EntityManager, AppEventsController: AppEventsController);
-    findAll(userId?: string): Promise<import("@mikro-orm/core").Loaded<Offers, "paymentMethod" | "initiator" | "partner" | "offerStatus" | "reviews">[]>;
+    findAll(userId?: string): Promise<import("@mikro-orm/core").Loaded<Offers, "initiator" | "paymentMethod" | "partner" | "offerStatus" | "reviews">[]>;
 }

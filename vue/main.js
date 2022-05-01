@@ -33,5 +33,5 @@ new Vue({
   template: '<App/>',
   components: {
     App
-  }
+  },
 })

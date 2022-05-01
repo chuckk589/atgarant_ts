@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.routerModule = void 0;
 const common_1 = require("@nestjs/common");
 const app_events_module_1 = require("../../app-events/app-events.module");
+const arb_edit_menu_module_1 = require("../arb-edit-menu/arb-edit-menu.module");
 const offer_edit_menu_module_1 = require("../offer-edit-menu/offer-edit-menu.module");
 const offer_module_1 = require("../offer-menu/offer.module");
 const router_controller_1 = require("./router.controller");
@@ -17,7 +18,7 @@ let routerModule = class routerModule {
 };
 routerModule = __decorate([
     (0, common_1.Module)({
-        imports: [offer_module_1.offerModule, offer_edit_menu_module_1.OfferEditMenuModule, app_events_module_1.AppEventsModule],
+        imports: [offer_module_1.offerModule, offer_edit_menu_module_1.OfferEditMenuModule, arb_edit_menu_module_1.ArbEditMenuModule, app_events_module_1.AppEventsModule],
         providers: [router_service_1.routerService, router_controller_1.routerController],
         exports: [router_controller_1.routerController]
     })

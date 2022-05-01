@@ -48,7 +48,7 @@ export class Users {
 
   @OneToMany(() => Violations, violation => violation.user)
   violations = new Collection<Violations>(this);
-  
+
   @BeforeUpdate()
   @BeforeCreate()
   async beforeCreate(): Promise<void> {
@@ -57,7 +57,7 @@ export class Users {
     }
   }
   async comparePassword(password: string): Promise<boolean> {
-    if(this.password){
+    if (this.password) {
       return await compare(password, this.password);
     }
     return true

@@ -17,6 +17,7 @@ export declare class AppEventsController {
     private bot;
     private readonly logger;
     private PaymentController;
+    constructor(appEventsService: AppEventsService, appConfigService: AppConfigService, offerController: offerController, TelegramGateway: TelegramGateway, bot: Bot<BotContext>, logger: PinoLogger, PaymentController: BasePaymentController);
     arbOpened<T = Offers | number>(offer: T, reason: string, issuerChatId: number): Promise<Offerstatuses>;
     arbClosed<T = Arbitraries | number>(arb: T, modReview: ArbModeratorReview): Promise<ArbitrariesStatus>;
     arbDisputed<T = Arbitraries | number>(arb: T, issuerChatId: number): Promise<ArbitrariesStatus>;
@@ -26,7 +27,6 @@ export declare class AppEventsController {
     offerFeedback<T = Offers | number>(offer: T, feedback: string, issuerChatId: number, rate: ReviewsRate): Promise<void>;
     offerArrived<T = Offers | number>(offer: T): Promise<Offerstatuses>;
     offerPaymentRequested<T = Offers | number>(offer: T): Promise<Offerstatuses>;
-    constructor(appEventsService: AppEventsService, appConfigService: AppConfigService, offerController: offerController, TelegramGateway: TelegramGateway, bot: Bot<BotContext>, logger: PinoLogger, PaymentController: BasePaymentController);
     offerRejectInitiated(payload: any, ctx: BotContext): Promise<void>;
     offerEditInitiated(payload: any, ctx: BotContext): Promise<void>;
     offerAccepted(payload: any): Promise<void>;

@@ -21,6 +21,15 @@ import { Offerstatuses } from 'src/mikroorm/entities/Offerstatuses';
 //TODO: try catch error for every event
 @Controller()
 export class AppEventsController {
+    constructor(
+        private readonly appEventsService: AppEventsService,
+        private readonly appConfigService: AppConfigService,
+        private readonly offerController: offerController,
+        private readonly TelegramGateway: TelegramGateway,
+        @Inject(forwardRef(() => BOT_NAME)) private bot: Bot<BotContext>,
+        @InjectPinoLogger('AppEventsController') private readonly logger: PinoLogger,
+        @Inject(PAYMENTS_CONTROLLER) private PaymentController: BasePaymentController
+    ) { }
     /**
      * @param {any} issuerChatId:number chatid or userid
      */
@@ -31,10 +40,10 @@ export class AppEventsController {
         const chatData = await this.TelegramGateway.newArbitraryChat(offerData.id)
         await this.appEventsService.createNewArbitrary({ offerId: offerData.id, chatData: chatData, issuerId: getSelf(offerData, issuerChatId).id, reason: reason })
         await this.appEventsService.updateOfferStatus<Offers>(offerData, 'arbitrary')
-        this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'arbitraryCreated', { id: offerData.id, inviteLink: chatData.inviteLink }))
-        this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'arbitraryCreated', { id: offerData.id, inviteLink: chatData.inviteLink }))
-        this.bot.api.sendMessage(`-${chatData.chat_id}`, checkoutMessage(new botOfferDto(offerData), 'ru'))
-        this.bot.api.sendMessage(mod.chatId, i18n.t(mod.locale, 'arbiterPoke', { id: offerData.id, inviteLink: chatData.inviteLink }))
+        await this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'arbitraryCreated', { id: offerData.id, inviteLink: chatData.inviteLink }))
+        await this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'arbitraryCreated', { id: offerData.id, inviteLink: chatData.inviteLink }))
+        await this.bot.api.sendMessage(`-${chatData.chat_id}`, checkoutMessage(new botOfferDto(offerData), 'ru'))
+        await this.bot.api.sendMessage(mod.chatId, i18n.t(mod.locale, 'arbiterPoke', { id: offerData.id, inviteLink: chatData.inviteLink }))
         return this.appConfigService.offerStatus<string>('arbitrary')
     }
     async arbClosed<T = Arbitraries | number>(arb: T, modReview: ArbModeratorReview): Promise<ArbitrariesStatus> {
@@ -56,16 +65,16 @@ export class AppEventsController {
             message += `\n${i18n.t('ru', 'arbitraryClosedCustomPayout', { buyer: modReview.buyerPayout, seller: modReview.sellerPayout })}`
             await this.PaymentController.arbitraryWithdraw(arbData)
         }
-        this.bot.api.sendMessage(`-${arbData.chatId}`, message)
+        await this.bot.api.sendMessage(`-${arbData.chatId}`, message)
         return arbData.status
     }
     async arbDisputed<T = Arbitraries | number>(arb: T, issuerChatId: number): Promise<ArbitrariesStatus> {
         let arbData: Arbitraries = arb instanceof Arbitraries ? arb : await this.appEventsService.getArbById(<any>arb)
         arbData.status = ArbitrariesStatus.DISPUTED
-        await this.appEventsService.applyArbUpdate(arbData)
         const roleData = usersByRoles(arbData.offer)
         const issuerRole = roleData.seller.chatId == String(issuerChatId) ? 'seller' : 'buyer'
-        this.bot.api.sendMessage(`-${arbData.chatId}`, i18n.t('ru', 'disputeOpened', { initiator: i18n.t('ru', issuerRole) }))
+        await this.bot.api.sendMessage(`-${arbData.chatId}`, i18n.t('ru', 'disputeOpened', { initiator: i18n.t('ru', issuerRole) }))
+        await this.appEventsService.applyArbUpdate(arbData)
         return ArbitrariesStatus.DISPUTED
     }
     async offerPayoutProcessed(txn_id: string) {
@@ -75,7 +84,7 @@ export class AppEventsController {
             await this.appEventsService.closeArbitraryOfferAttempt(offer.id)
         } else {
             await this.appEventsService.updateOfferStatus<Offers>(offer, 'closed')
-            this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPayoutComplete', { id: offer.id }))
+            await this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPayoutComplete', { id: offer.id }))
         }
     }
     async offerPayed(txn_id: string) {
@@ -83,15 +92,15 @@ export class AppEventsController {
         const roleData = usersByRoles(offer)
         await this.appEventsService.updateInvoiceStatus(txn_id, 'success')
         await this.appEventsService.updateOfferStatus<Offers>(offer, 'payed')
-        this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'buyerOfferPayed', { id: offer.id }))
-        this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPayed', { id: offer.id }))
+        await this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'buyerOfferPayed', { id: offer.id }))
+        await this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPayed', { id: offer.id }))
     }
     async offerShipped<T = Offers | number>(offer: T): Promise<Offerstatuses> {
         let offerData: Offers = offer instanceof Offers ? offer : await this.appEventsService.getOfferById(<any>offer)
         const roleData = usersByRoles(offerData)
         await this.appEventsService.updateOfferStatus<Offers>(offerData, 'shipped')
-        this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'buyerOfferShipped', { id: offerData.id }))
-        this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'buyerOfferShipped', { id: offerData.id }))
+        await this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'buyerOfferShipped', { id: offerData.id }))
+        await this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'buyerOfferShipped', { id: offerData.id }))
         return this.appConfigService.offerStatus<string>('shipped')
     }
     async offerFeedback<T = Offers | number>(offer: T, feedback: string, issuerChatId: number, rate: ReviewsRate) {
@@ -100,33 +109,23 @@ export class AppEventsController {
         const issuer = getSelf(offerData, issuerChatId)
         await this.appEventsService.createNewReview(recipient.id, issuer.id, feedback, rate, offerData.id)
         const _rate: string = i18n.t(recipient.locale, rate)
-        this.bot.api.sendMessage(recipient.chatId, i18n.t(recipient.locale, 'feedbackReceived', { id: offerData.id, rate: _rate, feedback: feedback }))
+        await this.bot.api.sendMessage(recipient.chatId, i18n.t(recipient.locale, 'feedbackReceived', { id: offerData.id, rate: _rate, feedback: feedback }))
     }
     async offerArrived<T = Offers | number>(offer: T): Promise<Offerstatuses> {
         let offerData: Offers = offer instanceof Offers ? offer : await this.appEventsService.getOfferById(<any>offer)
         const roleData = usersByRoles(offerData)
         await this.appEventsService.updateOfferStatus<Offers>(offerData, 'arrived')
-        this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'buyerOfferArrived', { id: offerData.id }))
-        this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferArrived', { id: offerData.id }))
+        await this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'buyerOfferArrived', { id: offerData.id }))
+        await this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferArrived', { id: offerData.id }))
         return this.appConfigService.offerStatus<string>('arrived')
     }
     async offerPaymentRequested<T = Offers | number>(offer: T): Promise<Offerstatuses> {
         let offerData: Offers = offer instanceof Offers ? offer : await this.appEventsService.getOfferById(<any>offer)
         const roleData = usersByRoles(offerData)
         await this.appEventsService.updateOfferStatus<Offers>(offerData, 'awaitingPayment')
-        this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPaymentRequested', { id: offerData.id }))
+        await this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPaymentRequested', { id: offerData.id }))
         await this.PaymentController.sellerWithdraw(offerData)
         return this.appConfigService.offerStatus<string>('awaitingPayment')
-    }
-    constructor(
-        private readonly appEventsService: AppEventsService,
-        private readonly appConfigService: AppConfigService,
-        private readonly offerController: offerController,
-        private readonly TelegramGateway: TelegramGateway,
-        @Inject(forwardRef(() => BOT_NAME)) private bot: Bot<BotContext>,
-        @InjectPinoLogger('AppEventsController') private readonly logger: PinoLogger,
-        @Inject(PAYMENTS_CONTROLLER) private PaymentController: BasePaymentController
-    ) {
     }
     async offerRejectInitiated(payload: any, ctx: BotContext) {
         const offer = await this.appEventsService.updateOfferStatus<number>(payload, 'denied')
@@ -145,15 +144,15 @@ export class AppEventsController {
         const roleData = usersByRoles(offer)
         this.appEventsService.updateOfferStatus<Offers>(offer, 'accepted')
         const link = await this.PaymentController.getPayLink(offer)
-        this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'offerAccepted', { id: offer.id, roleAction: i18n.t(roleData.buyer.locale, 'buyerOfferAccepted', { payLink: link.url }) }))
-        this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'offerAccepted', { id: offer.id, roleAction: i18n.t(roleData.seller.locale, 'sellerOfferAccepted') }))
+        await this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'offerAccepted', { id: offer.id, roleAction: i18n.t(roleData.buyer.locale, 'buyerOfferAccepted', { payLink: link.url }) }))
+        await this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'offerAccepted', { id: offer.id, roleAction: i18n.t(roleData.seller.locale, 'sellerOfferAccepted') }))
     }
     async offerCreated<T = Offers | number>(offer: T, from: string) {
         let offerData: Offers = offer instanceof Offers ? offer : await this.appEventsService.getOfferById(<any>offer)
         const destination = getOppositeUser(offerData, from)
         const destLocale = destination.locale
         const offerString = checkoutMessage(new botOfferDto(offerData), destLocale)
-        this.bot.api.sendMessage(destination.chatId, i18n.t(destLocale, 'offerReceived') + '\n' + offerString, { reply_markup: manageOfferMenu(offerData.id, destLocale, 'edit') })
+        await this.bot.api.sendMessage(destination.chatId, i18n.t(destLocale, 'offerReceived') + '\n' + offerString, { reply_markup: manageOfferMenu(offerData.id, destLocale, 'edit') })
     }
 
 }

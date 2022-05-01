@@ -130,48 +130,54 @@ let globalComposer = class globalComposer extends interfaces_1.BaseComposer {
         this.callbackHandler = async (ctx) => {
             const data = new interfaces_1.OfferCallbackData(ctx.update.callback_query.data);
             if (data.type == 'offer') {
-            }
-            if (data.action == 'admit') {
-                if (data.mode == 'default') {
-                    await ctx.deleteMessage();
-                    const offer = await this.globalService.createOffer(ctx);
-                    await this.AppEventsController.offerCreated(offer, String(ctx.from.id));
+                if (data.action == 'admit') {
+                    try {
+                        if (data.mode == 'default') {
+                            await ctx.deleteMessage();
+                            const offer = await this.globalService.createOffer(ctx);
+                            await this.AppEventsController.offerCreated(offer, String(ctx.from.id));
+                        }
+                        else if (data.mode == 'edit') {
+                            await ctx.deleteMessage();
+                            await this.AppEventsController.offerAccepted(data.payload);
+                        }
+                        await ctx.reply(ctx.i18n.t('offerCreated'));
+                    }
+                    catch (error) {
+                        this.logger.error(error);
+                        ctx.reply(ctx.i18n.t('offerCreationFailed'));
+                    }
                 }
-                else if (data.mode == 'edit') {
-                    await ctx.deleteMessage();
-                    await this.AppEventsController.offerAccepted(data.payload);
+                else if (data.action == 'edit') {
+                    if (data.mode == 'default') {
+                        ctx.session.step = interfaces_1.BotStep.roles;
+                        await ctx.cleanReplySave(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMiddleware() });
+                    }
+                    else if (data.mode == 'edit') {
+                        await ctx.deleteMessage();
+                        await this.AppEventsController.offerEditInitiated(data.payload, ctx);
+                    }
                 }
-                await ctx.reply(ctx.i18n.t('offerCreated'));
-            }
-            else if (data.action == 'edit') {
-                if (data.mode == 'default') {
-                    ctx.session.step = interfaces_1.BotStep.roles;
-                    await ctx.cleanReplySave(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMiddleware() });
+                else if (data.action == 'reject') {
+                    if (data.mode == 'default') {
+                        ctx.session.step = interfaces_1.BotStep.default;
+                        await ctx.deleteMessage();
+                        await ctx.reply(ctx.i18n.t('start'), { reply_markup: (0, keyboards_1.mainKeyboard)(ctx) });
+                    }
+                    else if (data.mode == 'edit') {
+                        await ctx.deleteMessage();
+                        await this.AppEventsController.offerRejectInitiated(data.payload, ctx);
+                    }
                 }
-                else if (data.mode == 'edit') {
-                    await ctx.deleteMessage();
-                    await this.AppEventsController.offerEditInitiated(data.payload, ctx);
+                else if (data.action == 'feedback') {
+                    if (data.mode == 'positive') {
+                        ctx.session.step = interfaces_1.BotStep.setFeedbackP;
+                    }
+                    else {
+                        ctx.session.step = interfaces_1.BotStep.setFeedbackN;
+                    }
+                    await ctx.reply(ctx.i18n.t('askFeedbackText'));
                 }
-            }
-            else if (data.action == 'reject') {
-                if (data.mode == 'default') {
-                    ctx.session.step = interfaces_1.BotStep.default;
-                    await ctx.deleteMessage();
-                    await ctx.reply(ctx.i18n.t('start'), { reply_markup: (0, keyboards_1.mainKeyboard)(ctx) });
-                }
-                else if (data.mode == 'edit') {
-                    await ctx.deleteMessage();
-                    await this.AppEventsController.offerRejectInitiated(data.payload, ctx);
-                }
-            }
-            else if (data.action == 'feedback') {
-                if (data.mode == 'positive') {
-                    ctx.session.step = interfaces_1.BotStep.setFeedbackP;
-                }
-                else {
-                    ctx.session.step = interfaces_1.BotStep.setFeedbackN;
-                }
-                await ctx.reply(ctx.i18n.t('askFeedbackText'));
             }
             else if (data.type == 'lang') {
                 const locale = data.payload;

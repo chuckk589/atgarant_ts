@@ -56,7 +56,7 @@ export class globalComposer extends BaseComposer {
   @Hears('offers')
   offers: Function = async (ctx: BotContext) => {
     //FIXME:
-   // const imageurl = this.mode === 'development' ? 'https://picsum.photos/200/300' : this.url + '/media/04.jpg';
+    // const imageurl = this.mode === 'development' ? 'https://picsum.photos/200/300' : this.url + '/media/04.jpg';
     const imageurl = 'https://picsum.photos/200/300'
     await ctx.replyWithPhoto(imageurl, { caption: ctx.i18n.t('offerMenu'), reply_markup: offerKeyboard(ctx) })
   }
@@ -92,7 +92,7 @@ export class globalComposer extends BaseComposer {
     const imageurl = 'https://picsum.photos/200/300'
     await ctx.replyWithPhoto(imageurl, { caption: ctx.i18n.t('arbitraries'), reply_markup: arbitraryKeyboard(ctx) })
   }
-  
+
   @Hears('allOffers')
   allOffers = async (ctx: BotContext) => {
     const offers = await this.globalService.fetchOffers(ctx.from.id)
@@ -182,52 +182,56 @@ export class globalComposer extends BaseComposer {
     //type:action:mode:payload
     //accept button click
     if (data.type == 'offer') {
-
-    }
-    if (data.action == 'admit') {
-      //accept button clicked right after offer creation by initiator 
-      if (data.mode == 'default') {
-        await ctx.deleteMessage()
-        const offer = await this.globalService.createOffer(ctx)
-        await this.AppEventsController.offerCreated<Offers>(offer, String(ctx.from.id))
+      if (data.action == 'admit') {
+        try {
+          //accept button clicked right after offer creation by initiator 
+          if (data.mode == 'default') {
+            await ctx.deleteMessage()
+            const offer = await this.globalService.createOffer(ctx)
+            await this.AppEventsController.offerCreated<Offers>(offer, String(ctx.from.id))
+          }
+          //accept button clicked after receiving an offer and NOT editing it
+          else if (data.mode == 'edit') {
+            await ctx.deleteMessage()
+            await this.AppEventsController.offerAccepted(data.payload)
+          }
+          await ctx.reply(ctx.i18n.t('offerCreated'))
+        } catch (error) {
+          this.logger.error(error)
+          ctx.reply(ctx.i18n.t('offerCreationFailed'))
+        }
       }
-      //accept button clicked after receiving an offer and NOT editing it
-      else if (data.mode == 'edit') {
-        await ctx.deleteMessage()
-        await this.AppEventsController.offerAccepted(data.payload)
+      else if (data.action == 'edit') {
+        //edit button clicked right after offer creation by initiator 
+        if (data.mode == 'default') {
+          ctx.session.step = BotStep.roles
+          await ctx.cleanReplySave(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMiddleware() })
+        }
+        //edit button clicked after receiving an offer
+        //need to write offer into receiving end session
+        else if (data.mode == 'edit') {
+          await ctx.deleteMessage()
+          await this.AppEventsController.offerEditInitiated(data.payload, ctx)
+        }
       }
-      await ctx.reply(ctx.i18n.t('offerCreated'))
-    }
-    else if (data.action == 'edit') {
-      //edit button clicked right after offer creation by initiator 
-      if (data.mode == 'default') {
-        ctx.session.step = BotStep.roles
-        await ctx.cleanReplySave(ctx.i18n.t('askRole'), { reply_markup: this.offerController.getMiddleware() })
+      else if (data.action == 'reject') {
+        if (data.mode == 'default') {
+          ctx.session.step = BotStep.default
+          await ctx.deleteMessage()
+          await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
+        } else if (data.mode == 'edit') {
+          await ctx.deleteMessage()
+          await this.AppEventsController.offerRejectInitiated(data.payload, ctx)
+        }
       }
-      //edit button clicked after receiving an offer
-      //need to write offer into receiving end session
-      else if (data.mode == 'edit') {
-        await ctx.deleteMessage()
-        await this.AppEventsController.offerEditInitiated(data.payload, ctx)
+      else if (data.action == 'feedback') {
+        if (data.mode == 'positive') {
+          ctx.session.step = BotStep.setFeedbackP
+        } else {
+          ctx.session.step = BotStep.setFeedbackN
+        }
+        await ctx.reply(ctx.i18n.t('askFeedbackText'))
       }
-    }
-    else if (data.action == 'reject') {
-      if (data.mode == 'default') {
-        ctx.session.step = BotStep.default
-        await ctx.deleteMessage()
-        await ctx.reply(ctx.i18n.t('start'), { reply_markup: mainKeyboard(ctx) })
-      } else if (data.mode == 'edit') {
-        await ctx.deleteMessage()
-        await this.AppEventsController.offerRejectInitiated(data.payload, ctx)
-      }
-    }
-    else if (data.action == 'feedback') {
-      if (data.mode == 'positive') {
-        ctx.session.step = BotStep.setFeedbackP
-      } else {
-        ctx.session.step = BotStep.setFeedbackN
-      }
-      await ctx.reply(ctx.i18n.t('askFeedbackText'))
     }
     else if (data.type == 'lang') {
       const locale = data.payload

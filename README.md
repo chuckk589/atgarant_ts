@@ -16,7 +16,7 @@
 
 
 #prod
-pm2 start index.js --name "atgarant" -- -prod --max-memory-restart 500M
+pm2 start npm --name "atgarant" -- run start:prod
 
 #modules
 npm install --production

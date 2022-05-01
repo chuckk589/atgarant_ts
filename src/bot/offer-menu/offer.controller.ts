@@ -1,4 +1,4 @@
-//import { Menu as MenuGrammy } from "@grammyjs/menu";
+import { Menu as MenuGrammy } from "@grammyjs/menu";
 import { Injectable, SetMetadata } from "@nestjs/common";
 import { AppConfigService } from "src/app-config/app-config.service";
 import { Offers, OffersFeePayer, OffersRole } from "src/mikroorm/entities/Offers";
@@ -8,7 +8,6 @@ import { label } from "../common/helpers";
 import { accountKeyboard, arbitraryKeyboard, mainKeyboard, offerKeyboard } from "../common/keyboards";
 import { offerService } from './offer.service'
 import { AppEventsController } from '../../app-events/app-events.controller';
-import { Menu as ExMenu } from 'src/bot/plugins/menu/menu-extended'
 
 @MenuController
 export class offerController extends BaseMenu {
@@ -19,7 +18,7 @@ export class offerController extends BaseMenu {
     super()
   }
   @Menu('offer-menu')
-  menu = new ExMenu<BotContext>("offer-menu")
+  menu = new MenuGrammy<BotContext>("offer-menu")
     .dynamic((ctx, range) => {
       switch (ctx.session.step) {
         case BotStep.rules: {

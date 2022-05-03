@@ -186,7 +186,6 @@ let globalComposer = class globalComposer extends interfaces_1.BaseComposer {
                 return ctx.reply(ctx.i18n.t('langChanged'), { reply_markup: (0, keyboards_1.accountKeyboard)(ctx) });
             }
         };
-        this.globalService.fetchQueryUsers(5177177451).then(r => console.log(r[0].profile.user.profile.user));
     }
 };
 __decorate([

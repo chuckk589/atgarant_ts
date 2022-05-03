@@ -1,4 +1,4 @@
-import { AfterCreate, BeforeCreate, BeforeUpdate, Collection, Entity, EventArgs, OneToMany, OneToOne, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import { AfterCreate, BeforeCreate, BeforeUpdate, ChangeSet, ChangeSetType, Collection, Entity, EventArgs, EventSubscriber, FlushEventArgs, OneToMany, OneToOne, PrimaryKey, Property, Subscriber, Unique } from '@mikro-orm/core';
 import { compare, hash } from 'bcrypt';
 import { Arbitraries } from './Arbitraries';
 import { Invoices } from './Invoices';
@@ -43,15 +43,15 @@ export class Users {
   @OneToMany(() => Arbitraries, arb => arb.arbiter)
   arbs = new Collection<Arbitraries>(this);
 
-  @OneToOne(() => Profiles, profile => profile.user, { owner: true, orphanRemoval: true })
-  profile: Profiles;
+  @OneToOne({entity: () => Profiles, mappedBy: 'user' })
+  profile: Profiles = new Profiles();
 
   @OneToMany(() => Violations, violation => violation.user)
   violations = new Collection<Violations>(this);
 
   @BeforeUpdate()
   @BeforeCreate()
-  async beforeCreate(): Promise<void> {
+  async beforeCreate(args: EventArgs<Users>): Promise<void> {
     if (this.password) {
       this.password = await hash(this.password, 10)
     }
@@ -61,11 +61,5 @@ export class Users {
       return await compare(password, this.password);
     }
     return true
-  }
-  @AfterCreate()
-  afterCreate(args: EventArgs<Users>) {
-    const profile = new Profiles()
-    profile.user = this
-    args.em.getDriver().nativeInsert('Profiles', profile)
   }
 }

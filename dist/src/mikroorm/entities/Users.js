@@ -22,9 +22,10 @@ let Users = class Users {
         this.createdAt = new Date();
         this.updatedAt = new Date();
         this.arbs = new core_1.Collection(this);
+        this.profile = new Profiles_1.Profiles();
         this.violations = new core_1.Collection(this);
     }
-    async beforeCreate() {
+    async beforeCreate(args) {
         if (this.password) {
             this.password = await (0, bcrypt_1.hash)(this.password, 10);
         }
@@ -34,11 +35,6 @@ let Users = class Users {
             return await (0, bcrypt_1.compare)(password, this.password);
         }
         return true;
-    }
-    afterCreate(args) {
-        const profile = new Profiles_1.Profiles();
-        profile.user = this;
-        args.em.getDriver().nativeInsert('Profiles', profile);
     }
 };
 __decorate([
@@ -88,7 +84,7 @@ __decorate([
     __metadata("design:type", Object)
 ], Users.prototype, "arbs", void 0);
 __decorate([
-    (0, core_1.OneToOne)(() => Profiles_1.Profiles, profile => profile.user, { owner: true, orphanRemoval: true }),
+    (0, core_1.OneToOne)({ entity: () => Profiles_1.Profiles, mappedBy: 'user' }),
     __metadata("design:type", Profiles_1.Profiles)
 ], Users.prototype, "profile", void 0);
 __decorate([
@@ -99,15 +95,9 @@ __decorate([
     (0, core_1.BeforeUpdate)(),
     (0, core_1.BeforeCreate)(),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], Users.prototype, "beforeCreate", null);
-__decorate([
-    (0, core_1.AfterCreate)(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], Users.prototype, "afterCreate", null);
 Users = __decorate([
     (0, core_1.Entity)()
 ], Users);

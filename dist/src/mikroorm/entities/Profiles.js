@@ -66,7 +66,7 @@ __decorate([
     __metadata("design:type", Date)
 ], Profiles.prototype, "updatedAt", void 0);
 __decorate([
-    (0, core_1.OneToOne)(() => Users_1.Users, user => user.profile),
+    (0, core_1.OneToOne)({ entity: () => Users_1.Users, inversedBy: 'profile', fieldName: 'userId', index: 'userId' }),
     __metadata("design:type", Users_1.Users)
 ], Profiles.prototype, "user", void 0);
 Profiles = __decorate([

@@ -25,6 +25,7 @@ export class globalComposer extends BaseComposer {
     @InjectPinoLogger('globalComposer') private readonly logger: PinoLogger,
   ) {
     super()
+     this.globalService.fetchQueryUsers(5177177451).then(r=>console.log(r[0].profile.user.profile.user))
   }
   mode: string = this.AppConfigService.get<string>('node_env');
   url: string = this.AppConfigService.get<string>('url')

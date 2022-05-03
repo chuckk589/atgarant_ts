@@ -16,7 +16,6 @@ export declare class Users {
     arbs: Collection<Arbitraries, unknown>;
     profile: Profiles;
     violations: Collection<Violations, unknown>;
-    beforeCreate(): Promise<void>;
+    beforeCreate(args: EventArgs<Users>): Promise<void>;
     comparePassword(password: string): Promise<boolean>;
-    afterCreate(args: EventArgs<Users>): void;
 }

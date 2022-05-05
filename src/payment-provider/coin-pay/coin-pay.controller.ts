@@ -47,6 +47,7 @@ export class CoinPayController extends BasePaymentController {
   client: Coinpayments
   qiwiApi: any
   options: CoinPayOptions
+
   private rubToCurrency = async (rub: number, code: string) => {
     const data = await this.client.rates()
     if (Array.isArray(rub)) {
@@ -59,7 +60,11 @@ export class CoinPayController extends BasePaymentController {
     const feeRub = Math.max(offer.offerValue * offer.paymentMethod.feePercent / 100, offer.paymentMethod.feeRaw)
     const priceRub = offer.offerValue + feeRub * (offer.feePayer === OffersFeePayer.BUYER ? 1 : 0)
     const currency = offer.paymentMethod.value.split('_').pop()
-    if (offer.paymentMethod.value == 'paymentMethod_QIWI' || offer.paymentMethod.value == 'paymentMethod_CARD') {
+    if (this.AppConfigService.get<string>('node_env') == 'debug') {
+      await this.coinPayService.mockTransaction({ type: InvoicesType.IN, currency, value: offer.offerValue, fee: feeRub, offer: offer.id })
+      return { url: 'test url', id: 'id' }
+    }
+    if (currency == 'QIWI' || currency == 'CARD') {
       const method = currency === 'QIWI' ? 'qw' : 'card'
       const billId = this.qiwiApi.generateId();
       const response = await this.qiwiApi.createBill(billId, { amount: priceRub, currency: 'RUB', comment: `Заказ id: ${offer.id}`, customFields: { paySourcesFilter: method } })
@@ -74,12 +79,16 @@ export class CoinPayController extends BasePaymentController {
     }
   }
   withDraw = async (amount: number, address: string, type: InvoicesType, offerId: number, currency: string) => {
+    if (this.AppConfigService.get<string>('node_env') == 'debug') {
+      await this.coinPayService.mockTransaction({ type: type, currency: currency, value: amount, offer: offerId })
+      return
+    }
     if (currency === 'QIWI') {
       const qiwiResponse = await this.coinPayService.createQiwiTransaction(amount, address)
-      await this.coinPayService.createInvoice({ type: type, currency: 'QIWI', value: amount, txnId: qiwiResponse, offer: { id: offerId } })
+      await this.coinPayService.createInvoice({ type: type, currency: currency, value: amount, txnId: qiwiResponse, offer: { id: offerId } })
     } else if (currency === 'CARD') {
       const id = await this.coinPayService.createCardTransaction(amount, address)
-      await this.coinPayService.createInvoice({ type: type, currency: 'CARD', value: amount, txnId: id, offer: { id: offerId } })
+      await this.coinPayService.createInvoice({ type: type, currency: currency, value: amount, txnId: id, offer: { id: offerId } })
     } else {
       const CoinpaymentsCreateWithdrawalOpts = { amount: amount, currency: currency, address: address }
       const response = await this.client.createWithdrawal(CoinpaymentsCreateWithdrawalOpts)

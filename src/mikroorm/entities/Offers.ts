@@ -8,7 +8,9 @@ import { Users } from './Users';
 
 @Entity()
 export class Offers {
-
+  constructor(payload?: any) {
+    Object.assign(this, payload);
+  }
   @PrimaryKey()
   id!: number;
 
@@ -24,8 +26,8 @@ export class Offers {
   @Property({ fieldName: 'feeBaked', nullable: true })
   feeBaked?: number;
 
-  @Property({ fieldName: 'estimatedShipping', columnType: 'date', nullable: true })
-  estimatedShipping?: string;
+  @Property({ fieldName: 'estimatedShipping', nullable: true })
+  estimatedShipping?: Date;
 
   @Property({ fieldName: 'productDetails', length: 255, nullable: true })
   productDetails?: string;
@@ -71,7 +73,7 @@ export class Offers {
 
   @OneToMany(() => Reviews, review => review.offer)
   reviews = new Collection<Reviews>(this);
-  
+
   @AfterCreate()
   async afterCreate(args: EventArgs<Offers>): Promise<void> {
     const seller = args.entity.role === 'seller' ? 'initiator' : 'partner'

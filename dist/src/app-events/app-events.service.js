@@ -26,7 +26,9 @@ let AppEventsService = class AppEventsService {
     }
     async updateInvoiceStatus(txn_id, status) {
         const invoiceStatus = this.AppConfigService.invoiceStatus(status);
-        await this.em.nativeUpdate(Invoices_1.Invoices, { txnId: txn_id }, { invoiceStatus: { value: invoiceStatus.value } });
+        await this.em.nativeUpdate(Invoices_1.Invoices, { txnId: txn_id }, {
+            invoiceStatus: this.em.getReference(Offerstatuses_1.Offerstatuses, invoiceStatus.id)
+        });
     }
     async createNewReview(recipientId, authorId, feedback, rate, offerId) {
         const review = this.em.create(Reviews_1.Reviews, {
@@ -59,8 +61,7 @@ let AppEventsService = class AppEventsService {
         }
     }
     async getOfferByTxnId(txn_id) {
-        const offer = await this.em.findOne(Offers_1.Offers, { invoices: { txnId: txn_id } }, { populate: ['partner', 'initiator', 'invoices'] });
-        return offer;
+        return await this.em.findOne(Offers_1.Offers, { invoices: { txnId: txn_id } }, { populate: ['partner', 'initiator', 'invoices'] });
     }
     async getOfferById(id) {
         const offer = await this.em.findOneOrFail(Offers_1.Offers, { id: id }, { populate: ['partner', 'initiator'] });

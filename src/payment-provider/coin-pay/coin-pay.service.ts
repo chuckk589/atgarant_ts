@@ -5,6 +5,8 @@ import { uuid } from 'uuidv4';
 import { AppConfigService } from 'src/app-config/app-config.service'
 import axios from 'axios';
 import { Arbitraries, ArbitrariesStatus } from 'src/mikroorm/entities/Arbitraries';
+import { Offers } from 'src/mikroorm/entities/Offers';
+import { Offerstatuses } from 'src/mikroorm/entities/Offerstatuses';
 
 
 type QIWIresponse = {
@@ -32,6 +34,49 @@ export class CoinPayService {
         private readonly em: EntityManager,
         private readonly AppConfigService: AppConfigService,
     ) { }
+    async mockTransaction(options: EntityData<Invoices>) {
+        const txn_id = uuid()
+        await this.createInvoice({ type: options.type, currency: options.currency, value: options.value, fee: options.fee, txnId: txn_id, url: 'response.payUrl', offer: options.offer })
+        const port = this.AppConfigService.get('port')
+        setTimeout(() => {
+            switch (options.type) {
+                case InvoicesType.IN: {
+                    if (options.currency == 'QIWI' || options.currency == 'CARD') {
+                        axios.post(`http://localhost:${port}/payment/qiwi/`, {
+                            bill: {
+                                status: {
+                                    value: 'PAID'
+                                },
+                                billId: txn_id
+                            }
+                        })
+                    } else {
+                        axios.post(`http://localhost:${port}/payment/crypto/`, {
+                            status: '100',
+                            txn_id: txn_id
+                        })
+                    }
+                    break;
+                }
+                case InvoicesType.OUT: {
+                    if (options.currency == 'QIWI' || options.currency == 'CARD') {
+                        axios.post(`http://localhost:${port}/payment/qiwi/`, {
+                            payment: {
+                                status: 'SUCCESS',
+                                txnId: txn_id
+                            }
+                        })
+                    } else {
+                        axios.post(`http://localhost:${port}/payment/crypto/`, {
+                            status: '2',
+                            txn_id: txn_id
+                        })
+                    }
+                    break;
+                }
+            }
+        }, 3 * 1000);
+    }
 
     async createCardTransaction(amount: number, address: string): Promise<string> {
         const bodyFormData = new FormData();
@@ -65,8 +110,9 @@ export class CoinPayService {
         }
     }
     async createInvoice(options: EntityData<Invoices>) {
-        options.invoiceStatus = { value: 'waiting' }
-        await this.em.nativeInsert(Invoices, options)
+        options.invoiceStatus = this.em.getReference(Offerstatuses, this.AppConfigService.invoiceStatus<string>('waiting').id)
+        const invoice = this.em.create(Invoices, options)
+        await this.em.persistAndFlush(invoice)
     }
     async getArbState(oldArb: Arbitraries): Promise<boolean> {
         try {

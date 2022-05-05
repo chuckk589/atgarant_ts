@@ -17,11 +17,12 @@ const Paymentmethods_1 = require("./Paymentmethods");
 const Reviews_1 = require("./Reviews");
 const Users_1 = require("./Users");
 let Offers = class Offers {
-    constructor() {
+    constructor(payload) {
         this.createdAt = new Date();
         this.updatedAt = new Date();
         this.invoices = new core_1.Collection(this);
         this.reviews = new core_1.Collection(this);
+        Object.assign(this, payload);
     }
     async afterCreate(args) {
         const seller = args.entity.role === 'seller' ? 'initiator' : 'partner';
@@ -51,8 +52,8 @@ __decorate([
     __metadata("design:type", Number)
 ], Offers.prototype, "feeBaked", void 0);
 __decorate([
-    (0, core_1.Property)({ fieldName: 'estimatedShipping', columnType: 'date', nullable: true }),
-    __metadata("design:type", String)
+    (0, core_1.Property)({ fieldName: 'estimatedShipping', nullable: true }),
+    __metadata("design:type", Date)
 ], Offers.prototype, "estimatedShipping", void 0);
 __decorate([
     (0, core_1.Property)({ fieldName: 'productDetails', length: 255, nullable: true }),
@@ -121,7 +122,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], Offers.prototype, "afterCreate", null);
 Offers = __decorate([
-    (0, core_1.Entity)()
+    (0, core_1.Entity)(),
+    __metadata("design:paramtypes", [Object])
 ], Offers);
 exports.Offers = Offers;
 var OffersRole;

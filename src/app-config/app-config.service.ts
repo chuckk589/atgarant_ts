@@ -12,7 +12,8 @@ export class AppConfigService {
     }
     get payments(): PM[] {
         const keys = Object.keys(process.env).filter(k => k.includes('paymentMethod'))
-        return keys.map(k => new PM(k.split('_').pop(), process.env[k]))
+        const operationMode = this.get('PAYMENT_SERVICE')
+        return operationMode == 'btc-core' ? keys.map(k => new PM(k.split('_').pop(), process.env[k])).filter(p => p.method == 'BTC') : keys.map(k => new PM(k.split('_').pop(), process.env[k]))
     }
     offerStatus<T = string | number>(idOrValue: T): CommonConfig {
         const statuses = Object.keys(process.env)

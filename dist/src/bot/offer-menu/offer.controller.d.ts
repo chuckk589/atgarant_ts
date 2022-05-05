@@ -4,7 +4,7 @@ import { BaseMenu, BotContext } from "src/types/interfaces";
 import { offerService } from './offer.service';
 export declare class offerController extends BaseMenu {
     private readonly offerService;
-    private readonly configService;
-    constructor(offerService: offerService, configService: AppConfigService);
+    private readonly AppConfigService;
+    constructor(offerService: offerService, AppConfigService: AppConfigService);
     menu: MenuGrammy<BotContext>;
 }

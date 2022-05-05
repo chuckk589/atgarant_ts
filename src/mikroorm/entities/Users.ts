@@ -8,6 +8,10 @@ import { Violations } from './Violations';
 @Entity()
 export class Users {
 
+  constructor(payload: any) {
+    Object.assign(this, payload);
+  }
+  
   @PrimaryKey()
   id!: number;
 

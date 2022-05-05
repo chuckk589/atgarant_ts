@@ -119,7 +119,11 @@ export const usersByRoles = (offer: Offers): { seller: Users, buyer: Users } => 
     }
 }
 export const leftReview = (reviews: Collection<Reviews>, from: number | string): boolean => {
-    return !!reviews.toArray().find(r => r.author.id == from || r.author.chatId == from)
+    //FIXME: uncomment
+    // return !!reviews.toArray().find(r => r.author.id == from || r.author.chatId == from)
+    return false
 }
 export const isInitiator = (ctx: BotContext): boolean => ctx.session.pendingOffer.initiator_chatId === String(ctx.from.id)
-export const isSeller = (ctx: BotContext): boolean => (ctx.session.pendingOffer.role === 'seller' ? ctx.session.pendingOffer.initiator_chatId : ctx.session.pendingOffer.partner_chatId) == String(ctx.from.id)
+export const isSeller = (ctx: BotContext): boolean => {
+    return (ctx.session.editedOffer.role === OffersRole.SELLER ? ctx.session.editedOffer.initiator.chatId : ctx.session.editedOffer.partner.chatId) == String(ctx.from.id)
+}

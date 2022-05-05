@@ -29,22 +29,18 @@ let PaymentsController = class PaymentsController {
     }
     async cryptoEndPoint(CoinpaymentsDto) {
         if (CoinpaymentsDto.status == 100) {
-            await this.PaymentsService.registerPayment(CoinpaymentsDto.txn_id);
             await this.AppEventsController.offerPayed(CoinpaymentsDto.txn_id);
         }
         else if (CoinpaymentsDto.status == 2) {
-            await this.PaymentsService.registerPayment(CoinpaymentsDto.txn_id);
             await this.AppEventsController.offerPayoutProcessed(CoinpaymentsDto.txn_id);
         }
     }
     async fiatQIWI(QiwiPaymentDto) {
         const payload = new qiwipayments_dto_1.QiwiPaymentsDto(QiwiPaymentDto);
         if (payload.status === 'PAID') {
-            await this.PaymentsService.registerPayment(payload.txnId);
             await this.AppEventsController.offerPayed(payload.txnId);
         }
         else if (payload.status === 'SUCCESS') {
-            await this.PaymentsService.registerPayment(payload.txnId);
             await this.AppEventsController.offerPayoutProcessed(payload.txnId);
         }
     }
@@ -64,7 +60,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "fiatQIWI", null);
 PaymentsController = __decorate([
-    (0, common_1.Controller)('payments'),
+    (0, common_1.Controller)('payment'),
     __param(0, (0, common_1.Inject)(constants_1.PAYMENTS_CONTROLLER)),
     __metadata("design:paramtypes", [interfaces_1.BasePaymentController,
         payments_service_1.PaymentsService,

@@ -80,6 +80,7 @@ export class AppEventsController {
     async offerPayoutProcessed(txn_id: string) {
         const offer = await this.appEventsService.getOfferByTxnId(txn_id)
         const roleData = usersByRoles(offer)
+        await this.appEventsService.updateInvoiceStatus(txn_id, 'success')
         if (offer.offerStatus.value === 'arbitrary') {
             await this.appEventsService.closeArbitraryOfferAttempt(offer.id)
         } else {
@@ -100,7 +101,6 @@ export class AppEventsController {
         const roleData = usersByRoles(offerData)
         await this.appEventsService.updateOfferStatus<Offers>(offerData, 'shipped')
         await this.bot.api.sendMessage(roleData.buyer.chatId, i18n.t(roleData.buyer.locale, 'buyerOfferShipped', { id: offerData.id }))
-        await this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'buyerOfferShipped', { id: offerData.id }))
         return this.appConfigService.offerStatus<string>('shipped')
     }
     async offerFeedback<T = Offers | number>(offer: T, feedback: string, issuerChatId: number, rate: ReviewsRate) {
@@ -122,9 +122,9 @@ export class AppEventsController {
     async offerPaymentRequested<T = Offers | number>(offer: T): Promise<Offerstatuses> {
         let offerData: Offers = offer instanceof Offers ? offer : await this.appEventsService.getOfferById(<any>offer)
         const roleData = usersByRoles(offerData)
+        await this.PaymentController.sellerWithdraw(offerData)
         await this.appEventsService.updateOfferStatus<Offers>(offerData, 'awaitingPayment')
         await this.bot.api.sendMessage(roleData.seller.chatId, i18n.t(roleData.seller.locale, 'sellerOfferPaymentRequested', { id: offerData.id }))
-        await this.PaymentController.sellerWithdraw(offerData)
         return this.appConfigService.offerStatus<string>('awaitingPayment')
     }
     async offerRejectInitiated(payload: any, ctx: BotContext) {

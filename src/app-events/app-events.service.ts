@@ -14,7 +14,9 @@ import { Reviews, ReviewsRate } from 'src/mikroorm/entities/Reviews';
 export class AppEventsService {
     async updateInvoiceStatus(txn_id: string, status: string) {
         const invoiceStatus = this.AppConfigService.invoiceStatus<string>(status)
-        await this.em.nativeUpdate(Invoices, { txnId: txn_id }, { invoiceStatus: { value: invoiceStatus.value } })
+        await this.em.nativeUpdate(Invoices, { txnId: txn_id }, {
+            invoiceStatus: this.em.getReference(Offerstatuses, invoiceStatus.id)
+        })
     }
     async createNewReview(recipientId: number, authorId: number, feedback: string, rate: ReviewsRate, offerId: number) {
         const review = this.em.create(Reviews, {
@@ -47,9 +49,7 @@ export class AppEventsService {
         }
     }
     async getOfferByTxnId(txn_id: string): Promise<Offers> {
-        const offer = await this.em.findOne(Offers, { invoices: { txnId: txn_id } }, { populate: ['partner', 'initiator', 'invoices'] })
-        //const invoice = await this.em.findOneOrFail(Invoices, { txnId: txn_id }, { populate: ['offer.partner', 'offer.partner', 'offer.offerStatus'] })
-        return offer
+        return await this.em.findOne(Offers, { invoices: { txnId: txn_id } }, { populate: ['partner', 'initiator', 'invoices'] })
     }
     constructor(
         private readonly em: EntityManager,

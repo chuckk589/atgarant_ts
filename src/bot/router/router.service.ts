@@ -1,4 +1,4 @@
-import { EntityManager } from "@mikro-orm/core";
+import { EntityManager, wrap } from "@mikro-orm/core";
 import { Injectable } from "@nestjs/common";
 import { Users } from "src/mikroorm/entities/Users";
 import { BotContext } from "src/types/interfaces";
@@ -41,6 +41,7 @@ export class routerService {
     },
       { populate: ['initiator', 'partner', 'invoices', 'reviews.recipient', 'reviews.author'] }
     )
+    this.em.clear()
     return offer
   }
   async fetchContact(ctx: BotContext): Promise<Users> {

@@ -19,10 +19,10 @@ const helpers_1 = require("../common/helpers");
 const keyboards_1 = require("../common/keyboards");
 const offer_service_1 = require("./offer.service");
 let offerController = class offerController extends interfaces_1.BaseMenu {
-    constructor(offerService, configService) {
+    constructor(offerService, AppConfigService) {
         super();
         this.offerService = offerService;
-        this.configService = configService;
+        this.AppConfigService = AppConfigService;
         this.menu = new menu_1.Menu("offer-menu")
             .dynamic((ctx, range) => {
             switch (ctx.session.step) {
@@ -73,7 +73,7 @@ let offerController = class offerController extends interfaces_1.BaseMenu {
                     break;
                 }
                 case interfaces_1.BotStep.payment: {
-                    const pms = this.configService.payments;
+                    const pms = this.AppConfigService.payments;
                     pms.map(pm => range.text({ text: ctx.i18n.t(pm.method) || pm.method, payload: String(pm.id) }, async (ctx) => {
                         ctx.session.step = interfaces_1.BotStep.value;
                         ctx.session.pendingOffer.paymentMethodId = Number(ctx.match);

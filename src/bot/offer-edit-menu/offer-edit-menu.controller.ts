@@ -4,16 +4,18 @@ import { Menu, MenuController } from '../common/decorators';
 import { Menu as MenuGrammy } from "@grammyjs/menu";
 import { OfferEditMenuService } from './offer-edit-menu.service';
 import { AppConfigService } from "src/app-config/app-config.service";
-import { isInitiator, isSeller, leftReview } from 'src/bot/common/helpers'
+import { checkoutMessage, isInitiator, isSeller, leftReview } from 'src/bot/common/helpers'
 import { AppEventsController } from "src/app-events/app-events.controller";
 import { Offers } from 'src/mikroorm/entities/Offers';
 import { feedbackMenu } from '../common/keyboards';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { botOfferDto } from 'src/mikroorm/dto/create-offer.dto';
 
 @MenuController
 export class OfferEditMenuController extends BaseMenu {
   constructor(
     private readonly AppEventsController: AppEventsController,
+    private readonly AppConfigService: AppConfigService,
     @InjectPinoLogger('OfferEditMenuController') private readonly logger: PinoLogger,
   ) {
     super()
@@ -32,28 +34,27 @@ export class OfferEditMenuController extends BaseMenu {
       status.value === 'payed' && _isSeller && range.text(ctx.i18n.t('confirmShipping'), async (ctx) => {
         try {
           ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerShipped<Offers>(ctx.session.editedOffer)
-          ctx.menu.update()
-          ctx.reply(ctx.i18n.t('dataUpdated'))
+          await ctx.editMessageText(checkoutMessage(new botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()))
         } catch (error) {
           this.logger.error(error)
           ctx.reply(ctx.i18n.t('offerShippingFailed'))
         }
       })
-      status.value === 'arrived' && _isSeller && ctx.session.pendingOffer.sellerWalletData && range.text(ctx.i18n.t('getPayout'), async (ctx) => {
+      status.value === 'arrived' && _isSeller && ctx.session.editedOffer.sellerWalletData && range.text(ctx.i18n.t('getPayout'), async (ctx) => {
         try {
           ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerPaymentRequested<Offers>(ctx.session.editedOffer)
-          ctx.menu.update()
-          ctx.reply(ctx.i18n.t('sellerOfferPaymentRequested'))
+          await ctx.editMessageText(checkoutMessage(new botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()))
+          //ctx.menu.update()
         } catch (error) {
           this.logger.error(error)
           ctx.reply(ctx.i18n.t('paymentRequestFailed'))
         }
       })
-      status.value === 'shipped' && !_isSeller && ctx.session.pendingOffer.sellerWalletData && range.text(ctx.i18n.t('confirmArrival'), async (ctx) => {
+      status.value === 'shipped' && !_isSeller && ctx.session.editedOffer.sellerWalletData && range.text(ctx.i18n.t('confirmArrival'), async (ctx) => {
         try {
           ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerArrived<Offers>(ctx.session.editedOffer)
-          ctx.menu.update()
-          ctx.reply(ctx.i18n.t('dataUpdated'))
+          await ctx.editMessageText(checkoutMessage(new botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()))
+          //ctx.reply(ctx.i18n.t('dataUpdated'))
         } catch (error) {
           this.logger.error(error)
           ctx.reply(ctx.i18n.t('arrivalFailed'))

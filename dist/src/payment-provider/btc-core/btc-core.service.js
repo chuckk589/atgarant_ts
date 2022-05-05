@@ -18,10 +18,13 @@ const common_1 = require("@nestjs/common");
 const Invoices_1 = require("../../mikroorm/entities/Invoices");
 const Offers_1 = require("../../mikroorm/entities/Offers");
 const axios_1 = __importDefault(require("axios"));
+const app_config_service_1 = require("../../app-config/app-config.service");
 const Arbitraries_1 = require("../../mikroorm/entities/Arbitraries");
+const Offerstatuses_1 = require("../../mikroorm/entities/Offerstatuses");
 let BtcCoreService = class BtcCoreService {
-    constructor(em) {
+    constructor(em, AppConfigService) {
         this.em = em;
+        this.AppConfigService = AppConfigService;
         this.rubToBTC = async (rub) => {
             const response = await axios_1.default.get('https://cdn.moneyconvert.net/api/latest.json');
             if (Array.isArray(rub)) {
@@ -53,8 +56,9 @@ let BtcCoreService = class BtcCoreService {
         await this.createInvoice({ type: Invoices_1.InvoicesType.IN, currency: 'BTC', value: Number(valuesBtc[1]), url: url, fee: Number(valuesBtc[0]), txnId: txn_id, offer: { id: offer.id } });
     }
     async createInvoice(options) {
-        options.invoiceStatus = { value: 'waiting' };
-        await this.em.nativeInsert(Invoices_1.Invoices, options);
+        options.invoiceStatus = this.em.getReference(Offerstatuses_1.Offerstatuses, this.AppConfigService.invoiceStatus('waiting').id);
+        const invoice = this.em.create(Invoices_1.Invoices, options);
+        await this.em.persistAndFlush(invoice);
     }
     async fetchMatchingInvoices(incomingTimeout, outgoingTimeout) {
         const allInvoices = await this.em.find(Invoices_1.Invoices, {
@@ -62,8 +66,8 @@ let BtcCoreService = class BtcCoreService {
             invoiceStatus: { value: 'waiting' }
         });
         return {
-            incoming: allInvoices.filter(i => i.createdAt > new Date(Date.now() - incomingTimeout)),
-            outgoing: allInvoices.filter(i => i.createdAt > new Date(Date.now() - outgoingTimeout))
+            incoming: allInvoices.filter(i => i.createdAt > new Date(Date.now() - incomingTimeout) && i.type == Invoices_1.InvoicesType.IN),
+            outgoing: allInvoices.filter(i => i.createdAt > new Date(Date.now() - outgoingTimeout) && i.type == Invoices_1.InvoicesType.OUT)
         };
     }
     async checkMoneyConvert() {
@@ -79,7 +83,8 @@ let BtcCoreService = class BtcCoreService {
 };
 BtcCoreService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.EntityManager])
+    __metadata("design:paramtypes", [core_1.EntityManager,
+        app_config_service_1.AppConfigService])
 ], BtcCoreService);
 exports.BtcCoreService = BtcCoreService;
 //# sourceMappingURL=btc-core.service.js.map

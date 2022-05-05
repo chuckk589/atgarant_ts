@@ -46,20 +46,21 @@ let BtcCoreController = class BtcCoreController extends interfaces_1.BasePayment
                     outgoingTimeout: this.AppConfigService.get('BTC_OUTGOING_TIMEOUT') * 1000 || 10 * 60 * 1000,
                 };
                 this.client = new Client({ network: this.options.network, port: this.options.btc_port, password: this.options.btc_password, username: this.options.btc_user, wallet: this.options.wallet });
+                await this.client.ping();
                 const state = await this.btcCoreService.checkMoneyConvert();
                 if (!state)
                     throw new Error("Money convert service is not accesible");
+                this.worker();
             }
             catch (error) {
-                this.logger.error('BtcCoreController init failed!');
+                this.logger.error(`BtcCoreController init failed! ${error}`);
                 process.exit(1);
             }
         };
         this.worker = async () => {
-            console.log('worker call');
             const invoices = await this.btcCoreService.fetchMatchingInvoices(this.options.incomingTimeout, this.options.outgoingTimeout);
             for (const i of invoices.incoming) {
-                const receivedAmount = await this.client.getReceivedByLabel(i.txnId, this.options.confirmations);
+                const receivedAmount = await this.client.getReceivedByLabel(i.txnId, Number(this.options.confirmations));
                 if (typeof receivedAmount == 'number' && receivedAmount >= i.value) {
                     await this.AppEventsController.offerPayed(i.txnId);
                     this.logger.info(`Payment received txnId: ${i.txnId} value: ${i.value}`);

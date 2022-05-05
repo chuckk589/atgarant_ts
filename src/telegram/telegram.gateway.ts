@@ -34,6 +34,7 @@ export class TelegramGateway {
         { connectionRetries: 5 }
       )
       await this.client.connect()
+      this.clientStatus = true
     } catch (error) {
       this.logger.error(`TelegramGateway init failed! ${error}`)
     }
@@ -99,7 +100,7 @@ export class TelegramGateway {
         })
       },
       onError: (err) => {
-        console.log(err)
+        this.logger.error(err)
         socket.emit('done', { error: err });
       },
     }).then(async () => {

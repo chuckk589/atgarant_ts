@@ -89,6 +89,7 @@ let AppEventsController = class AppEventsController {
     async offerPayoutProcessed(txn_id) {
         const offer = await this.appEventsService.getOfferByTxnId(txn_id);
         const roleData = (0, helpers_1.usersByRoles)(offer);
+        await this.appEventsService.updateInvoiceStatus(txn_id, 'success');
         if (offer.offerStatus.value === 'arbitrary') {
             await this.appEventsService.closeArbitraryOfferAttempt(offer.id);
         }
@@ -110,7 +111,6 @@ let AppEventsController = class AppEventsController {
         const roleData = (0, helpers_1.usersByRoles)(offerData);
         await this.appEventsService.updateOfferStatus(offerData, 'shipped');
         await this.bot.api.sendMessage(roleData.buyer.chatId, i18n_1.default.t(roleData.buyer.locale, 'buyerOfferShipped', { id: offerData.id }));
-        await this.bot.api.sendMessage(roleData.seller.chatId, i18n_1.default.t(roleData.seller.locale, 'buyerOfferShipped', { id: offerData.id }));
         return this.appConfigService.offerStatus('shipped');
     }
     async offerFeedback(offer, feedback, issuerChatId, rate) {
@@ -132,9 +132,9 @@ let AppEventsController = class AppEventsController {
     async offerPaymentRequested(offer) {
         let offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
         const roleData = (0, helpers_1.usersByRoles)(offerData);
+        await this.PaymentController.sellerWithdraw(offerData);
         await this.appEventsService.updateOfferStatus(offerData, 'awaitingPayment');
         await this.bot.api.sendMessage(roleData.seller.chatId, i18n_1.default.t(roleData.seller.locale, 'sellerOfferPaymentRequested', { id: offerData.id }));
-        await this.PaymentController.sellerWithdraw(offerData);
         return this.appConfigService.offerStatus('awaitingPayment');
     }
     async offerRejectInitiated(payload, ctx) {

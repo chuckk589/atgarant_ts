@@ -36,6 +36,7 @@ let TelegramGateway = class TelegramGateway {
                 const stringSession = new sessions_1.StringSession(this.AppConfigService.get('APP_SESSION_STRING'));
                 this.client = new telegram_1.TelegramClient(stringSession, Number(this.AppConfigService.get('APP_API_ID')), this.AppConfigService.get('APP_API_HASH'), { connectionRetries: 5 });
                 await this.client.connect();
+                this.clientStatus = true;
             }
             catch (error) {
                 this.logger.error(`TelegramGateway init failed! ${error}`);
@@ -99,7 +100,7 @@ let TelegramGateway = class TelegramGateway {
                 });
             },
             onError: (err) => {
-                console.log(err);
+                this.logger.error(err);
                 socket.emit('done', { error: err });
             },
         }).then(async () => {

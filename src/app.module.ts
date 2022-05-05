@@ -18,7 +18,6 @@ import { PaymentsModule } from './payments/payments.module';
 import { PaymentProviderModule } from './payment-provider/payment-provider.module';
 import { TelegramModule } from './telegram/telegram.module';
 import { AuthModule } from './auth/auth.module';
-import { ScheduleModule } from '@nestjs/schedule';
 import { ViolationModule } from './violation/violation.module';
 import { ReviewModule } from './review/review.module';
 import { OfferModule } from './offer/offer.module';
@@ -36,7 +35,6 @@ import { ArbitraryModule } from './arbitrary/arbitrary.module';
     UserModule,
     PaymentsModule,
     TelegramModule,
-    ScheduleModule.forRoot(),
     AuthModule,
     ViolationModule,
     ReviewModule,

@@ -16,7 +16,7 @@ const Arbitraries_1 = require("./Arbitraries");
 const Profiles_1 = require("./Profiles");
 const Violations_1 = require("./Violations");
 let Users = class Users {
-    constructor() {
+    constructor(payload) {
         this.role = 0;
         this.acceptedRules = 0;
         this.createdAt = new Date();
@@ -24,6 +24,7 @@ let Users = class Users {
         this.arbs = new core_1.Collection(this);
         this.profile = new Profiles_1.Profiles();
         this.violations = new core_1.Collection(this);
+        Object.assign(this, payload);
     }
     async beforeCreate(args) {
         if (this.password) {
@@ -99,7 +100,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], Users.prototype, "beforeCreate", null);
 Users = __decorate([
-    (0, core_1.Entity)()
+    (0, core_1.Entity)(),
+    __metadata("design:paramtypes", [Object])
 ], Users);
 exports.Users = Users;
 //# sourceMappingURL=Users.js.map

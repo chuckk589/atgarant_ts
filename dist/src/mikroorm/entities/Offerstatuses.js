@@ -12,6 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Offerstatuses = void 0;
 const core_1 = require("@mikro-orm/core");
 let Offerstatuses = class Offerstatuses {
+    constructor(payload) {
+        Object.assign(this, payload);
+    }
 };
 __decorate([
     (0, core_1.PrimaryKey)(),
@@ -27,7 +30,8 @@ __decorate([
     __metadata("design:type", String)
 ], Offerstatuses.prototype, "name", void 0);
 Offerstatuses = __decorate([
-    (0, core_1.Entity)()
+    (0, core_1.Entity)(),
+    __metadata("design:paramtypes", [Object])
 ], Offerstatuses);
 exports.Offerstatuses = Offerstatuses;
 //# sourceMappingURL=Offerstatuses.js.map

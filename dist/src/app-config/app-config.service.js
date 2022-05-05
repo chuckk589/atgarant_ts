@@ -22,7 +22,8 @@ let AppConfigService = class AppConfigService {
     }
     get payments() {
         const keys = Object.keys(process.env).filter(k => k.includes('paymentMethod'));
-        return keys.map(k => new interfaces_1.PM(k.split('_').pop(), process.env[k]));
+        const operationMode = this.get('PAYMENT_SERVICE');
+        return operationMode == 'btc-core' ? keys.map(k => new interfaces_1.PM(k.split('_').pop(), process.env[k])).filter(p => p.method == 'BTC') : keys.map(k => new interfaces_1.PM(k.split('_').pop(), process.env[k]));
     }
     offerStatus(idOrValue) {
         const statuses = Object.keys(process.env)

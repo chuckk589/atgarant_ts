@@ -14,10 +14,5 @@ import { AppEventsModule } from 'src/app-events/app-events.module';
   providers: [PaymentsService]
 })
 export class PaymentsModule {
-  // public static forRootAsync(options: PaymentsOptionsAsync): DynamicModule {
-  //   return {
-  //     module: PaymentsModule,
-  //     imports: [PaymentProviderModule.forRootAsync(options)],
-  //   };
-  // }
+
 }

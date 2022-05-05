@@ -16,14 +16,17 @@ exports.OfferEditMenuController = void 0;
 const interfaces_1 = require("../../types/interfaces");
 const decorators_1 = require("../common/decorators");
 const menu_1 = require("@grammyjs/menu");
+const app_config_service_1 = require("../../app-config/app-config.service");
 const helpers_1 = require("../common/helpers");
 const app_events_controller_1 = require("../../app-events/app-events.controller");
 const keyboards_1 = require("../common/keyboards");
 const nestjs_pino_1 = require("nestjs-pino");
+const create_offer_dto_1 = require("../../mikroorm/dto/create-offer.dto");
 let OfferEditMenuController = class OfferEditMenuController extends interfaces_1.BaseMenu {
-    constructor(AppEventsController, logger) {
+    constructor(AppEventsController, AppConfigService, logger) {
         super();
         this.AppEventsController = AppEventsController;
+        this.AppConfigService = AppConfigService;
         this.logger = logger;
         this.menu = new menu_1.Menu("offer-edit-menu")
             .dynamic((ctx, range) => {
@@ -39,30 +42,27 @@ let OfferEditMenuController = class OfferEditMenuController extends interfaces_1
             status.value === 'payed' && _isSeller && range.text(ctx.i18n.t('confirmShipping'), async (ctx) => {
                 try {
                     ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerShipped(ctx.session.editedOffer);
-                    ctx.menu.update();
-                    ctx.reply(ctx.i18n.t('dataUpdated'));
+                    await ctx.editMessageText((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()));
                 }
                 catch (error) {
                     this.logger.error(error);
                     ctx.reply(ctx.i18n.t('offerShippingFailed'));
                 }
             });
-            status.value === 'arrived' && _isSeller && ctx.session.pendingOffer.sellerWalletData && range.text(ctx.i18n.t('getPayout'), async (ctx) => {
+            status.value === 'arrived' && _isSeller && ctx.session.editedOffer.sellerWalletData && range.text(ctx.i18n.t('getPayout'), async (ctx) => {
                 try {
                     ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerPaymentRequested(ctx.session.editedOffer);
-                    ctx.menu.update();
-                    ctx.reply(ctx.i18n.t('sellerOfferPaymentRequested'));
+                    await ctx.editMessageText((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()));
                 }
                 catch (error) {
                     this.logger.error(error);
                     ctx.reply(ctx.i18n.t('paymentRequestFailed'));
                 }
             });
-            status.value === 'shipped' && !_isSeller && ctx.session.pendingOffer.sellerWalletData && range.text(ctx.i18n.t('confirmArrival'), async (ctx) => {
+            status.value === 'shipped' && !_isSeller && ctx.session.editedOffer.sellerWalletData && range.text(ctx.i18n.t('confirmArrival'), async (ctx) => {
                 try {
                     ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerArrived(ctx.session.editedOffer);
-                    ctx.menu.update();
-                    ctx.reply(ctx.i18n.t('dataUpdated'));
+                    await ctx.editMessageText((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()));
                 }
                 catch (error) {
                     this.logger.error(error);
@@ -87,8 +87,9 @@ __decorate([
 ], OfferEditMenuController.prototype, "menu", void 0);
 OfferEditMenuController = __decorate([
     decorators_1.MenuController,
-    __param(1, (0, nestjs_pino_1.InjectPinoLogger)('OfferEditMenuController')),
+    __param(2, (0, nestjs_pino_1.InjectPinoLogger)('OfferEditMenuController')),
     __metadata("design:paramtypes", [app_events_controller_1.AppEventsController,
+        app_config_service_1.AppConfigService,
         nestjs_pino_1.PinoLogger])
 ], OfferEditMenuController);
 exports.OfferEditMenuController = OfferEditMenuController;

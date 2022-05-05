@@ -114,11 +114,13 @@ const usersByRoles = (offer) => {
 };
 exports.usersByRoles = usersByRoles;
 const leftReview = (reviews, from) => {
-    return !!reviews.toArray().find(r => r.author.id == from || r.author.chatId == from);
+    return false;
 };
 exports.leftReview = leftReview;
 const isInitiator = (ctx) => ctx.session.pendingOffer.initiator_chatId === String(ctx.from.id);
 exports.isInitiator = isInitiator;
-const isSeller = (ctx) => (ctx.session.pendingOffer.role === 'seller' ? ctx.session.pendingOffer.initiator_chatId : ctx.session.pendingOffer.partner_chatId) == String(ctx.from.id);
+const isSeller = (ctx) => {
+    return (ctx.session.editedOffer.role === Offers_1.OffersRole.SELLER ? ctx.session.editedOffer.initiator.chatId : ctx.session.editedOffer.partner.chatId) == String(ctx.from.id);
+};
 exports.isSeller = isSeller;
 //# sourceMappingURL=helpers.js.map

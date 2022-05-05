@@ -5,12 +5,13 @@ import { Paymentmethods } from './Paymentmethods';
 import { Reviews } from './Reviews';
 import { Users } from './Users';
 export declare class Offers {
+    constructor(payload?: any);
     id: number;
     role?: OffersRole;
     feePayer?: OffersFeePayer;
     offerValue: number;
     feeBaked?: number;
-    estimatedShipping?: string;
+    estimatedShipping?: Date;
     productDetails?: string;
     shippingDetails?: string;
     productAdditionalDetails?: string;

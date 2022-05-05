@@ -105,7 +105,7 @@ export class globalService {
     const offerDTO = ctx.session.pendingOffer
     const offerStatus = this.AppConfigService.offerStatus<string>('pending')
     const newoffer = new Offers()
-    newoffer.estimatedShipping = '11.11.2021'
+    newoffer.estimatedShipping = offerDTO.estimatedShipping
     newoffer.feeBaked = offerDTO.feeBaked
     newoffer.feePayer = offerDTO.feePayer
     newoffer.role = offerDTO.role
@@ -120,6 +120,7 @@ export class globalService {
     newoffer.offerStatus = this.em.getReference(Offerstatuses, offerStatus.id)
     newoffer.paymentMethod = this.em.getReference(Paymentmethods, offerDTO.paymentMethodId)
     await this.em.persistAndFlush(newoffer)
+
     return newoffer
   }
 

@@ -19,7 +19,6 @@ const user_module_1 = require("./user/user.module");
 const payments_module_1 = require("./payments/payments.module");
 const telegram_module_1 = require("./telegram/telegram.module");
 const auth_module_1 = require("./auth/auth.module");
-const schedule_1 = require("@nestjs/schedule");
 const violation_module_1 = require("./violation/violation.module");
 const review_module_1 = require("./review/review.module");
 const offer_module_1 = require("./offer/offer.module");
@@ -39,7 +38,6 @@ AppModule = __decorate([
             user_module_1.UserModule,
             payments_module_1.PaymentsModule,
             telegram_module_1.TelegramModule,
-            schedule_1.ScheduleModule.forRoot(),
             auth_module_1.AuthModule,
             violation_module_1.ViolationModule,
             review_module_1.ReviewModule,

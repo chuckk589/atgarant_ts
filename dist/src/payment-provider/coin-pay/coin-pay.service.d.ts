@@ -6,6 +6,7 @@ export declare class CoinPayService {
     private readonly em;
     private readonly AppConfigService;
     constructor(em: EntityManager, AppConfigService: AppConfigService);
+    mockTransaction(options: EntityData<Invoices>): Promise<void>;
     createCardTransaction(amount: number, address: string): Promise<string>;
     createInvoice(options: EntityData<Invoices>): Promise<void>;
     getArbState(oldArb: Arbitraries): Promise<boolean>;

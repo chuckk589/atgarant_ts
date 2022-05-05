@@ -20,10 +20,56 @@ const uuidv4_1 = require("uuidv4");
 const app_config_service_1 = require("../../app-config/app-config.service");
 const axios_1 = __importDefault(require("axios"));
 const Arbitraries_1 = require("../../mikroorm/entities/Arbitraries");
+const Offerstatuses_1 = require("../../mikroorm/entities/Offerstatuses");
 let CoinPayService = class CoinPayService {
     constructor(em, AppConfigService) {
         this.em = em;
         this.AppConfigService = AppConfigService;
+    }
+    async mockTransaction(options) {
+        const txn_id = (0, uuidv4_1.uuid)();
+        await this.createInvoice({ type: options.type, currency: options.currency, value: options.value, fee: options.fee, txnId: txn_id, url: 'response.payUrl', offer: options.offer });
+        const port = this.AppConfigService.get('port');
+        setTimeout(() => {
+            switch (options.type) {
+                case Invoices_1.InvoicesType.IN: {
+                    if (options.currency == 'QIWI' || options.currency == 'CARD') {
+                        axios_1.default.post(`http://localhost:${port}/payment/qiwi/`, {
+                            bill: {
+                                status: {
+                                    value: 'PAID'
+                                },
+                                billId: txn_id
+                            }
+                        });
+                    }
+                    else {
+                        axios_1.default.post(`http://localhost:${port}/payment/crypto/`, {
+                            status: '100',
+                            txn_id: txn_id
+                        });
+                    }
+                    break;
+                }
+                case Invoices_1.InvoicesType.OUT: {
+                    if (options.currency == 'QIWI' || options.currency == 'CARD') {
+                        axios_1.default.post(`http://localhost:${port}/payment/qiwi/`, {
+                            payment: {
+                                status: 'SUCCESS',
+                                txnId: txn_id
+                            }
+                        });
+                    }
+                    else {
+                        axios_1.default.post(`http://localhost:${port}/payment/crypto/`, {
+                            status: '2',
+                            txn_id: txn_id
+                        });
+                    }
+                    break;
+                }
+            }
+        }, 3 * 1000);
     }
     async createCardTransaction(amount, address) {
         const bodyFormData = new FormData();
@@ -53,8 +99,9 @@ let CoinPayService = class CoinPayService {
         }
     }
     async createInvoice(options) {
-        options.invoiceStatus = { value: 'waiting' };
-        await this.em.nativeInsert(Invoices_1.Invoices, options);
+        options.invoiceStatus = this.em.getReference(Offerstatuses_1.Offerstatuses, this.AppConfigService.invoiceStatus('waiting').id);
+        const invoice = this.em.create(Invoices_1.Invoices, options);
+        await this.em.persistAndFlush(invoice);
     }
     async getArbState(oldArb) {
         try {

@@ -5,6 +5,7 @@ import { Offers, OffersFeePayer } from 'src/mikroorm/entities/Offers';
 import axios from 'axios';
 import { AppConfigService } from 'src/app-config/app-config.service'
 import { Arbitraries, ArbitrariesStatus } from 'src/mikroorm/entities/Arbitraries';
+import { Offerstatuses } from 'src/mikroorm/entities/Offerstatuses';
 
 
 
@@ -22,6 +23,10 @@ type InvoicesResponse = {
 
 @Injectable()
 export class BtcCoreService {
+    constructor(
+        private readonly em: EntityManager,
+        private readonly AppConfigService: AppConfigService,
+    ) { }
     async getArbState(oldArb: Arbitraries): Promise<boolean> {
         try {
             const arb = await this.em.findOneOrFail(Arbitraries, { id: oldArb.id })
@@ -43,8 +48,9 @@ export class BtcCoreService {
         await this.createInvoice({ type: InvoicesType.IN, currency: 'BTC', value: Number(valuesBtc[1]), url: url, fee: Number(valuesBtc[0]), txnId: txn_id, offer: { id: offer.id } })
     }
     async createInvoice(options: EntityData<Invoices>) {
-        options.invoiceStatus = { value: 'waiting' }
-        await this.em.nativeInsert(Invoices, options)
+        options.invoiceStatus = this.em.getReference(Offerstatuses, this.AppConfigService.invoiceStatus<string>('waiting').id)
+        const invoice = this.em.create(Invoices, options)
+        await this.em.persistAndFlush(invoice)
     }
     async fetchMatchingInvoices(incomingTimeout: number, outgoingTimeout: number): Promise<InvoicesResponse> {
         const allInvoices = await this.em.find(Invoices, {
@@ -53,14 +59,11 @@ export class BtcCoreService {
         })
         //TODO: close / delete rest invoices (outdated)
         return {
-            incoming: allInvoices.filter(i => i.createdAt > new Date(Date.now() - incomingTimeout)),
-            outgoing: allInvoices.filter(i => i.createdAt > new Date(Date.now() - outgoingTimeout))
+            incoming: allInvoices.filter(i => i.createdAt > new Date(Date.now() - incomingTimeout) && i.type == InvoicesType.IN),
+            outgoing: allInvoices.filter(i => i.createdAt > new Date(Date.now() - outgoingTimeout) && i.type == InvoicesType.OUT)
         }
     }
 
-    constructor(
-        private readonly em: EntityManager,
-    ) { }
     private rubToBTC = async (rub: number | number[]) => {
         const response = await axios.get<MoneyConvertResponse>('https://cdn.moneyconvert.net/api/latest.json')
         if (Array.isArray(rub)) {

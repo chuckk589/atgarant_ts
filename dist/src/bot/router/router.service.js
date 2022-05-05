@@ -42,6 +42,7 @@ let routerService = class routerService {
                 { partner: { chatId: String(chatId) } }
             ],
         }, { populate: ['initiator', 'partner', 'invoices', 'reviews.recipient', 'reviews.author'] });
+        this.em.clear();
         return offer;
     }
     async fetchContact(ctx) {

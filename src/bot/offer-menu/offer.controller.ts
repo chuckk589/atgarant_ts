@@ -13,7 +13,7 @@ import { AppEventsController } from '../../app-events/app-events.controller';
 export class offerController extends BaseMenu {
   constructor(
     private readonly offerService: offerService,
-    private readonly configService: AppConfigService,
+    private readonly AppConfigService: AppConfigService,
   ) {
     super()
   }
@@ -68,7 +68,7 @@ export class offerController extends BaseMenu {
           break
         }
         case BotStep.payment: {
-          const pms = this.configService.payments
+          const pms = this.AppConfigService.payments
           pms.map(pm => range.text({ text: ctx.i18n.t(pm.method) || pm.method, payload: String(pm.id) }, async ctx => {
             ctx.session.step = BotStep.value
             ctx.session.pendingOffer.paymentMethodId = Number(ctx.match)

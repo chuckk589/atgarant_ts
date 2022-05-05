@@ -71,13 +71,12 @@ export class BotContext extends Context implements SessionFlavor<Session>, I18nC
     }
     this.clean = async () => {
       if (this.session.menuId) {
-        await this.api.deleteMessage(this.from.id, this.session.menuId).catch()
+        await this.api.deleteMessage(this.from.id, this.session.menuId).catch(() => { })
         this.session.menuId = undefined
       }
     }
     this.save = async (messageId: number) => {
       this.session.menuId = messageId
-      console.log('save', messageId, this.session.menuId)
     }
   }
   menu: MenuControlPanel;

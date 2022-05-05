@@ -60,6 +60,7 @@ export class CoinPayController extends BasePaymentController {
     const feeRub = Math.max(offer.offerValue * offer.paymentMethod.feePercent / 100, offer.paymentMethod.feeRaw)
     const priceRub = offer.offerValue + feeRub * (offer.feePayer === OffersFeePayer.BUYER ? 1 : 0)
     const currency = offer.paymentMethod.value.split('_').pop()
+    console.log(this.AppConfigService.get<string>('node_env'))
     if (this.AppConfigService.get<string>('node_env') == 'debug') {
       await this.coinPayService.mockTransaction({ type: InvoicesType.IN, currency, value: offer.offerValue, fee: feeRub, offer: offer.id })
       return { url: 'test url', id: 'id' }

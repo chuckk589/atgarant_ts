@@ -18,7 +18,7 @@ let AppConfigService = class AppConfigService {
         this.configService = configService;
     }
     get(key, options) {
-        return this.configService.get(key, options);
+        return this.configService.get(key, options) || this.configService.get(key.toUpperCase(), options);
     }
     get payments() {
         const keys = Object.keys(process.env).filter(k => k.includes('paymentMethod'));

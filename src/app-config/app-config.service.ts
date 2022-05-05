@@ -8,7 +8,7 @@ export class AppConfigService {
         private readonly configService: ConfigService
     ) { }
     get<T>(key: string, options?: any) {
-        return this.configService.get<T>(key, options)
+        return this.configService.get<T>(key, options) || this.configService.get<T>(key.toUpperCase(), options)
     }
     get payments(): PM[] {
         const keys = Object.keys(process.env).filter(k => k.includes('paymentMethod'))

@@ -27,7 +27,7 @@
     "start:dev": "SET NODE_ENV=development&& nodemon index.ts | pino-pretty",
     "start:dev:debug": "set NODE_ENV=debug&& nodemon index.ts | pino-pretty",
     "start:prod": "node dist/index.js",
-    "start:debug": "export NODE_ENV=debug node dist/index.js | pino-pretty",
+    "start:debug": "NODE_ENV=debug node dist/index.js | pino-pretty",
     "gen": "ts-node ./src/utils/generate-entities.ts",
     "copy-files": "cp ./src/bot/locales/ ./dist/src/bot/"
   },

@@ -61,6 +61,7 @@ let CoinPayController = class CoinPayController extends interfaces_1.BasePayment
             const feeRub = Math.max(offer.offerValue * offer.paymentMethod.feePercent / 100, offer.paymentMethod.feeRaw);
             const priceRub = offer.offerValue + feeRub * (offer.feePayer === Offers_1.OffersFeePayer.BUYER ? 1 : 0);
             const currency = offer.paymentMethod.value.split('_').pop();
+            console.log(this.AppConfigService.get('node_env'), this.AppConfigService.get('NODE_ENV'));
             if (this.AppConfigService.get('node_env') == 'debug') {
                 await this.coinPayService.mockTransaction({ type: Invoices_1.InvoicesType.IN, currency, value: offer.offerValue, fee: feeRub, offer: offer.id });
                 return { url: 'test url', id: 'id' };
@@ -122,6 +123,7 @@ let CoinPayController = class CoinPayController extends interfaces_1.BasePayment
                 }
             }, timeout);
         };
+        console.log(this.AppConfigService.get('node_env'));
     }
 };
 CoinPayController = __decorate([

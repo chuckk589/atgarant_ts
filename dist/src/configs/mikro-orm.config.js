@@ -5,7 +5,7 @@ const MikroORMOptions = {
     type: 'mysql',
     allowGlobalContext: true,
     ...(process.env.NODE_ENV === 'development' ? { debug: true, logger: console.log.bind(console) } : {}),
-    entities: ['./dist/mikroorm/entities/'],
+    entities: ['./dist/src/mikroorm/entities/'],
     entitiesTs: ['./src/mikroorm/entities/'],
     clientUrl: process.env.NODE_ENV === 'development' ? process.env.DB_URL_DEV : process.env.DB_URL,
     seeder: {

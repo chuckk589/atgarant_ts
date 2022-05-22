@@ -1,1 +1,1 @@
-{"version":3,"file":"update-offer.dto.js","sourceRoot":"","sources":["../../../../src/offer/dto/update-offer.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,qDAAgE;AAGhE,MAAa,cAAc;CAK1B;AAHG;IADC,IAAA,0BAAQ,GAAE;;kDACO;AAElB;IADC,IAAA,2BAAS,GAAE;;8CACG;AAJnB,wCAKC"}
+{"version":3,"file":"update-offer.dto.js","sourceRoot":"","sources":["../../../../src/offer/dto/update-offer.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,qDAAgE;AAEhE,MAAa,cAAc;CAK1B;AAHC;IADC,IAAA,0BAAQ,GAAE;;kDACQ;AAEnB;IADC,IAAA,2BAAS,GAAE;;8CACI;AAJlB,wCAKC"}

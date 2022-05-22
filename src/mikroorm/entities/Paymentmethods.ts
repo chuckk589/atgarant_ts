@@ -2,7 +2,6 @@ import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
 @Entity()
 export class Paymentmethods {
-
   @PrimaryKey()
   id!: number;
 
@@ -23,5 +22,4 @@ export class Paymentmethods {
 
   @Property({ fieldName: 'maxSum', nullable: true })
   maxSum?: number;
-
 }

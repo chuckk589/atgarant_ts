@@ -15,10 +15,12 @@ class CloseArbDto {
 }
 __decorate([
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], CloseArbDto.prototype, "buyerPayout", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], CloseArbDto.prototype, "sellerPayout", void 0);
 __decorate([

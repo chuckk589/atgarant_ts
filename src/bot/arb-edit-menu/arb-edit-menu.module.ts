@@ -7,6 +7,6 @@ import { offerModule } from '../offer-menu/offer.module';
 @Module({
   imports: [offerModule, AppEventsModule],
   providers: [ArbEditMenuService, ArbEditMenuController],
-  exports: [ArbEditMenuController]
+  exports: [ArbEditMenuController],
 })
-export class ArbEditMenuModule { }
+export class ArbEditMenuModule {}

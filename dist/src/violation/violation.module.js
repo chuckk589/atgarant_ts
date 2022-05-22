@@ -15,7 +15,7 @@ let ViolationModule = class ViolationModule {
 ViolationModule = __decorate([
     (0, common_1.Module)({
         controllers: [violation_controller_1.ViolationController],
-        providers: [violation_service_1.ViolationService]
+        providers: [violation_service_1.ViolationService],
     })
 ], ViolationModule);
 exports.ViolationModule = ViolationModule;

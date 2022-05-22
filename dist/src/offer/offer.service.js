@@ -21,9 +21,9 @@ let OfferService = class OfferService {
     }
     async update(id, updateOfferDto) {
         return await this.em.nativeUpdate(Offers_1.Offers, {
-            id: id
+            id: id,
         }, {
-            [updateOfferDto.seller ? 'sellerWalletData' : 'buyerWalletData']: updateOfferDto.walletData
+            [updateOfferDto.seller ? 'sellerWalletData' : 'buyerWalletData']: updateOfferDto.walletData,
         });
     }
     async createArb(id, body) {
@@ -46,19 +46,17 @@ let OfferService = class OfferService {
     async findAll(userId) {
         const options = userId
             ? {
-                $or: [
-                    { partner: { id: Number(userId) } },
-                    { initiator: { id: Number(userId) } }
-                ]
+                $or: [{ partner: { id: Number(userId) } }, { initiator: { id: Number(userId) } }],
             }
             : {};
-        return await this.em.find(Offers_1.Offers, options, { populate: ['initiator', 'partner', 'offerStatus', 'paymentMethod', 'reviews'] });
+        return await this.em.find(Offers_1.Offers, options, {
+            populate: ['initiator', 'partner', 'offerStatus', 'paymentMethod', 'reviews'],
+        });
     }
 };
 OfferService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.EntityManager,
-        app_events_controller_1.AppEventsController])
+    __metadata("design:paramtypes", [core_1.EntityManager, app_events_controller_1.AppEventsController])
 ], OfferService);
 exports.OfferService = OfferService;
 //# sourceMappingURL=offer.service.js.map

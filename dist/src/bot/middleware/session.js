@@ -9,7 +9,7 @@ const interfaces_1 = require("../../types/interfaces");
 const initial = () => ({
     user: {
         acceptedRules: 0,
-        mode: 'default'
+        mode: 'default',
     },
     step: interfaces_1.BotStep.default,
     pendingOffer: new create_offer_dto_1.botOfferDto(new Offers_1.Offers()),
@@ -22,6 +22,6 @@ function getSessionKey(ctx) {
 }
 exports.session = (0, grammy_1.session)({
     initial: initial,
-    getSessionKey: getSessionKey
+    getSessionKey: getSessionKey,
 });
 //# sourceMappingURL=session.js.map

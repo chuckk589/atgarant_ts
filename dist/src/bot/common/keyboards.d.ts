@@ -1,6 +1,6 @@
-import { Keyboard } from "grammy";
-import { InlineKeyboardMarkup } from "grammy/out/platform.node";
-import { BotContext } from "src/types/interfaces";
+import { Keyboard } from 'grammy';
+import { InlineKeyboardMarkup } from 'grammy/out/platform.node';
+import { BotContext } from 'src/types/interfaces';
 export declare const mainKeyboard: (ctx: BotContext) => Keyboard;
 export declare const offerKeyboard: (ctx: BotContext) => Keyboard;
 export declare const arbitraryKeyboard: (ctx: BotContext) => Keyboard;

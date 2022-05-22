@@ -18,7 +18,7 @@ ArbitraryModule = __decorate([
     (0, common_1.Module)({
         controllers: [arbitrary_controller_1.ArbitraryController],
         providers: [arbitrary_service_1.ArbitraryService],
-        imports: [telegram_module_1.TelegramModule, app_events_module_1.AppEventsModule]
+        imports: [telegram_module_1.TelegramModule, app_events_module_1.AppEventsModule],
     })
 ], ArbitraryModule);
 exports.ArbitraryModule = ArbitraryModule;

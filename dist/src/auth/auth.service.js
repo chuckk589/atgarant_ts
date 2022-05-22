@@ -21,7 +21,7 @@ let AuthService = class AuthService {
     }
     async validateUser(chatId, pass) {
         const user = await this.em.findOne(Users_1.Users, { chatId: String(chatId) });
-        if (user && await user.comparePassword(pass)) {
+        if (user && (await user.comparePassword(pass))) {
             const { password, ...result } = user;
             return result;
         }
@@ -32,7 +32,7 @@ let AuthService = class AuthService {
             username: user.username,
             chat_id: user.chatId,
             sub: user.id,
-            role: user.role
+            role: user.role,
         };
         return {
             access_token: this.jwtService.sign(payload),
@@ -41,8 +41,7 @@ let AuthService = class AuthService {
 };
 AuthService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [jwt_1.JwtService,
-        core_1.EntityManager])
+    __metadata("design:paramtypes", [jwt_1.JwtService, core_1.EntityManager])
 ], AuthService);
 exports.AuthService = AuthService;
 //# sourceMappingURL=auth.service.js.map

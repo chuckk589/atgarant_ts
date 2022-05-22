@@ -17,7 +17,7 @@ OfferModule = __decorate([
     (0, common_1.Module)({
         controllers: [offer_controller_1.OfferController],
         providers: [offer_service_1.OfferService],
-        imports: [app_events_module_1.AppEventsModule]
+        imports: [app_events_module_1.AppEventsModule],
     })
 ], OfferModule);
 exports.OfferModule = OfferModule;

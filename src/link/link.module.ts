@@ -4,6 +4,6 @@ import { LinkController } from './link.controller';
 
 @Module({
   controllers: [LinkController],
-  providers: [LinkService]
+  providers: [LinkService],
 })
 export class LinkModule {}

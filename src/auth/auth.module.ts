@@ -13,12 +13,12 @@ import { AuthController } from './auth.controller';
     JwtModule.registerAsync({
       inject: [AppConfigService],
       useFactory: (configService: AppConfigService) => ({
-        secret: configService.get<string>('jwt-secret'),
-        signOptions: { expiresIn: `7d` }
-      })
-    })
+        secret: configService.get<string>('SECRET'),
+        signOptions: { expiresIn: `7d` },
+      }),
+    }),
   ],
   providers: [LocalStrategy, JwtStrategy, AuthService],
   controllers: [AuthController],
 })
-export class AuthModule { }
+export class AuthModule {}

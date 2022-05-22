@@ -35,42 +35,30 @@ let globalService = class globalService {
     async fetchAllArbs(chatid) {
         const arbs = await this.em.find(Arbitraries_1.Arbitraries, {
             offer: {
-                $or: [
-                    { initiator: { chatId: String(chatid) } },
-                    { partner: { chatId: String(chatid) } }
-                ]
-            }
+                $or: [{ initiator: { chatId: String(chatid) } }, { partner: { chatId: String(chatid) } }],
+            },
         }, { populate: ['offer.initiator', 'offer.partner', 'offer.paymentMethod', 'offer.invoices'] });
         return arbs;
     }
     async fetchActiveArbs(chatid) {
         const arbs = await this.em.find(Arbitraries_1.Arbitraries, {
             offer: {
-                $or: [
-                    { initiator: { chatId: String(chatid) } },
-                    { partner: { chatId: String(chatid) } }
-                ]
-            }
+                $or: [{ initiator: { chatId: String(chatid) } }, { partner: { chatId: String(chatid) } }],
+            },
         }, { populate: ['offer.initiator', 'offer.partner', 'offer.paymentMethod', 'offer.invoices'] });
         return arbs;
     }
     async fetchActiveOffers(chatid) {
         const offers = await this.em.find(Offers_1.Offers, {
-            $or: [
-                { initiator: { chatId: String(chatid) } },
-                { partner: { chatId: String(chatid) } }
-            ],
-            offerStatus: { value: { $nin: ['closed', 'pending'] } }
+            $or: [{ initiator: { chatId: String(chatid) } }, { partner: { chatId: String(chatid) } }],
+            offerStatus: { value: { $nin: ['closed', 'pending'] } },
         }, { populate: ['initiator', 'partner', 'invoices', 'paymentMethod', 'invoices', 'offerStatus'] });
         return offers;
     }
     async fetchOffers(chatid) {
         const offers = await this.em.find(Offers_1.Offers, {
-            $or: [
-                { initiator: { chatId: String(chatid) } },
-                { partner: { chatId: String(chatid) } }
-            ],
-        }, { populate: ['initiator', 'partner', 'invoices', 'paymentMethod', 'invoices'] });
+            $or: [{ initiator: { chatId: String(chatid) } }, { partner: { chatId: String(chatid) } }],
+        }, { populate: ['initiator', 'partner', 'invoices', 'paymentMethod', 'invoices', 'offerStatus'] });
         return offers;
     }
     async fetchUser(ctx) {
@@ -79,7 +67,7 @@ let globalService = class globalService {
             user = this.em.create(Users_1.Users, {
                 chatId: String(ctx.from.id),
                 username: ctx.from.username,
-                firstName: String(ctx.from.first_name)
+                firstName: String(ctx.from.first_name),
             });
             await this.em.persistAndFlush(user);
         }
@@ -87,12 +75,10 @@ let globalService = class globalService {
     }
     async fetchQueryUsers(payload) {
         const users = await this.em.find(Users_1.Users, {
-            $or: [
-                { chatId: { $like: String(payload) } },
-                { username: { $like: String(payload) } }
-            ],
+            $or: [{ chatId: { $like: `%${String(payload)}%` } }, { username: { $like: `%${String(payload)}%` } }],
         }, {
-            populate: ['profile', 'violations']
+            limit: 10,
+            populate: ['profile', 'violations'],
         });
         return users;
     }
@@ -120,8 +106,7 @@ let globalService = class globalService {
 };
 globalService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.EntityManager,
-        app_config_service_1.AppConfigService])
+    __metadata("design:paramtypes", [core_1.EntityManager, app_config_service_1.AppConfigService])
 ], globalService);
 exports.globalService = globalService;
 //# sourceMappingURL=global.service.js.map

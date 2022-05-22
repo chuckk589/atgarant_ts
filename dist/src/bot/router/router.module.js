@@ -20,7 +20,7 @@ routerModule = __decorate([
     (0, common_1.Module)({
         imports: [offer_module_1.offerModule, offer_edit_menu_module_1.OfferEditMenuModule, arb_edit_menu_module_1.ArbEditMenuModule, app_events_module_1.AppEventsModule],
         providers: [router_service_1.routerService, router_controller_1.routerController],
-        exports: [router_controller_1.routerController]
+        exports: [router_controller_1.routerController],
     })
 ], routerModule);
 exports.routerModule = routerModule;

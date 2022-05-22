@@ -24,12 +24,12 @@ let ConfigService = class ConfigService {
         if (typeof body.id === 'string') {
             if (body.value.match(/^\d* \d* \d* \d*$/)) {
                 const id = body.id.split('_').pop();
-                const values = body.value.split(' ').map(v => Number(v));
+                const values = body.value.split(' ').map((v) => Number(v));
                 await this.em.nativeUpdate(Paymentmethods_1.Paymentmethods, { id: Number(id) }, {
                     feeRaw: values[0],
                     feePercent: values[1],
                     minSum: values[2],
-                    maxSum: values[3]
+                    maxSum: values[3],
                 });
                 process.env[body.name] = body.value;
             }
@@ -44,21 +44,20 @@ let ConfigService = class ConfigService {
     async findAll() {
         const configs = await this.em.find(Configs_1.Configs, {});
         const pms = this.AppConfigService.payments;
-        configs.concat(pms.map(pm => new Configs_1.Configs({
+        configs.concat(pms.map((pm) => new Configs_1.Configs({
             id: `PMTH_${pm.id}`,
             name: pm.method,
             value: `${pm.feeRaw} ${pm.feePercent} ${pm.minSum} ${pm.maxSum}`,
             category: 'Misc',
             requiresReboot: 0,
-            description: 'Настройки способа оплаты - через пробел, целые числа:\nМинимальная комиссия в рублях\nМинимальная комиссия в процентах\nМинимальная сумма сделки в рублях\nМаксимальная сумма сделки в рублях'
+            description: 'Настройки способа оплаты - через пробел, целые числа:\nМинимальная комиссия в рублях\nМинимальная комиссия в процентах\nМинимальная сумма сделки в рублях\nМаксимальная сумма сделки в рублях',
         })));
         return configs;
     }
 };
 ConfigService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.EntityManager,
-        app_config_service_1.AppConfigService])
+    __metadata("design:paramtypes", [core_1.EntityManager, app_config_service_1.AppConfigService])
 ], ConfigService);
 exports.ConfigService = ConfigService;
 //# sourceMappingURL=config.service.js.map

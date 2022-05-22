@@ -18,7 +18,7 @@ PaymentsModule = __decorate([
     (0, common_1.Module)({
         controllers: [payments_controller_1.PaymentsController],
         imports: [payment_provider_module_1.PaymentProviderModule.forRootAsync(), app_events_module_1.AppEventsModule],
-        providers: [payments_service_1.PaymentsService]
+        providers: [payments_service_1.PaymentsService],
     })
 ], PaymentsModule);
 exports.PaymentsModule = PaymentsModule;

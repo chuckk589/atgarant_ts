@@ -57,13 +57,15 @@ let routerController = class routerController extends interfaces_1.BaseRouter {
             }
         })
             .route(interfaces_1.BotStep.value, async (ctx) => {
-            const paymentMethod = this.AppConfigService.payments.find(p => p.id == Number(ctx.session.pendingOffer.paymentMethodId));
+            const paymentMethod = this.AppConfigService.payments.find((p) => p.id == Number(ctx.session.pendingOffer.paymentMethodId));
             const value = Number(ctx.message.text);
             if (value && value > paymentMethod.minSum && value < paymentMethod.maxSum) {
                 ctx.session.pendingOffer.offerValue = value;
-                ctx.session.pendingOffer.feeBaked = Math.max(value * paymentMethod.feePercent / 100, paymentMethod.feeRaw);
+                ctx.session.pendingOffer.feeBaked = Math.max((value * paymentMethod.feePercent) / 100, paymentMethod.feeRaw);
                 ctx.session.step = interfaces_1.BotStep.shipping;
-                await ctx.cleanReplySave(ctx.i18n.t('askEstimatedShipping'), { reply_markup: this.offerController.getMiddleware() });
+                await ctx.cleanReplySave(ctx.i18n.t('askEstimatedShipping'), {
+                    reply_markup: this.offerController.getMiddleware(),
+                });
             }
             else {
                 ctx.reply(ctx.i18n.t('wrongDataOfferValue', { minSum: paymentMethod.minSum, maxSum: paymentMethod.maxSum }));
@@ -74,7 +76,9 @@ let routerController = class routerController extends interfaces_1.BaseRouter {
             if (date.isValid) {
                 ctx.session.pendingOffer.estimatedShipping = date.toJSDate();
                 ctx.session.step = interfaces_1.BotStep.productDetails;
-                await ctx.cleanReplySave(ctx.i18n.t('askProductDetails'), { reply_markup: this.offerController.getMiddleware() });
+                await ctx.cleanReplySave(ctx.i18n.t('askProductDetails'), {
+                    reply_markup: this.offerController.getMiddleware(),
+                });
             }
             else {
                 await ctx.reply(ctx.i18n.t('wrongData'));
@@ -83,12 +87,16 @@ let routerController = class routerController extends interfaces_1.BaseRouter {
             .route(interfaces_1.BotStep.productDetails, async (ctx) => {
             ctx.session.pendingOffer.productDetails = ctx.message.text;
             ctx.session.step = interfaces_1.BotStep.shippingDetails;
-            await ctx.cleanReplySave(ctx.i18n.t('askShippingDetails'), { reply_markup: this.offerController.getMiddleware() });
+            await ctx.cleanReplySave(ctx.i18n.t('askShippingDetails'), {
+                reply_markup: this.offerController.getMiddleware(),
+            });
         })
             .route(interfaces_1.BotStep.shippingDetails, async (ctx) => {
             ctx.session.pendingOffer.shippingDetails = ctx.message.text;
             ctx.session.step = interfaces_1.BotStep.productRest;
-            await ctx.cleanReplySave(ctx.i18n.t('askProductAdditionalDetails'), { reply_markup: this.offerController.getMiddleware() });
+            await ctx.cleanReplySave(ctx.i18n.t('askProductAdditionalDetails'), {
+                reply_markup: this.offerController.getMiddleware(),
+            });
         })
             .route(interfaces_1.BotStep.productRest, async (ctx) => {
             ctx.session.pendingOffer.productAdditionalDetails = ctx.message.text;
@@ -98,13 +106,17 @@ let routerController = class routerController extends interfaces_1.BaseRouter {
             .route(interfaces_1.BotStep.rest, async (ctx) => {
             ctx.session.pendingOffer.restDetails = ctx.message.text;
             ctx.session.step = interfaces_1.BotStep.refund;
-            await ctx.cleanReplySave(ctx.i18n.t('askProductRefundTime'), { reply_markup: this.offerController.getMiddleware() });
+            await ctx.cleanReplySave(ctx.i18n.t('askProductRefundTime'), {
+                reply_markup: this.offerController.getMiddleware(),
+            });
         })
             .route(interfaces_1.BotStep.refund, async (ctx) => {
             ctx.session.pendingOffer.refundDetails = ctx.message.text;
             ctx.session.pendingOffer.initiator_chatId = String(ctx.from.id);
             ctx.session.step = interfaces_1.BotStep.checkout;
-            await ctx.cleanReplySave((0, helpers_1.checkoutMessage)(ctx.session.pendingOffer, ctx.i18n.locale()), { reply_markup: (0, keyboards_1.manageOfferMenu)(0, ctx.i18n.locale(), 'default') });
+            await ctx.cleanReplySave((0, helpers_1.checkoutMessage)(ctx.session.pendingOffer, ctx.i18n.locale()), {
+                reply_markup: (0, keyboards_1.manageOfferMenu)(0, ctx.i18n.locale(), 'default'),
+            });
         })
             .route(interfaces_1.BotStep.offer, async (ctx) => {
             if (ctx.message && ctx.message.text && Number(ctx.message.text)) {
@@ -112,23 +124,30 @@ let routerController = class routerController extends interfaces_1.BaseRouter {
                 if (!offer)
                     return;
                 ctx.session.editedOffer = offer;
-                await ctx.cleanReplySave((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(offer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() });
+                await ctx.cleanReplySave((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(offer), ctx.i18n.locale()), {
+                    reply_markup: this.OfferEditMenuController.getMiddleware(),
+                });
             }
         })
             .route(interfaces_1.BotStep.setWallet, async (ctx) => {
             ctx.session.step = interfaces_1.BotStep.offer;
             await this.routerService.setWallet(ctx);
             await ctx.reply(ctx.i18n.t('dataUpdated'));
+            await ctx.cleanReplySave((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()), {
+                reply_markup: this.OfferEditMenuController.getMiddleware(),
+            });
         })
             .route(interfaces_1.BotStep.setArbitrary, async (ctx) => {
             try {
                 ctx.session.editedOffer.offerStatus = await this.AppEventsController.arbOpened(ctx.session.editedOffer, ctx.message.text, ctx.from.id);
                 ctx.session.step = interfaces_1.BotStep.offer;
-                await ctx.cleanReplySave((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()), { reply_markup: this.OfferEditMenuController.getMiddleware() });
+                await ctx.cleanReplySave((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()), {
+                    reply_markup: this.OfferEditMenuController.getMiddleware(),
+                });
             }
             catch (error) {
                 this.logger.error(error);
-                await ctx.reply(ctx.i18n.t('arbCreationFailed'));
+                await ctx.reply(ctx.i18n.t(error.message));
             }
         })
             .route(interfaces_1.BotStep.setFeedbackN || interfaces_1.BotStep.setFeedbackP, async (ctx) => {
@@ -149,10 +168,12 @@ let routerController = class routerController extends interfaces_1.BaseRouter {
                 if (!arb)
                     return;
                 ctx.session.editedArb = arb;
-                await ctx.cleanReplySave((0, helpers_1.checkoutArbMessage)(arb, ctx.i18n.locale()), { reply_markup: this.ArbEditMenuController.getMiddleware() });
+                await ctx.cleanReplySave((0, helpers_1.checkoutArbMessage)(arb, ctx.i18n.locale()), {
+                    reply_markup: this.ArbEditMenuController.getMiddleware(),
+                });
             }
         })
-            .otherwise(ctx => {
+            .otherwise((ctx) => {
             ctx.clean();
         });
     }

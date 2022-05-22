@@ -10,7 +10,7 @@ async function bootstrap() {
     app.enableVersioning({ type: common_1.VersioningType.URI });
     app.useGlobalPipes(new common_1.ValidationPipe({ transform: true }));
     const configService = app.get(app_config_service_1.AppConfigService);
-    await app.listen(configService.get('port'));
+    await app.listen(configService.get('PORT'));
 }
 exports.bootstrap = bootstrap;
 //# sourceMappingURL=main.js.map

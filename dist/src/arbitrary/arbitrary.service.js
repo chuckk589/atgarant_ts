@@ -34,11 +34,8 @@ let ArbitraryService = class ArbitraryService {
         const options = userId
             ? {
                 offer: {
-                    $or: [
-                        { partner: { id: Number(userId) } },
-                        { initiator: { id: Number(userId) } }
-                    ]
-                }
+                    $or: [{ partner: { id: Number(userId) } }, { initiator: { id: Number(userId) } }],
+                },
             }
             : {};
         return await this.em.find(Arbitraries_1.Arbitraries, options, { populate: ['offer.initiator', 'offer.partner', 'arbiter'] });

@@ -15,7 +15,7 @@ let LinkModule = class LinkModule {
 LinkModule = __decorate([
     (0, common_1.Module)({
         controllers: [link_controller_1.LinkController],
-        providers: [link_service_1.LinkService]
+        providers: [link_service_1.LinkService],
     })
 ], LinkModule);
 exports.LinkModule = LinkModule;

@@ -27,7 +27,7 @@ let BotModule = BotModule_1 = class BotModule {
             module: BotModule_1,
             imports: options.imports,
             providers: [BotProvider, BotOptionsProvider],
-            exports: [BotProvider, BotOptionsProvider]
+            exports: [BotProvider, BotOptionsProvider],
         };
     }
 };

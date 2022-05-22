@@ -10,7 +10,7 @@ const Settings = () => import('../views/Settings')
 const Arbitrary = () => import('../views/Arbitrary')
 const Users = () => import('../views/Users')
 const Login = () => import('../views/Login')
-
+const WebApp = () => import('../views/WebApp')
 
 Vue.use(Router)
 
@@ -39,6 +39,12 @@ const router = new Router({
 export default router
 function configRoutes() {
   return [
+    {
+      path: '/webapp',
+      name: 'WebApp',
+     // meta: { requiresAuth: false },
+      component: WebApp,
+    },
     {
       path: '/login',
       name: 'Login',

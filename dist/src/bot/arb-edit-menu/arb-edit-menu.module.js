@@ -18,7 +18,7 @@ ArbEditMenuModule = __decorate([
     (0, common_1.Module)({
         imports: [offer_module_1.offerModule, app_events_module_1.AppEventsModule],
         providers: [arb_edit_menu_service_1.ArbEditMenuService, arb_edit_menu_controller_1.ArbEditMenuController],
-        exports: [arb_edit_menu_controller_1.ArbEditMenuController]
+        exports: [arb_edit_menu_controller_1.ArbEditMenuController],
     })
 ], ArbEditMenuModule);
 exports.ArbEditMenuModule = ArbEditMenuModule;

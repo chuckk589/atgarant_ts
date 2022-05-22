@@ -1,4 +1,14 @@
-import { AfterCreate, Collection, Entity, Enum, EventArgs, ManyToOne, OneToMany, PrimaryKey, Property } from '@mikro-orm/core';
+import {
+  AfterCreate,
+  Collection,
+  Entity,
+  Enum,
+  EventArgs,
+  ManyToOne,
+  OneToMany,
+  PrimaryKey,
+  Property,
+} from '@mikro-orm/core';
 import { Invoices } from './Invoices';
 import { Offerstatuses } from './Offerstatuses';
 import { Paymentmethods } from './Paymentmethods';
@@ -56,30 +66,62 @@ export class Offers {
   @Property({ fieldName: 'updatedAt', onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @ManyToOne({ entity: () => Offerstatuses, fieldName: 'offerStatusId', onUpdateIntegrity: 'cascade', index: 'offerStatusId' })
+  @ManyToOne({
+    entity: () => Offerstatuses,
+    fieldName: 'offerStatusId',
+    onUpdateIntegrity: 'cascade',
+    index: 'offerStatusId',
+  })
   offerStatus!: Offerstatuses;
 
-  @ManyToOne({ entity: () => Users, fieldName: 'partnerId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'partnerId' })
+  @ManyToOne({
+    entity: () => Users,
+    fieldName: 'partnerId',
+    onUpdateIntegrity: 'cascade',
+    onDelete: 'set null',
+    nullable: true,
+    index: 'partnerId',
+  })
   partner?: Users;
 
-  @ManyToOne({ entity: () => Users, fieldName: 'initiatorId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'initiatorId' })
+  @ManyToOne({
+    entity: () => Users,
+    fieldName: 'initiatorId',
+    onUpdateIntegrity: 'cascade',
+    onDelete: 'set null',
+    nullable: true,
+    index: 'initiatorId',
+  })
   initiator?: Users;
 
-  @ManyToOne({ entity: () => Paymentmethods, fieldName: 'paymentMethodId', onUpdateIntegrity: 'cascade', index: 'paymentMethodId' })
+  @ManyToOne({
+    entity: () => Paymentmethods,
+    fieldName: 'paymentMethodId',
+    onUpdateIntegrity: 'cascade',
+    index: 'paymentMethodId',
+  })
   paymentMethod!: Paymentmethods;
 
-  @OneToMany(() => Invoices, invoice => invoice.offer)
+  @OneToMany(() => Invoices, (invoice) => invoice.offer)
   invoices = new Collection<Invoices>(this);
 
-  @OneToMany(() => Reviews, review => review.offer)
+  @OneToMany(() => Reviews, (review) => review.offer)
   reviews = new Collection<Reviews>(this);
 
   @AfterCreate()
   async afterCreate(args: EventArgs<Offers>): Promise<void> {
-    const seller = args.entity.role === 'seller' ? 'initiator' : 'partner'
-    const buyer = args.entity.role === 'buyer' ? 'initiator' : 'partner'
-    args.em.getConnection().execute(`UPDATE profiles SET offersAsBuyer = offersAsBuyer + 1, totalOfferValueRub = totalOfferValueRub + ${this.offerValue} WHERE userId = ${this[buyer].id}`)
-    args.em.getConnection().execute(`UPDATE profiles SET offersAsSeller = offersAsSeller + 1, totalOfferValueRub = totalOfferValueRub + ${this.offerValue} WHERE userId = ${this[seller].id}`)
+    const seller = args.entity.role === 'seller' ? 'initiator' : 'partner';
+    const buyer = args.entity.role === 'buyer' ? 'initiator' : 'partner';
+    args.em
+      .getConnection()
+      .execute(
+        `UPDATE profiles SET offersAsBuyer = offersAsBuyer + 1, totalOfferValueRub = totalOfferValueRub + ${this.offerValue} WHERE userId = ${this[buyer].id}`,
+      );
+    args.em
+      .getConnection()
+      .execute(
+        `UPDATE profiles SET offersAsSeller = offersAsSeller + 1, totalOfferValueRub = totalOfferValueRub + ${this.offerValue} WHERE userId = ${this[seller].id}`,
+      );
   }
 }
 

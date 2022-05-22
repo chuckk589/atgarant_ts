@@ -5,15 +5,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly em: EntityManager
-  ) { }
+  constructor(private readonly em: EntityManager) {}
   async findAll() {
-    return await this.em.find(Users, {})
+    return await this.em.find(Users, {});
   }
 
   async findOne(id: number) {
-    return await this.em.findOne(Users, { id: id })
+    return await this.em.findOne(Users, { id: id });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

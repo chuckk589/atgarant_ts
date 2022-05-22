@@ -5,11 +5,11 @@ import { UpdateConfigDto } from './dto/update-config.dto';
 
 @Controller({
   path: 'config',
-  version: '1'
+  version: '1',
 })
 @UseGuards(JwtAuthGuard)
 export class ConfigController {
-  constructor(private readonly configService: ConfigService) { }
+  constructor(private readonly configService: ConfigService) {}
 
   @Put()
   update(@Body() updateConfigDto: UpdateConfigDto) {
@@ -18,7 +18,7 @@ export class ConfigController {
 
   @Get('reboot')
   reboot() {
-    return process.exit()
+    return process.exit();
   }
   @Get()
   findAll() {

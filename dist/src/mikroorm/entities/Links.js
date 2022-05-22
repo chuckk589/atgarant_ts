@@ -35,7 +35,14 @@ __decorate([
     __metadata("design:type", Date)
 ], Links.prototype, "updatedAt", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Users_1.Users, fieldName: 'userId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'userId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Users_1.Users,
+        fieldName: 'userId',
+        onUpdateIntegrity: 'cascade',
+        onDelete: 'set null',
+        nullable: true,
+        index: 'userId',
+    }),
     __metadata("design:type", Users_1.Users)
 ], Links.prototype, "userId", void 0);
 Links = __decorate([

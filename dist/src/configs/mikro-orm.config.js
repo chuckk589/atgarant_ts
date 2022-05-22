@@ -1,18 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = void 0;
-const sql_highlighter_1 = require("@mikro-orm/sql-highlighter");
-exports.config = {
-    dbName: "atgarant",
-    type: "mysql",
-    host: process.env.MYSQL_HOST || "127.0.0.1",
-    port: Number(process.env.MYSQL_PORT) || 3306,
-    user: process.env.MYSQL_USERNAME || "mysql",
-    password: process.env.MYSQL_PASSWORD || "mysql",
-    highlighter: new sql_highlighter_1.SqlHighlighter(),
+require("dotenv/config");
+const MikroORMOptions = {
+    type: 'mysql',
     allowGlobalContext: true,
+    ...(process.env.NODE_ENV === 'development' ? { debug: true, logger: console.log.bind(console) } : {}),
     entities: ['./dist/mikroorm/entities/'],
     entitiesTs: ['./src/mikroorm/entities/'],
+    clientUrl: process.env.NODE_ENV === 'development' ? process.env.DB_URL_DEV : process.env.DB_URL,
+    seeder: {
+        path: './dist/mikroorm/seeders',
+        pathTs: './src/mikroorm/seeders',
+        defaultSeeder: 'DatabaseSeeder',
+        glob: '!(*.d).{js,ts}',
+        emit: 'ts',
+        fileName: (className) => className,
+    },
 };
-exports.default = exports.config;
+exports.default = MikroORMOptions;
 //# sourceMappingURL=mikro-orm.config.js.map

@@ -1,14 +1,14 @@
-import { ModuleMetadata } from "@nestjs/common";
-import { Api, Composer, Context, SessionFlavor } from "grammy";
-import { I18nContext, I18nContextFlavor } from "@grammyjs/i18n";
-import { Menu, MenuControlPanel, MenuFlavor } from "@grammyjs/menu";
-import { botOfferDto } from "src/mikroorm/dto/create-offer.dto";
+import { ModuleMetadata } from '@nestjs/common';
+import { Api, Composer, Context, SessionFlavor } from 'grammy';
+import { I18nContext, I18nContextFlavor } from '@grammyjs/i18n';
+import { Menu, MenuControlPanel, MenuFlavor } from '@grammyjs/menu';
+import { botOfferDto } from 'src/mikroorm/dto/create-offer.dto';
 import { Router } from '@grammyjs/router';
-import { Offers } from "src/mikroorm/entities/Offers";
-import { Arbitraries } from "src/mikroorm/entities/Arbitraries";
-import { InvoicesType } from "src/mikroorm/entities/Invoices";
-import { Update, UserFromGetMe } from "@grammyjs/types";
-import { Message } from "@grammyjs/menu/out/deps.node";
+import { Offers } from 'src/mikroorm/entities/Offers';
+import { Arbitraries } from 'src/mikroorm/entities/Arbitraries';
+import { InvoicesType } from 'src/mikroorm/entities/Invoices';
+import { Update, UserFromGetMe } from '@grammyjs/types';
+import { Message } from '@grammyjs/menu/out/deps.node';
 export interface GrammyBotOptions {
     token: string;
     composers?: any[];
@@ -79,6 +79,7 @@ export declare type NewArbitraryOptions = {
     offerId: number;
     reason: string;
     issuerId: number;
+    moderatorId: number;
 };
 export declare class BaseComposer {
     constructor();

@@ -28,13 +28,13 @@ let AppConfigModule = AppConfigModule_1 = class AppConfigModule {
             provide: 'test',
             useFactory: async (orm) => {
                 const configs = await orm.em.find(Configs_1.Configs, {});
-                configs.map(config => process.env[config.name] = config.value);
+                configs.map((config) => (process.env[config.name] = config.value));
                 const paymentMethods = await orm.em.find(Paymentmethods_1.Paymentmethods, {});
-                paymentMethods.map(paymentMethod => process.env[paymentMethod.value] = `${paymentMethod.feeRaw}:${paymentMethod.feePercent}:${paymentMethod.minSum}:${paymentMethod.maxSum}:${paymentMethod.id}`);
+                paymentMethods.map((paymentMethod) => (process.env[paymentMethod.value] = `${paymentMethod.feeRaw}:${paymentMethod.feePercent}:${paymentMethod.minSum}:${paymentMethod.maxSum}:${paymentMethod.id}`));
                 const offerStatuses = await orm.em.find(Offerstatuses_1.Offerstatuses, {});
-                offerStatuses.map(offerStatus => process.env[`offerStatus_${offerStatus.id}`] = `${offerStatus.value}:${offerStatus.name}`);
+                offerStatuses.map((offerStatus) => (process.env[`offerStatus_${offerStatus.id}`] = `${offerStatus.value}:${offerStatus.name}`));
                 const invoiceStatuses = await orm.em.find(Invoicestatuses_1.Invoicestatuses, {});
-                invoiceStatuses.map(invoiceStatus => process.env[`invoiceStatus_${invoiceStatus.id}`] = `${invoiceStatus.value}:${invoiceStatus.name}`);
+                invoiceStatuses.map((invoiceStatus) => (process.env[`invoiceStatus_${invoiceStatus.id}`] = `${invoiceStatus.value}:${invoiceStatus.name}`));
                 return {};
             },
             inject: [core_1.MikroORM],
@@ -51,7 +51,7 @@ AppConfigModule = AppConfigModule_1 = __decorate([
     (0, common_1.Global)(),
     (0, common_1.Module)({
         providers: [app_config_service_1.AppConfigService],
-        exports: [app_config_service_1.AppConfigService]
+        exports: [app_config_service_1.AppConfigService],
     }),
     __metadata("design:paramtypes", [core_1.EntityManager])
 ], AppConfigModule);

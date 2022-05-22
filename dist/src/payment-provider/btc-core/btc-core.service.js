@@ -28,7 +28,7 @@ let BtcCoreService = class BtcCoreService {
         this.rubToBTC = async (rub) => {
             const response = await axios_1.default.get('https://cdn.moneyconvert.net/api/latest.json');
             if (Array.isArray(rub)) {
-                return rub.map(i => ((response.data.rates.BTC / response.data.rates.RUB) * i).toFixed(8));
+                return rub.map((i) => ((response.data.rates.BTC / response.data.rates.RUB) * i).toFixed(8));
             }
             else {
                 return ((response.data.rates.BTC / response.data.rates.RUB) * rub).toFixed(8);
@@ -50,10 +50,18 @@ let BtcCoreService = class BtcCoreService {
         }
     }
     async createIncomingTransaction(offer, txn_id, url) {
-        const feeRub = Math.max(offer.offerValue * offer.paymentMethod.feePercent / 100, offer.paymentMethod.feeRaw);
+        const feeRub = Math.max((offer.offerValue * offer.paymentMethod.feePercent) / 100, offer.paymentMethod.feeRaw);
         const priceRub = offer.offerValue + feeRub * (offer.feePayer === Offers_1.OffersFeePayer.BUYER ? 1 : 0);
         const valuesBtc = await this.rubToBTC([feeRub, priceRub]);
-        await this.createInvoice({ type: Invoices_1.InvoicesType.IN, currency: 'BTC', value: Number(valuesBtc[1]), url: url, fee: Number(valuesBtc[0]), txnId: txn_id, offer: { id: offer.id } });
+        await this.createInvoice({
+            type: Invoices_1.InvoicesType.IN,
+            currency: 'BTC',
+            value: Number(valuesBtc[1]),
+            url: url,
+            fee: Number(valuesBtc[0]),
+            txnId: txn_id,
+            offer: { id: offer.id },
+        });
     }
     async createInvoice(options) {
         options.invoiceStatus = this.em.getReference(Offerstatuses_1.Offerstatuses, this.AppConfigService.invoiceStatus('waiting').id);
@@ -63,11 +71,11 @@ let BtcCoreService = class BtcCoreService {
     async fetchMatchingInvoices(incomingTimeout, outgoingTimeout) {
         const allInvoices = await this.em.find(Invoices_1.Invoices, {
             currency: 'BTC',
-            invoiceStatus: { value: 'waiting' }
+            invoiceStatus: { value: 'waiting' },
         });
         return {
-            incoming: allInvoices.filter(i => i.createdAt > new Date(Date.now() - incomingTimeout) && i.type == Invoices_1.InvoicesType.IN),
-            outgoing: allInvoices.filter(i => i.createdAt > new Date(Date.now() - outgoingTimeout) && i.type == Invoices_1.InvoicesType.OUT)
+            incoming: allInvoices.filter((i) => i.createdAt > new Date(Date.now() - incomingTimeout) && i.type == Invoices_1.InvoicesType.IN),
+            outgoing: allInvoices.filter((i) => i.createdAt > new Date(Date.now() - outgoingTimeout) && i.type == Invoices_1.InvoicesType.OUT),
         };
     }
     async checkMoneyConvert() {
@@ -83,8 +91,7 @@ let BtcCoreService = class BtcCoreService {
 };
 BtcCoreService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.EntityManager,
-        app_config_service_1.AppConfigService])
+    __metadata("design:paramtypes", [core_1.EntityManager, app_config_service_1.AppConfigService])
 ], BtcCoreService);
 exports.BtcCoreService = BtcCoreService;
 //# sourceMappingURL=btc-core.service.js.map

@@ -4,7 +4,6 @@ import { Users } from './Users';
 
 @Entity()
 export class Reviews {
-
   @PrimaryKey()
   id!: number;
 
@@ -20,15 +19,35 @@ export class Reviews {
   @Property({ fieldName: 'updatedAt', onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @ManyToOne({ entity: () => Offers, fieldName: 'offerId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'offerId' })
+  @ManyToOne({
+    entity: () => Offers,
+    fieldName: 'offerId',
+    onUpdateIntegrity: 'cascade',
+    onDelete: 'set null',
+    nullable: true,
+    index: 'offerId',
+  })
   offer?: Offers;
 
-  @ManyToOne({ entity: () => Users, fieldName: 'recipientId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'recipientId' })
+  @ManyToOne({
+    entity: () => Users,
+    fieldName: 'recipientId',
+    onUpdateIntegrity: 'cascade',
+    onDelete: 'set null',
+    nullable: true,
+    index: 'recipientId',
+  })
   recipient?: Users;
 
-  @ManyToOne({ entity: () => Users, fieldName: 'authorId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'authorId' })
+  @ManyToOne({
+    entity: () => Users,
+    fieldName: 'authorId',
+    onUpdateIntegrity: 'cascade',
+    onDelete: 'set null',
+    nullable: true,
+    index: 'authorId',
+  })
   author?: Users;
-
 }
 
 export enum ReviewsRate {

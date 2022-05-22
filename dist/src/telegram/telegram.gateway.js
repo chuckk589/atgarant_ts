@@ -51,27 +51,27 @@ let TelegramGateway = class TelegramGateway {
                 broadcast: false,
                 megagroup: true,
                 about: '',
-                title: `Арбитраж по сделке ${offerId}`
+                title: `Арбитраж по сделке ${offerId}`,
             }));
             await this.client.invoke(new telegram_1.Api.channels.InviteToChannel({
                 channel: +`-100${newChat.chats[0].id}`,
                 users: [botUsername],
             }));
             const inviteLink = await this.client.invoke(new telegram_1.Api.channels.GetFullChannel({ channel: newChat.chats[0].id }));
-            return ({ error: false, inviteLink: inviteLink.fullChat.exportedInvite.link, chat_id: `100${newChat.chats[0].id}` });
+            return { error: false, inviteLink: inviteLink.fullChat.exportedInvite.link, chat_id: `100${newChat.chats[0].id}` };
         };
         this.getChatHistory = async (arbId) => {
             if (!this.clientStatus)
                 throw new Error('TelegramGateway clientStatus false');
             const arb = await this.telegramService.getArbitrary(arbId);
             const result = await this.client.invoke(new telegram_1.Api.messages.GetHistory({
-                peer: -1 * Number(arb.chatId)
+                peer: -1 * Number(arb.chatId),
             }));
             result.messages.reverse();
             const involvedUsers = result.users.reduce((sum, cur) => {
                 sum[cur.id] = {
                     username: cur.username,
-                    phone: cur.phone
+                    phone: cur.phone,
                 };
                 return sum;
             }, {});
@@ -82,11 +82,13 @@ let TelegramGateway = class TelegramGateway {
             }, '');
             return generatedOutput;
         };
-        this.init();
+        if (this.AppConfigService.get('node_env') !== 'development')
+            this.init();
     }
     async handleEvent(data, socket) {
         await this.client.invoke(new telegram_1.Api.auth.LogOut());
-        this.client.start({
+        this.client
+            .start({
             phoneNumber: data,
             phoneCode: function () {
                 return new Promise((res, rej) => {
@@ -103,7 +105,8 @@ let TelegramGateway = class TelegramGateway {
                 this.logger.error(err);
                 socket.emit('done', { error: err });
             },
-        }).then(async () => {
+        })
+            .then(async () => {
             const newSessionString = this.client.session.save();
             await this.telegramService.updateSessionString(newSessionString);
             socket.emit('done', { session: newSessionString });
@@ -112,19 +115,19 @@ let TelegramGateway = class TelegramGateway {
         return data;
     }
     async devInitConnection() {
-        console.log("Loading interactive example...");
-        const client = new telegram_1.TelegramClient(new sessions_1.StringSession(""), Number(this.AppConfigService.get('APP_API_ID')), this.AppConfigService.get('APP_API_HASH'), {
+        console.log('Loading interactive example...');
+        const client = new telegram_1.TelegramClient(new sessions_1.StringSession(''), Number(this.AppConfigService.get('APP_API_ID')), this.AppConfigService.get('APP_API_HASH'), {
             connectionRetries: 5,
         });
         await client.start({
-            phoneNumber: async () => await input.text("Please enter your number: "),
-            password: async () => await input.text("Please enter your password: "),
-            phoneCode: async () => await input.text("Please enter the code you received: "),
+            phoneNumber: async () => await input.text('Please enter your number: '),
+            password: async () => await input.text('Please enter your password: '),
+            phoneCode: async () => await input.text('Please enter the code you received: '),
             onError: (err) => console.log(err),
         });
-        console.log("You should now be connected.");
+        console.log('You should now be connected.');
         console.log(client.session.save());
-        await client.sendMessage("me", { message: "Hello!" });
+        await client.sendMessage('me', { message: 'Hello!' });
     }
 };
 __decorate([

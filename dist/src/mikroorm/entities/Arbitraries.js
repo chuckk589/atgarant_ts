@@ -58,15 +58,35 @@ __decorate([
     __metadata("design:type", Date)
 ], Arbitraries.prototype, "updatedAt", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Offers_1.Offers, fieldName: 'offerId', onUpdateIntegrity: 'cascade', onDelete: 'cascade', index: 'offerId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Offers_1.Offers,
+        fieldName: 'offerId',
+        onUpdateIntegrity: 'cascade',
+        onDelete: 'cascade',
+        index: 'offerId',
+    }),
     __metadata("design:type", Offers_1.Offers)
 ], Arbitraries.prototype, "offer", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Users_1.Users, fieldName: 'initiatorId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'initiatorId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Users_1.Users,
+        fieldName: 'initiatorId',
+        onUpdateIntegrity: 'cascade',
+        onDelete: 'set null',
+        nullable: true,
+        index: 'initiatorId',
+    }),
     __metadata("design:type", Users_1.Users)
 ], Arbitraries.prototype, "initiator", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Users_1.Users, fieldName: 'arbiterId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'arbiterId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Users_1.Users,
+        fieldName: 'arbiterId',
+        onUpdateIntegrity: 'cascade',
+        onDelete: 'set null',
+        nullable: true,
+        index: 'arbiterId',
+    }),
     __metadata("design:type", Users_1.Users)
 ], Arbitraries.prototype, "arbiter", void 0);
 Arbitraries = __decorate([

@@ -28,54 +28,69 @@ let OfferEditMenuController = class OfferEditMenuController extends interfaces_1
         this.AppEventsController = AppEventsController;
         this.AppConfigService = AppConfigService;
         this.logger = logger;
-        this.menu = new menu_1.Menu("offer-edit-menu")
+        this.menu = new menu_1.Menu('offer-edit-menu')
             .dynamic((ctx, range) => {
             const status = ctx.session.editedOffer.offerStatus;
             const _isSeller = (0, helpers_1.isSeller)(ctx);
             const _canLeaveReview = (0, helpers_1.leftReview)(ctx.session.editedOffer.reviews, ctx.from.id);
             if (status.value == 'denied')
                 return range;
-            status.value !== 'closed' && range.text(ctx.i18n.t('setWallet'), async (ctx) => {
-                ctx.session.step = interfaces_1.BotStep.setWallet;
-                await ctx.reply(ctx.i18n.t('askWallet'));
-            });
-            status.value === 'payed' && _isSeller && range.text(ctx.i18n.t('confirmShipping'), async (ctx) => {
-                try {
-                    ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerShipped(ctx.session.editedOffer);
-                    await ctx.editMessageText((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()));
-                }
-                catch (error) {
-                    this.logger.error(error);
-                    ctx.reply(ctx.i18n.t('offerShippingFailed'));
-                }
-            });
-            status.value === 'arrived' && _isSeller && ctx.session.editedOffer.sellerWalletData && range.text(ctx.i18n.t('getPayout'), async (ctx) => {
-                try {
-                    ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerPaymentRequested(ctx.session.editedOffer);
-                    await ctx.editMessageText((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()));
-                }
-                catch (error) {
-                    this.logger.error(error);
-                    ctx.reply(ctx.i18n.t('paymentRequestFailed'));
-                }
-            });
-            status.value === 'shipped' && !_isSeller && ctx.session.editedOffer.sellerWalletData && range.text(ctx.i18n.t('confirmArrival'), async (ctx) => {
-                try {
-                    ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerArrived(ctx.session.editedOffer);
-                    await ctx.editMessageText((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()));
-                }
-                catch (error) {
-                    this.logger.error(error);
-                    ctx.reply(ctx.i18n.t('arrivalFailed'));
-                }
-            });
-            status.value !== 'closed' && status.value !== 'arbitrary' && status.value !== 'pending' && range.text(ctx.i18n.t('openArbitrary'), async (ctx) => {
-                ctx.session.step = interfaces_1.BotStep.setArbitrary;
-                ctx.reply(ctx.i18n.t('askArbitraryReason'));
-            });
-            status.value === 'closed' && _canLeaveReview && range.text(ctx.i18n.t('leaveFeedback'), async (ctx) => {
-                await ctx.reply(ctx.i18n.t('feedbackGroup'), { reply_markup: (0, keyboards_1.feedbackMenu)(ctx.session.editedOffer.id, ctx.i18n.locale()) });
-            });
+            status.value !== 'closed' &&
+                range.text(ctx.i18n.t('setWallet'), async (ctx) => {
+                    ctx.session.step = interfaces_1.BotStep.setWallet;
+                    await ctx.reply(ctx.i18n.t('askWallet'));
+                });
+            status.value === 'payed' &&
+                _isSeller &&
+                range.text(ctx.i18n.t('confirmShipping'), async (ctx) => {
+                    try {
+                        ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerShipped(ctx.session.editedOffer);
+                        await ctx.editMessageText((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()));
+                    }
+                    catch (error) {
+                        this.logger.error(error);
+                        ctx.reply(ctx.i18n.t('offerShippingFailed'));
+                    }
+                });
+            status.value === 'arrived' &&
+                _isSeller &&
+                ctx.session.editedOffer.sellerWalletData &&
+                range.text(ctx.i18n.t('getPayout'), async (ctx) => {
+                    try {
+                        ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerPaymentRequested(ctx.session.editedOffer);
+                        await ctx.editMessageText((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()));
+                    }
+                    catch (error) {
+                        this.logger.error(error);
+                        ctx.reply(ctx.i18n.t('paymentRequestFailed'));
+                    }
+                });
+            status.value === 'shipped' &&
+                !_isSeller &&
+                range.text(ctx.i18n.t('confirmArrival'), async (ctx) => {
+                    try {
+                        ctx.session.editedOffer.offerStatus = await this.AppEventsController.offerArrived(ctx.session.editedOffer);
+                        await ctx.editMessageText((0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(ctx.session.editedOffer), ctx.i18n.locale()));
+                    }
+                    catch (error) {
+                        this.logger.error(error);
+                        ctx.reply(ctx.i18n.t('arrivalFailed'));
+                    }
+                });
+            status.value !== 'closed' &&
+                status.value !== 'arbitrary' &&
+                status.value !== 'pending' &&
+                range.text(ctx.i18n.t('openArbitrary'), async (ctx) => {
+                    ctx.session.step = interfaces_1.BotStep.setArbitrary;
+                    ctx.reply(ctx.i18n.t('askArbitraryReason'));
+                });
+            status.value === 'closed' &&
+                _canLeaveReview &&
+                range.text(ctx.i18n.t('leaveFeedback'), async (ctx) => {
+                    await ctx.reply(ctx.i18n.t('feedbackGroup'), {
+                        reply_markup: (0, keyboards_1.feedbackMenu)(ctx.session.editedOffer.id, ctx.i18n.locale()),
+                    });
+                });
             return range;
         })
             .row();

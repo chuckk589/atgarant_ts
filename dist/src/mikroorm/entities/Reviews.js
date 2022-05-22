@@ -40,15 +40,36 @@ __decorate([
     __metadata("design:type", Date)
 ], Reviews.prototype, "updatedAt", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Offers_1.Offers, fieldName: 'offerId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'offerId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Offers_1.Offers,
+        fieldName: 'offerId',
+        onUpdateIntegrity: 'cascade',
+        onDelete: 'set null',
+        nullable: true,
+        index: 'offerId',
+    }),
     __metadata("design:type", Offers_1.Offers)
 ], Reviews.prototype, "offer", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Users_1.Users, fieldName: 'recipientId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'recipientId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Users_1.Users,
+        fieldName: 'recipientId',
+        onUpdateIntegrity: 'cascade',
+        onDelete: 'set null',
+        nullable: true,
+        index: 'recipientId',
+    }),
     __metadata("design:type", Users_1.Users)
 ], Reviews.prototype, "recipient", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Users_1.Users, fieldName: 'authorId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'authorId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Users_1.Users,
+        fieldName: 'authorId',
+        onUpdateIntegrity: 'cascade',
+        onDelete: 'set null',
+        nullable: true,
+        index: 'authorId',
+    }),
     __metadata("design:type", Users_1.Users)
 ], Reviews.prototype, "author", void 0);
 Reviews = __decorate([

@@ -205,8 +205,8 @@ export default {
         ).value;
         const customPayout = this.modalConfig.custom.customPayout
           ? {
-              seller: this.modalConfig.custom.sliderValSeller,
-              buyer: this.modalConfig.custom.sliderValBuyer,
+              buyerPayout: +this.modalConfig.custom.sliderValSeller,
+              sellerPayout: +this.modalConfig.custom.sliderValBuyer,
             }
           : {};
         this.$http({

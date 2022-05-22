@@ -23,7 +23,7 @@ class BotContext extends grammy_1.Context {
             return this.reply(text, other, signal);
         };
         this.replyAndSave = async (text, other, signal) => {
-            await this.reply(text, other, signal).then(r => this.session.menuId = r.message_id);
+            await this.reply(text, other, signal).then((r) => (this.session.menuId = r.message_id));
         };
         this.cleanReplySave = async (text, other, signal) => {
             await this.clean();
@@ -40,10 +40,10 @@ class BotContext extends grammy_1.Context {
         };
     }
     get session() {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
     set session(session) {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
 }
 exports.BotContext = BotContext;

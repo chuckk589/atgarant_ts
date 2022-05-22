@@ -24,10 +24,10 @@ AuthModule = __decorate([
             jwt_1.JwtModule.registerAsync({
                 inject: [app_config_service_1.AppConfigService],
                 useFactory: (configService) => ({
-                    secret: configService.get('jwt-secret'),
-                    signOptions: { expiresIn: `7d` }
-                })
-            })
+                    secret: configService.get('SECRET'),
+                    signOptions: { expiresIn: `7d` },
+                }),
+            }),
         ],
         providers: [local_strategy_1.LocalStrategy, jwt_strategy_1.JwtStrategy, auth_service_1.AuthService],
         controllers: [auth_controller_1.AuthController],

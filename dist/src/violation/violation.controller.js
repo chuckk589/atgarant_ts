@@ -76,7 +76,7 @@ __decorate([
 ViolationController = __decorate([
     (0, common_1.Controller)({
         path: 'violation',
-        version: '1'
+        version: '1',
     }),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [violation_service_1.ViolationService])

@@ -81,7 +81,7 @@ __decorate([
     __metadata("design:type", Date)
 ], Users.prototype, "updatedAt", void 0);
 __decorate([
-    (0, core_1.OneToMany)(() => Arbitraries_1.Arbitraries, arb => arb.arbiter),
+    (0, core_1.OneToMany)(() => Arbitraries_1.Arbitraries, (arb) => arb.arbiter),
     __metadata("design:type", Object)
 ], Users.prototype, "arbs", void 0);
 __decorate([
@@ -89,7 +89,7 @@ __decorate([
     __metadata("design:type", Profiles_1.Profiles)
 ], Users.prototype, "profile", void 0);
 __decorate([
-    (0, core_1.OneToMany)(() => Violations_1.Violations, violation => violation.user),
+    (0, core_1.OneToMany)(() => Violations_1.Violations, (violation) => violation.user),
     __metadata("design:type", Object)
 ], Users.prototype, "violations", void 0);
 __decorate([

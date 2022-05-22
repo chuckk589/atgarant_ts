@@ -15,7 +15,7 @@ let ConfigModule = class ConfigModule {
 ConfigModule = __decorate([
     (0, common_1.Module)({
         controllers: [config_controller_1.ConfigController],
-        providers: [config_service_1.ConfigService]
+        providers: [config_service_1.ConfigService],
     })
 ], ConfigModule);
 exports.ConfigModule = ConfigModule;

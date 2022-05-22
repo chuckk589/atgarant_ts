@@ -15,7 +15,7 @@ let ReviewModule = class ReviewModule {
 ReviewModule = __decorate([
     (0, common_1.Module)({
         controllers: [review_controller_1.ReviewController],
-        providers: [review_service_1.ReviewService]
+        providers: [review_service_1.ReviewService],
     })
 ], ReviewModule);
 exports.ReviewModule = ReviewModule;

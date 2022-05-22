@@ -4,7 +4,6 @@ import { Offers } from './Offers';
 
 @Entity()
 export class Invoices {
-
   @PrimaryKey()
   id!: number;
 
@@ -32,12 +31,22 @@ export class Invoices {
   @Property({ fieldName: 'updatedAt', onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @ManyToOne({ entity: () => Offers, fieldName: 'offerId', onUpdateIntegrity: 'cascade', onDelete: 'cascade', index: 'offerId' })
+  @ManyToOne({
+    entity: () => Offers,
+    fieldName: 'offerId',
+    onUpdateIntegrity: 'cascade',
+    onDelete: 'cascade',
+    index: 'offerId',
+  })
   offer!: Offers;
 
-  @ManyToOne({ entity: () => Invoicestatuses, fieldName: 'invoiceStatusId', onUpdateIntegrity: 'cascade', index: 'invoiceStatusId' })
+  @ManyToOne({
+    entity: () => Invoicestatuses,
+    fieldName: 'invoiceStatusId',
+    onUpdateIntegrity: 'cascade',
+    index: 'invoiceStatusId',
+  })
   invoiceStatus!: Invoicestatuses;
-
 }
 
 export enum InvoicesType {

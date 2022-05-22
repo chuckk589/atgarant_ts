@@ -6,6 +6,6 @@ import { AppEventsModule } from 'src/app-events/app-events.module';
 @Module({
   controllers: [OfferController],
   providers: [OfferService],
-  imports: [AppEventsModule]
+  imports: [AppEventsModule],
 })
-export class OfferModule { }
+export class OfferModule {}

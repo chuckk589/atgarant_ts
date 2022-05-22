@@ -68,7 +68,7 @@ __decorate([
 OfferController = __decorate([
     (0, common_1.Controller)({
         path: 'offer',
-        version: '1'
+        version: '1',
     }),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [offer_service_1.OfferService])

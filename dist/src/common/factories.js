@@ -7,8 +7,8 @@ async function createBotFactory(options) {
     const bot = new grammy_1.Bot(options.token, {
         ContextConstructor: interfaces_1.BotContext,
     });
-    options.middleware?.map(middleware => bot.use(middleware));
-    options.composers?.map(composer => bot.use(composer));
+    options.middleware?.map((middleware) => bot.use(middleware));
+    options.composers?.map((composer) => bot.use(composer));
     bot.start();
     return bot;
 }

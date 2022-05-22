@@ -16,7 +16,7 @@ offerModule = __decorate([
     (0, common_1.Module)({
         imports: [],
         providers: [offer_controller_1.offerController, offer_service_1.offerService],
-        exports: [offer_controller_1.offerController]
+        exports: [offer_controller_1.offerController],
     })
 ], offerModule);
 exports.offerModule = offerModule;

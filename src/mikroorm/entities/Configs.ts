@@ -24,5 +24,4 @@ export class Configs {
 
   @Property({ fieldName: 'requiresReboot', nullable: true })
   requiresReboot?: number;
-
 }

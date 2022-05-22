@@ -13,7 +13,7 @@ function ComposerController(constructor) {
                 const composer = new grammy_1.Composer();
                 const handlers = Reflect.getMetadata(constants_1.LISTENERS_METADATA, constructor.prototype);
                 const that = this;
-                handlers.map(handler => {
+                handlers.map((handler) => {
                     if (handler.method == interfaces_1.TMethod.on) {
                         composer.on(handler.query, that[handler.key]);
                     }
@@ -86,5 +86,4 @@ function Menu(name) {
     };
 }
 exports.Menu = Menu;
-;
 //# sourceMappingURL=decorators.js.map

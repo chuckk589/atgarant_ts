@@ -4,6 +4,6 @@ import { ViolationController } from './violation.controller';
 
 @Module({
   controllers: [ViolationController],
-  providers: [ViolationService]
+  providers: [ViolationService],
 })
 export class ViolationModule {}

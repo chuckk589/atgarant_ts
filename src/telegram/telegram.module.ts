@@ -4,6 +4,6 @@ import { TelegramGateway } from './telegram.gateway';
 
 @Module({
   providers: [TelegramGateway, TelegramService],
-  exports: [TelegramGateway]
+  exports: [TelegramGateway],
 })
-export class TelegramModule { }
+export class TelegramModule {}

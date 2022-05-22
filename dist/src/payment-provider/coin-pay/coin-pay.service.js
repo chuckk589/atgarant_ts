@@ -28,7 +28,15 @@ let CoinPayService = class CoinPayService {
     }
     async mockTransaction(options) {
         const txn_id = (0, uuidv4_1.uuid)();
-        await this.createInvoice({ type: options.type, currency: options.currency, value: options.value, fee: options.fee, txnId: txn_id, url: 'response.payUrl', offer: options.offer });
+        await this.createInvoice({
+            type: options.type,
+            currency: options.currency,
+            value: options.value,
+            fee: options.fee,
+            txnId: txn_id,
+            url: 'response.payUrl',
+            offer: options.offer,
+        });
         const port = this.AppConfigService.get('port');
         setTimeout(() => {
             switch (options.type) {
@@ -37,16 +45,16 @@ let CoinPayService = class CoinPayService {
                         axios_1.default.post(`http://localhost:${port}/payment/qiwi/`, {
                             bill: {
                                 status: {
-                                    value: 'PAID'
+                                    value: 'PAID',
                                 },
-                                billId: txn_id
-                            }
+                                billId: txn_id,
+                            },
                         });
                     }
                     else {
                         axios_1.default.post(`http://localhost:${port}/payment/crypto/`, {
                             status: '100',
-                            txn_id: txn_id
+                            txn_id: txn_id,
                         });
                     }
                     break;
@@ -56,14 +64,14 @@ let CoinPayService = class CoinPayService {
                         axios_1.default.post(`http://localhost:${port}/payment/qiwi/`, {
                             payment: {
                                 status: 'SUCCESS',
-                                txnId: txn_id
-                            }
+                                txnId: txn_id,
+                            },
                         });
                     }
                     else {
                         axios_1.default.post(`http://localhost:${port}/payment/crypto/`, {
                             status: '2',
-                            txn_id: txn_id
+                            txn_id: txn_id,
                         });
                     }
                     break;
@@ -77,23 +85,23 @@ let CoinPayService = class CoinPayService {
         const cardCode = await axios_1.default.post('https://qiwi.com/card/detect.action', bodyFormData);
         if (cardCode.data.code.value == 0) {
             const body = {
-                "id": Date.now().toString(),
-                "sum": {
-                    "amount": amount,
-                    "currency": "643"
+                id: Date.now().toString(),
+                sum: {
+                    amount: amount,
+                    currency: '643',
                 },
-                "paymentMethod": {
-                    "type": "Account",
-                    "accountId": "643"
+                paymentMethod: {
+                    type: 'Account',
+                    accountId: '643',
                 },
-                "fields": {
-                    "account": address
-                }
+                fields: {
+                    account: address,
+                },
             };
             const response = await axios_1.default.post(`https://edge.qiwi.com/sinap/api/v2/terms/${cardCode}/payments`, body, {
                 headers: {
-                    'Authorization': `Bearer ${this.AppConfigService.get('QIWI_API_TOKEN')}`
-                }
+                    Authorization: `Bearer ${this.AppConfigService.get('QIWI_API_TOKEN')}`,
+                },
             });
             return response.data.transaction.id;
         }
@@ -119,29 +127,28 @@ let CoinPayService = class CoinPayService {
     }
     async createQiwiTransaction(amount, address) {
         const body = {
-            "id": (0, uuidv4_1.uuid)(),
-            "sum": {
-                "amount": amount,
-                "currency": "643"
+            id: (0, uuidv4_1.uuid)(),
+            sum: {
+                amount: amount,
+                currency: '643',
             },
-            "paymentMethod": {
-                "type": "Account",
-                "accountId": "643"
+            paymentMethod: {
+                type: 'Account',
+                accountId: '643',
             },
-            "fields": {
-                "account": address
-            }
+            fields: {
+                account: address,
+            },
         };
         const response = await axios_1.default.post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, body, {
-            headers: { 'Authorization': `Bearer ${this.AppConfigService.get('QIWI_API_TOKEN')}` }
+            headers: { Authorization: `Bearer ${this.AppConfigService.get('QIWI_API_TOKEN')}` },
         });
         return response.data.transaction.id;
     }
 };
 CoinPayService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.EntityManager,
-        app_config_service_1.AppConfigService])
+    __metadata("design:paramtypes", [core_1.EntityManager, app_config_service_1.AppConfigService])
 ], CoinPayService);
 exports.CoinPayService = CoinPayService;
 //# sourceMappingURL=coin-pay.service.js.map

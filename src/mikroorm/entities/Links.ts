@@ -3,7 +3,6 @@ import { Users } from './Users';
 
 @Entity()
 export class Links {
-
   @PrimaryKey()
   id!: number;
 
@@ -16,7 +15,13 @@ export class Links {
   @Property({ fieldName: 'updatedAt', onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @ManyToOne({ entity: () => Users, fieldName: 'userId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'userId' })
+  @ManyToOne({
+    entity: () => Users,
+    fieldName: 'userId',
+    onUpdateIntegrity: 'cascade',
+    onDelete: 'set null',
+    nullable: true,
+    index: 'userId',
+  })
   userId?: Users;
-
 }

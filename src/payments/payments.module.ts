@@ -7,12 +7,9 @@ import { PaymentProviderModule } from 'src/payment-provider/payment-provider.mod
 import { PaymentsService } from './payments.service';
 import { AppEventsModule } from 'src/app-events/app-events.module';
 
-
 @Module({
   controllers: [PaymentsController],
   imports: [PaymentProviderModule.forRootAsync(), AppEventsModule],
-  providers: [PaymentsService]
+  providers: [PaymentsService],
 })
-export class PaymentsModule {
-
-}
+export class PaymentsModule {}

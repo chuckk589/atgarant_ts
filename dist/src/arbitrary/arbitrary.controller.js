@@ -68,7 +68,7 @@ __decorate([
 ArbitraryController = __decorate([
     (0, common_1.Controller)({
         path: 'arbitrary',
-        version: '1'
+        version: '1',
     }),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [arbitrary_service_1.ArbitraryService])

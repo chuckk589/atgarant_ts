@@ -4,7 +4,6 @@ import { Users } from './Users';
 
 @Entity()
 export class Arbitraries {
-
   @PrimaryKey()
   id!: number;
 
@@ -32,15 +31,34 @@ export class Arbitraries {
   @Property({ fieldName: 'updatedAt', onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @ManyToOne({ entity: () => Offers, fieldName: 'offerId', onUpdateIntegrity: 'cascade', onDelete: 'cascade', index: 'offerId' })
+  @ManyToOne({
+    entity: () => Offers,
+    fieldName: 'offerId',
+    onUpdateIntegrity: 'cascade',
+    onDelete: 'cascade',
+    index: 'offerId',
+  })
   offer!: Offers;
 
-  @ManyToOne({ entity: () => Users, fieldName: 'initiatorId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'initiatorId' })
+  @ManyToOne({
+    entity: () => Users,
+    fieldName: 'initiatorId',
+    onUpdateIntegrity: 'cascade',
+    onDelete: 'set null',
+    nullable: true,
+    index: 'initiatorId',
+  })
   initiator?: Users;
 
-  @ManyToOne({ entity: () => Users, fieldName: 'arbiterId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'arbiterId' })
+  @ManyToOne({
+    entity: () => Users,
+    fieldName: 'arbiterId',
+    onUpdateIntegrity: 'cascade',
+    onDelete: 'set null',
+    nullable: true,
+    index: 'arbiterId',
+  })
   arbiter?: Users;
-
 }
 
 export enum ArbitrariesStatus {

@@ -5,6 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
@@ -25,16 +28,17 @@ const offer_module_1 = require("./offer/offer.module");
 const link_module_1 = require("./link/link.module");
 const config_module_1 = require("./config/config.module");
 const arbitrary_module_1 = require("./arbitrary/arbitrary.module");
+const webapp_module_1 = require("./webapp/webapp.module");
+const mikro_orm_config_1 = __importDefault(require("./configs/mikro-orm.config"));
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            nestjs_1.MikroOrmModule.forRootAsync(providers_1.ORMOptionsProvider),
+            app_config_module_1.AppConfigModule.forRootAsync(),
             nestjs_pino_1.LoggerModule.forRoot(),
             bot_module_1.BotModule.forRootAsync(providers_1.botOptionsProvider),
             serve_static_1.ServeStaticModule.forRoot({ rootPath: (0, path_1.join)(__dirname, '..', 'public') }),
-            app_config_module_1.AppConfigModule.forRootAsync(),
             user_module_1.UserModule,
             payments_module_1.PaymentsModule,
             telegram_module_1.TelegramModule,
@@ -45,6 +49,8 @@ AppModule = __decorate([
             link_module_1.LinkModule,
             config_module_1.ConfigModule,
             arbitrary_module_1.ArbitraryModule,
+            webapp_module_1.WebappModule,
+            nestjs_1.MikroOrmModule.forRoot(mikro_orm_config_1.default),
         ],
         controllers: [],
         providers: [],

@@ -115,7 +115,9 @@ let globalComposer = class globalComposer extends interfaces_1.BaseComposer {
             else {
                 const password = await this.globalService.createUserPassword(user);
                 const login = ctx.from.id;
-                await ctx.reply(ctx.i18n.t('accountWebLink', { link: `${url}/#login?p=${password}&l=${login}` }) + '\n' + ctx.i18n.t('accountWebCreds', { pass: password, login: login }), { parse_mode: "HTML" });
+                await ctx.reply(ctx.i18n.t('accountWebLink', { link: `${url}/#login?p=${password}&l=${login}` }) +
+                    '\n' +
+                    ctx.i18n.t('accountWebCreds', { pass: password, login: login }), { parse_mode: 'HTML' });
             }
         };
         this.rules = async (ctx) => await ctx.reply(ctx.i18n.t('rules'));
@@ -207,23 +209,23 @@ __decorate([
 ], globalComposer.prototype, "menu2", void 0);
 __decorate([
     (0, decorators_1.Command)('start'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "start", void 0);
 __decorate([
     (0, decorators_1.Hears)('back'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "back", void 0);
 __decorate([
     (0, decorators_1.Hears)('offers'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "offers", void 0);
 __decorate([
     (0, decorators_1.Hears)('createOffer'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "createOffer", void 0);
 __decorate([
     (0, decorators_1.Hears)('arbitraries'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "arbitraries", void 0);
 __decorate([
     (0, decorators_1.Hears)('allOffers'),
@@ -235,46 +237,46 @@ __decorate([
 ], globalComposer.prototype, "activeOffers", void 0);
 __decorate([
     (0, decorators_1.Hears)('activeArbitraries'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "activeArbitraries", void 0);
 __decorate([
     (0, decorators_1.Hears)('allArbitraries'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "allArbitraries", void 0);
 __decorate([
     (0, decorators_1.Hears)('account'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "account", void 0);
 __decorate([
     (0, decorators_1.Hears)('accountWeb'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "web", void 0);
 __decorate([
     (0, decorators_1.Hears)('rules'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "rules", void 0);
 __decorate([
     (0, decorators_1.Hears)('instructions'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "instructions", void 0);
 __decorate([
     (0, decorators_1.Hears)('info'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "info", void 0);
 __decorate([
     (0, decorators_1.Hears)('findUser'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "findUser", void 0);
 __decorate([
     (0, decorators_1.Hears)('changeLang'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "changeLang", void 0);
 __decorate([
     (0, decorators_1.On)('inline_query'),
-    __metadata("design:type", Function)
+    __metadata("design:type", Object)
 ], globalComposer.prototype, "inline_query", void 0);
 __decorate([
-    (0, decorators_1.On)("callback_query:data"),
+    (0, decorators_1.On)('callback_query:data'),
     __metadata("design:type", Object)
 ], globalComposer.prototype, "callbackHandler", void 0);
 globalComposer = __decorate([

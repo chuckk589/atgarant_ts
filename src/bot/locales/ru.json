@@ -53,6 +53,7 @@
     "feedbackReceived": "Пользователь ${author} оставил вам ${rate} отзыв следующего содержания: \n ${feedback}",
     "positive": "Положительный",
     "negative": "Отрицательный",
+    "noFreeMod":"Нет свободных арбитров, невозможно инициировать арбитраж",
     "arbitraries": "Мои арбитражи",
     "activeArbitraries":"Активные арбитражи",
     "allArbitraries":"Все арбитражи",

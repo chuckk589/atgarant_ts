@@ -7,5 +7,4 @@ export class LinkService {
   create(createLinkDto: CreateLinkDto) {
     return 'This action adds a new link';
   }
-
 }

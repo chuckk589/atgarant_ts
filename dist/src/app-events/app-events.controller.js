@@ -42,11 +42,20 @@ let AppEventsController = class AppEventsController {
         this.PaymentController = PaymentController;
     }
     async arbOpened(offer, reason, issuerChatId) {
-        let offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
+        const offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
         const mod = await this.appEventsService.getLeastBusyMod();
+        if (!mod) {
+            throw new Error('noFreeMod');
+        }
         const roleData = (0, helpers_1.usersByRoles)(offerData);
         const chatData = await this.TelegramGateway.newArbitraryChat(offerData.id);
-        await this.appEventsService.createNewArbitrary({ offerId: offerData.id, chatData: chatData, issuerId: (0, helpers_1.getSelf)(offerData, issuerChatId).id, reason: reason });
+        await this.appEventsService.createNewArbitrary({
+            offerId: offerData.id,
+            chatData: chatData,
+            issuerId: (0, helpers_1.getSelf)(offerData, issuerChatId).id,
+            reason: reason,
+            moderatorId: mod.id,
+        });
         await this.appEventsService.updateOfferStatus(offerData, 'arbitrary');
         await this.bot.api.sendMessage(roleData.buyer.chatId, i18n_1.default.t(roleData.buyer.locale, 'arbitraryCreated', { id: offerData.id, inviteLink: chatData.inviteLink }));
         await this.bot.api.sendMessage(roleData.seller.chatId, i18n_1.default.t(roleData.seller.locale, 'arbitraryCreated', { id: offerData.id, inviteLink: chatData.inviteLink }));
@@ -55,7 +64,7 @@ let AppEventsController = class AppEventsController {
         return this.appConfigService.offerStatus('arbitrary');
     }
     async arbClosed(arb, modReview) {
-        let arbData = arb instanceof Arbitraries_1.Arbitraries ? arb : await this.appEventsService.getArbById(arb);
+        const arbData = arb instanceof Arbitraries_1.Arbitraries ? arb : await this.appEventsService.getArbById(arb);
         let message;
         if (arbData.status == Arbitraries_1.ArbitrariesStatus.ACTIVE) {
             arbData.status = Arbitraries_1.ArbitrariesStatus.CLOSED;
@@ -71,14 +80,17 @@ let AppEventsController = class AppEventsController {
         arbData.buyerPayout = modReview.buyerPayout;
         await this.appEventsService.applyArbUpdate(arbData);
         if (modReview.buyerPayout || modReview.sellerPayout) {
-            message += `\n${i18n_1.default.t('ru', 'arbitraryClosedCustomPayout', { buyer: modReview.buyerPayout, seller: modReview.sellerPayout })}`;
+            message += `\n${i18n_1.default.t('ru', 'arbitraryClosedCustomPayout', {
+                buyer: modReview.buyerPayout,
+                seller: modReview.sellerPayout,
+            })}`;
             await this.PaymentController.arbitraryWithdraw(arbData);
         }
         await this.bot.api.sendMessage(`-${arbData.chatId}`, message);
         return arbData.status;
     }
     async arbDisputed(arb, issuerChatId) {
-        let arbData = arb instanceof Arbitraries_1.Arbitraries ? arb : await this.appEventsService.getArbById(arb);
+        const arbData = arb instanceof Arbitraries_1.Arbitraries ? arb : await this.appEventsService.getArbById(arb);
         arbData.status = Arbitraries_1.ArbitrariesStatus.DISPUTED;
         const roleData = (0, helpers_1.usersByRoles)(arbData.offer);
         const issuerRole = roleData.seller.chatId == String(issuerChatId) ? 'seller' : 'buyer';
@@ -107,14 +119,14 @@ let AppEventsController = class AppEventsController {
         await this.bot.api.sendMessage(roleData.seller.chatId, i18n_1.default.t(roleData.seller.locale, 'sellerOfferPayed', { id: offer.id }));
     }
     async offerShipped(offer) {
-        let offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
+        const offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
         const roleData = (0, helpers_1.usersByRoles)(offerData);
         await this.appEventsService.updateOfferStatus(offerData, 'shipped');
         await this.bot.api.sendMessage(roleData.buyer.chatId, i18n_1.default.t(roleData.buyer.locale, 'buyerOfferShipped', { id: offerData.id }));
         return this.appConfigService.offerStatus('shipped');
     }
     async offerFeedback(offer, feedback, issuerChatId, rate) {
-        let offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
+        const offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
         const recipient = (0, helpers_1.getOppositeUser)(offerData, issuerChatId);
         const issuer = (0, helpers_1.getSelf)(offerData, issuerChatId);
         await this.appEventsService.createNewReview(recipient.id, issuer.id, feedback, rate, offerData.id);
@@ -122,7 +134,7 @@ let AppEventsController = class AppEventsController {
         await this.bot.api.sendMessage(recipient.chatId, i18n_1.default.t(recipient.locale, 'feedbackReceived', { id: offerData.id, rate: _rate, feedback: feedback }));
     }
     async offerArrived(offer) {
-        let offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
+        const offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
         const roleData = (0, helpers_1.usersByRoles)(offerData);
         await this.appEventsService.updateOfferStatus(offerData, 'arrived');
         await this.bot.api.sendMessage(roleData.buyer.chatId, i18n_1.default.t(roleData.buyer.locale, 'buyerOfferArrived', { id: offerData.id }));
@@ -130,7 +142,7 @@ let AppEventsController = class AppEventsController {
         return this.appConfigService.offerStatus('arrived');
     }
     async offerPaymentRequested(offer) {
-        let offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
+        const offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
         const roleData = (0, helpers_1.usersByRoles)(offerData);
         await this.PaymentController.sellerWithdraw(offerData);
         await this.appEventsService.updateOfferStatus(offerData, 'awaitingPayment');
@@ -154,15 +166,23 @@ let AppEventsController = class AppEventsController {
         const roleData = (0, helpers_1.usersByRoles)(offer);
         this.appEventsService.updateOfferStatus(offer, 'accepted');
         const link = await this.PaymentController.getPayLink(offer);
-        await this.bot.api.sendMessage(roleData.buyer.chatId, i18n_1.default.t(roleData.buyer.locale, 'offerAccepted', { id: offer.id, roleAction: i18n_1.default.t(roleData.buyer.locale, 'buyerOfferAccepted', { payLink: link.url }) }));
-        await this.bot.api.sendMessage(roleData.seller.chatId, i18n_1.default.t(roleData.seller.locale, 'offerAccepted', { id: offer.id, roleAction: i18n_1.default.t(roleData.seller.locale, 'sellerOfferAccepted') }));
+        await this.bot.api.sendMessage(roleData.buyer.chatId, i18n_1.default.t(roleData.buyer.locale, 'offerAccepted', {
+            id: offer.id,
+            roleAction: i18n_1.default.t(roleData.buyer.locale, 'buyerOfferAccepted', { payLink: link.url }),
+        }));
+        await this.bot.api.sendMessage(roleData.seller.chatId, i18n_1.default.t(roleData.seller.locale, 'offerAccepted', {
+            id: offer.id,
+            roleAction: i18n_1.default.t(roleData.seller.locale, 'sellerOfferAccepted'),
+        }));
     }
     async offerCreated(offer, from) {
-        let offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
+        const offerData = offer instanceof Offers_1.Offers ? offer : await this.appEventsService.getOfferById(offer);
         const destination = (0, helpers_1.getOppositeUser)(offerData, from);
         const destLocale = destination.locale;
         const offerString = (0, helpers_1.checkoutMessage)(new create_offer_dto_1.botOfferDto(offerData), destLocale);
-        await this.bot.api.sendMessage(destination.chatId, i18n_1.default.t(destLocale, 'offerReceived') + '\n' + offerString, { reply_markup: (0, keyboards_1.manageOfferMenu)(offerData.id, destLocale, 'edit') });
+        await this.bot.api.sendMessage(destination.chatId, i18n_1.default.t(destLocale, 'offerReceived') + '\n' + offerString, {
+            reply_markup: (0, keyboards_1.manageOfferMenu)(offerData.id, destLocale, 'edit'),
+        });
     }
 };
 AppEventsController = __decorate([

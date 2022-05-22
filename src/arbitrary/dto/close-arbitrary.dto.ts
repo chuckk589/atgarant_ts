@@ -1,12 +1,14 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsNumber, IsString, ValidateNested } from 'class-validator';
+import { IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { ArbModeratorReview } from 'src/types/interfaces';
 
 export class CloseArbDto implements ArbModeratorReview {
-    @IsNumber()
-    buyerPayout: number;
-    @IsNumber()
-    sellerPayout: number;
-    @IsString()
-    comment: string
+  @IsNumber()
+  @IsOptional()
+  buyerPayout: number;
+  @IsNumber()
+  @IsOptional()
+  sellerPayout: number;
+  @IsString()
+  comment: string;
 }

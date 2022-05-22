@@ -26,43 +26,34 @@ let routerService = class routerService {
         const arb = await this.em.findOneOrFail(Arbitraries_1.Arbitraries, {
             id: id,
             offer: {
-                $or: [
-                    { initiator: { chatId: String(chatId) } },
-                    { partner: { chatId: String(chatId) } }
-                ]
-            }
+                $or: [{ initiator: { chatId: String(chatId) } }, { partner: { chatId: String(chatId) } }],
+            },
         }, { populate: ['offer.initiator', 'offer.partner', 'offer.paymentMethod', 'offer.invoices'] });
         return arb;
     }
     async fetchOffer(id, chatId) {
         const offer = await this.em.findOne(Offers_1.Offers, {
             id: id,
-            $or: [
-                { initiator: { chatId: String(chatId) } },
-                { partner: { chatId: String(chatId) } }
-            ],
+            $or: [{ initiator: { chatId: String(chatId) } }, { partner: { chatId: String(chatId) } }],
         }, { populate: ['initiator', 'partner', 'invoices', 'reviews.recipient', 'reviews.author'] });
         this.em.clear();
         return offer;
     }
     async fetchContact(ctx) {
         const user = await this.em.findOne(Users_1.Users, {
-            $or: [
-                { chatId: ctx.message.text },
-                { username: ctx.message.text.replace('@', '') }
-            ]
+            $or: [{ chatId: ctx.message.text }, { username: ctx.message.text.replace('@', '') }],
         });
         return user;
     }
     async setWallet(ctx) {
         const _isSeller = (0, helpers_1.isSeller)(ctx);
+        ctx.session.editedOffer[_isSeller ? 'sellerWalletData' : 'buyerWalletData'] = ctx.message.text;
         await this.em.nativeUpdate(Offers_1.Offers, { id: ctx.session.editedOffer.id }, { [_isSeller ? 'sellerWalletData' : 'buyerWalletData']: ctx.message.text });
     }
 };
 routerService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.EntityManager,
-        app_config_service_1.AppConfigService])
+    __metadata("design:paramtypes", [core_1.EntityManager, app_config_service_1.AppConfigService])
 ], routerService);
 exports.routerService = routerService;
 //# sourceMappingURL=router.service.js.map

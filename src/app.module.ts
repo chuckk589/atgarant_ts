@@ -1,9 +1,9 @@
 import { Inject, Module } from '@nestjs/common';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { LoggerModule } from 'nestjs-pino';
-import { HttpModule } from '@nestjs/axios'
+import { HttpModule } from '@nestjs/axios';
 import { BotModule } from 'src/bot/bot.module';
-import { botOptionsProvider, ORMOptionsProvider } from './common/providers';
+import { botOptionsProvider } from './common/providers';
 import { BotContext } from './types/interfaces';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -24,14 +24,15 @@ import { OfferModule } from './offer/offer.module';
 import { LinkModule } from './link/link.module';
 import { ConfigModule } from './config/config.module';
 import { ArbitraryModule } from './arbitrary/arbitrary.module';
+import { WebappModule } from './webapp/webapp.module';
+import ORMOptionsProvider from 'src/configs/mikro-orm.config';
 
 @Module({
   imports: [
-    MikroOrmModule.forRootAsync(ORMOptionsProvider),
+    AppConfigModule.forRootAsync(),
     LoggerModule.forRoot(),
     BotModule.forRootAsync(botOptionsProvider),
-    ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'public')}),
-    AppConfigModule.forRootAsync(),
+    ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'public') }),
     UserModule,
     PaymentsModule,
     TelegramModule,
@@ -42,8 +43,10 @@ import { ArbitraryModule } from './arbitrary/arbitrary.module';
     LinkModule,
     ConfigModule,
     ArbitraryModule,
+    WebappModule,
+    MikroOrmModule.forRoot(ORMOptionsProvider),
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}

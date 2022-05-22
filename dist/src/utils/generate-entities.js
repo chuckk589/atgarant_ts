@@ -6,12 +6,12 @@ const core_1 = require("@mikro-orm/core");
         discovery: {
             warnWhenNoEntities: false,
         },
-        dbName: "botgenix",
-        type: "mysql",
-        host: process.env.MYSQL_HOST || "127.0.0.1",
+        dbName: 'botgenix',
+        type: 'mysql',
+        host: process.env.MYSQL_HOST || '127.0.0.1',
         port: Number(process.env.MYSQL_PORT) || 3306,
-        user: process.env.MYSQL_USERNAME || "mysql",
-        password: process.env.MYSQL_PASSWORD || "mysql",
+        user: process.env.MYSQL_USERNAME || 'mysql',
+        password: process.env.MYSQL_PASSWORD || 'mysql',
     });
     const generator = orm.getEntityGenerator();
     const dump = await generator.generate({

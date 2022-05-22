@@ -1,3 +1,4 @@
-import { Options } from "@mikro-orm/core";
-export declare const config: Options;
-export default config;
+import { MikroOrmModuleOptions } from '@mikro-orm/nestjs';
+import 'dotenv/config';
+declare const MikroORMOptions: MikroOrmModuleOptions;
+export default MikroORMOptions;

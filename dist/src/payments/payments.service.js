@@ -23,14 +23,13 @@ let PaymentsService = class PaymentsService {
     async registerPayment(txn_id) {
         const status = this.AppConfigService.invoiceStatus('success');
         await this.em.nativeUpdate(Invoices_1.Invoices, { txnId: txn_id }, {
-            invoiceStatus: this.em.getReference(Offerstatuses_1.Offerstatuses, status.id)
+            invoiceStatus: this.em.getReference(Offerstatuses_1.Offerstatuses, status.id),
         });
     }
 };
 PaymentsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.EntityManager,
-        app_config_service_1.AppConfigService])
+    __metadata("design:paramtypes", [core_1.EntityManager, app_config_service_1.AppConfigService])
 ], PaymentsService);
 exports.PaymentsService = PaymentsService;
 //# sourceMappingURL=payments.service.js.map

@@ -7,11 +7,11 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller({
   path: 'arbitrary',
-  version: '1'
+  version: '1',
 })
 @UseGuards(JwtAuthGuard)
 export class ArbitraryController {
-  constructor(private readonly arbitraryService: ArbitraryService) { }
+  constructor(private readonly arbitraryService: ArbitraryService) {}
 
   @Get()
   findAll(@Query('userId') userId: string) {
@@ -33,4 +33,3 @@ export class ArbitraryController {
     return this.arbitraryService.disputeArb(id, DisputeArbDto);
   }
 }
-

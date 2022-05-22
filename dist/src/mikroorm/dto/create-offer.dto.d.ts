@@ -1,4 +1,4 @@
-import { Offers, OffersFeePayer, OffersRole } from "../entities/Offers";
+import { Offers, OffersFeePayer, OffersRole } from '../entities/Offers';
 export declare class botOfferDto {
     constructor(offer: Offers);
     id?: number;

@@ -55,7 +55,7 @@ __decorate([
 UserController = __decorate([
     (0, common_1.Controller)({
         path: 'user',
-        version: '1'
+        version: '1',
     }),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [user_service_1.UserService])

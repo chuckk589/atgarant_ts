@@ -19,7 +19,7 @@ AppEventsModule = __decorate([
     (0, common_1.Module)({
         imports: [offer_module_1.offerModule, telegram_module_1.TelegramModule, payment_provider_module_1.PaymentProviderModule.forRootAsync()],
         providers: [app_events_service_1.AppEventsService, app_events_controller_1.AppEventsController],
-        exports: [app_events_controller_1.AppEventsController]
+        exports: [app_events_controller_1.AppEventsController],
     })
 ], AppEventsModule);
 exports.AppEventsModule = AppEventsModule;

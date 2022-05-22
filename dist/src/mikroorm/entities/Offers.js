@@ -27,8 +27,12 @@ let Offers = class Offers {
     async afterCreate(args) {
         const seller = args.entity.role === 'seller' ? 'initiator' : 'partner';
         const buyer = args.entity.role === 'buyer' ? 'initiator' : 'partner';
-        args.em.getConnection().execute(`UPDATE profiles SET offersAsBuyer = offersAsBuyer + 1, totalOfferValueRub = totalOfferValueRub + ${this.offerValue} WHERE userId = ${this[buyer].id}`);
-        args.em.getConnection().execute(`UPDATE profiles SET offersAsSeller = offersAsSeller + 1, totalOfferValueRub = totalOfferValueRub + ${this.offerValue} WHERE userId = ${this[seller].id}`);
+        args.em
+            .getConnection()
+            .execute(`UPDATE profiles SET offersAsBuyer = offersAsBuyer + 1, totalOfferValueRub = totalOfferValueRub + ${this.offerValue} WHERE userId = ${this[buyer].id}`);
+        args.em
+            .getConnection()
+            .execute(`UPDATE profiles SET offersAsSeller = offersAsSeller + 1, totalOfferValueRub = totalOfferValueRub + ${this.offerValue} WHERE userId = ${this[seller].id}`);
     }
 };
 __decorate([
@@ -92,27 +96,51 @@ __decorate([
     __metadata("design:type", Date)
 ], Offers.prototype, "updatedAt", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Offerstatuses_1.Offerstatuses, fieldName: 'offerStatusId', onUpdateIntegrity: 'cascade', index: 'offerStatusId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Offerstatuses_1.Offerstatuses,
+        fieldName: 'offerStatusId',
+        onUpdateIntegrity: 'cascade',
+        index: 'offerStatusId',
+    }),
     __metadata("design:type", Offerstatuses_1.Offerstatuses)
 ], Offers.prototype, "offerStatus", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Users_1.Users, fieldName: 'partnerId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'partnerId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Users_1.Users,
+        fieldName: 'partnerId',
+        onUpdateIntegrity: 'cascade',
+        onDelete: 'set null',
+        nullable: true,
+        index: 'partnerId',
+    }),
     __metadata("design:type", Users_1.Users)
 ], Offers.prototype, "partner", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Users_1.Users, fieldName: 'initiatorId', onUpdateIntegrity: 'cascade', onDelete: 'set null', nullable: true, index: 'initiatorId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Users_1.Users,
+        fieldName: 'initiatorId',
+        onUpdateIntegrity: 'cascade',
+        onDelete: 'set null',
+        nullable: true,
+        index: 'initiatorId',
+    }),
     __metadata("design:type", Users_1.Users)
 ], Offers.prototype, "initiator", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Paymentmethods_1.Paymentmethods, fieldName: 'paymentMethodId', onUpdateIntegrity: 'cascade', index: 'paymentMethodId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Paymentmethods_1.Paymentmethods,
+        fieldName: 'paymentMethodId',
+        onUpdateIntegrity: 'cascade',
+        index: 'paymentMethodId',
+    }),
     __metadata("design:type", Paymentmethods_1.Paymentmethods)
 ], Offers.prototype, "paymentMethod", void 0);
 __decorate([
-    (0, core_1.OneToMany)(() => Invoices_1.Invoices, invoice => invoice.offer),
+    (0, core_1.OneToMany)(() => Invoices_1.Invoices, (invoice) => invoice.offer),
     __metadata("design:type", Object)
 ], Offers.prototype, "invoices", void 0);
 __decorate([
-    (0, core_1.OneToMany)(() => Reviews_1.Reviews, review => review.offer),
+    (0, core_1.OneToMany)(() => Reviews_1.Reviews, (review) => review.offer),
     __metadata("design:type", Object)
 ], Offers.prototype, "reviews", void 0);
 __decorate([

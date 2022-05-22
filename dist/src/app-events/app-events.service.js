@@ -27,7 +27,7 @@ let AppEventsService = class AppEventsService {
     async updateInvoiceStatus(txn_id, status) {
         const invoiceStatus = this.AppConfigService.invoiceStatus(status);
         await this.em.nativeUpdate(Invoices_1.Invoices, { txnId: txn_id }, {
-            invoiceStatus: this.em.getReference(Offerstatuses_1.Offerstatuses, invoiceStatus.id)
+            invoiceStatus: this.em.getReference(Offerstatuses_1.Offerstatuses, invoiceStatus.id),
         });
     }
     async createNewReview(recipientId, authorId, feedback, rate, offerId) {
@@ -36,7 +36,7 @@ let AppEventsService = class AppEventsService {
             recipient: recipientId,
             offer: offerId,
             rate: rate,
-            text: feedback
+            text: feedback,
         });
         await this.em.persistAndFlush(review);
     }
@@ -49,7 +49,8 @@ let AppEventsService = class AppEventsService {
             chatId: options.chatData.chat_id,
             status: Arbitraries_1.ArbitrariesStatus.ACTIVE,
             offer: options.offerId,
-            initiator: options.issuerId
+            initiator: options.issuerId,
+            arbiter: this.em.getReference(Users_1.Users, options.moderatorId),
         });
         await this.em.persistAndFlush(arb);
     }
@@ -68,7 +69,7 @@ let AppEventsService = class AppEventsService {
         return offer;
     }
     async getArbById(id) {
-        const arb = await this.em.findOneOrFail(Arbitraries_1.Arbitraries, { id: id }, { populate: ['offer'] });
+        const arb = await this.em.findOneOrFail(Arbitraries_1.Arbitraries, { id: id }, { populate: ['offer', 'offer.paymentMethod', 'offer.invoices'] });
         return arb;
     }
     async updateOfferStatus(payload, status) {
@@ -90,10 +91,10 @@ let AppEventsService = class AppEventsService {
             populateWhere: {
                 arbs: {
                     status: {
-                        $in: ['active', 'disputed']
-                    }
-                }
-            }
+                        $in: ['active', 'disputed'],
+                    },
+                },
+            },
         });
         const sorted = moderators.sort((a, b) => {
             return a.arbs.length - b.arbs.length;
@@ -103,8 +104,7 @@ let AppEventsService = class AppEventsService {
 };
 AppEventsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.EntityManager,
-        app_config_service_1.AppConfigService])
+    __metadata("design:paramtypes", [core_1.EntityManager, app_config_service_1.AppConfigService])
 ], AppEventsService);
 exports.AppEventsService = AppEventsService;
 //# sourceMappingURL=app-events.service.js.map

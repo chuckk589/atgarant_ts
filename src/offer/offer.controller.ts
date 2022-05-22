@@ -6,11 +6,11 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller({
   path: 'offer',
-  version: '1'
+  version: '1',
 })
 @UseGuards(JwtAuthGuard)
 export class OfferController {
-  constructor(private readonly offerService: OfferService) { }
+  constructor(private readonly offerService: OfferService) {}
 
   @Get()
   findAll(@Query('userId') userId: string) {

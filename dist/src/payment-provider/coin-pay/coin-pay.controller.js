@@ -51,33 +51,64 @@ let CoinPayController = class CoinPayController extends interfaces_1.BasePayment
         this.rubToCurrency = async (rub, code) => {
             const data = await this.client.rates();
             if (Array.isArray(rub)) {
-                return rub.map(i => ((Number(data.RUB.rate_btc) / Number(data[code].rate_btc)) * i).toFixed(8));
+                return rub.map((i) => ((Number(data.RUB.rate_btc) / Number(data[code].rate_btc)) * i).toFixed(8));
             }
             else {
                 return ((Number(data.RUB.rate_btc) / Number(data[code].rate_btc)) * rub).toFixed(8);
             }
         };
         this.getPayLink = async (offer) => {
-            const feeRub = Math.max(offer.offerValue * offer.paymentMethod.feePercent / 100, offer.paymentMethod.feeRaw);
+            const feeRub = Math.max((offer.offerValue * offer.paymentMethod.feePercent) / 100, offer.paymentMethod.feeRaw);
             const priceRub = offer.offerValue + feeRub * (offer.feePayer === Offers_1.OffersFeePayer.BUYER ? 1 : 0);
             const currency = offer.paymentMethod.value.split('_').pop();
-            console.log(this.AppConfigService.get('node_env'), this.AppConfigService.get('NODE_ENV'));
             if (this.AppConfigService.get('node_env') == 'debug') {
-                await this.coinPayService.mockTransaction({ type: Invoices_1.InvoicesType.IN, currency, value: offer.offerValue, fee: feeRub, offer: offer.id });
+                await this.coinPayService.mockTransaction({
+                    type: Invoices_1.InvoicesType.IN,
+                    currency,
+                    value: offer.offerValue,
+                    fee: feeRub,
+                    offer: offer.id,
+                });
                 return { url: 'test url', id: 'id' };
             }
             if (currency == 'QIWI' || currency == 'CARD') {
                 const method = currency === 'QIWI' ? 'qw' : 'card';
                 const billId = this.qiwiApi.generateId();
-                const response = await this.qiwiApi.createBill(billId, { amount: priceRub, currency: 'RUB', comment: `Заказ id: ${offer.id}`, customFields: { paySourcesFilter: method } });
-                await this.coinPayService.createInvoice({ type: Invoices_1.InvoicesType.IN, currency: currency, value: response.amount.value, fee: feeRub, txnId: response.billId, url: response.payUrl, offer: { id: offer.id } });
+                const response = await this.qiwiApi.createBill(billId, {
+                    amount: priceRub,
+                    currency: 'RUB',
+                    comment: `Заказ id: ${offer.id}`,
+                    customFields: { paySourcesFilter: method },
+                });
+                await this.coinPayService.createInvoice({
+                    type: Invoices_1.InvoicesType.IN,
+                    currency: currency,
+                    value: response.amount.value,
+                    fee: feeRub,
+                    txnId: response.billId,
+                    url: response.payUrl,
+                    offer: { id: offer.id },
+                });
                 return { url: response.payUrl, id: response.billId };
             }
             else {
                 const feeCrypto = await this.rubToCurrency(feeRub, currency);
-                const CoinpaymentsCreateTransactionOpts = { currency1: 'RUB', currency2: currency, buyer_email: 'chuckk589@gmail.com', amount: priceRub };
+                const CoinpaymentsCreateTransactionOpts = {
+                    currency1: 'RUB',
+                    currency2: currency,
+                    buyer_email: 'chuckk589@gmail.com',
+                    amount: priceRub,
+                };
                 const response = await this.client.createTransaction(CoinpaymentsCreateTransactionOpts);
-                await this.coinPayService.createInvoice({ type: Invoices_1.InvoicesType.IN, currency: currency, value: Number(response.amount), fee: Number(feeCrypto), txnId: response.txn_id, url: response.checkout_url, offer: { id: offer.id } });
+                await this.coinPayService.createInvoice({
+                    type: Invoices_1.InvoicesType.IN,
+                    currency: currency,
+                    value: Number(response.amount),
+                    fee: Number(feeCrypto),
+                    txnId: response.txn_id,
+                    url: response.checkout_url,
+                    offer: { id: offer.id },
+                });
                 return { url: response.checkout_url, id: response.txn_id };
             }
         };
@@ -88,27 +119,46 @@ let CoinPayController = class CoinPayController extends interfaces_1.BasePayment
             }
             if (currency === 'QIWI') {
                 const qiwiResponse = await this.coinPayService.createQiwiTransaction(amount, address);
-                await this.coinPayService.createInvoice({ type: type, currency: currency, value: amount, txnId: qiwiResponse, offer: { id: offerId } });
+                await this.coinPayService.createInvoice({
+                    type: type,
+                    currency: currency,
+                    value: amount,
+                    txnId: qiwiResponse,
+                    offer: { id: offerId },
+                });
             }
             else if (currency === 'CARD') {
                 const id = await this.coinPayService.createCardTransaction(amount, address);
-                await this.coinPayService.createInvoice({ type: type, currency: currency, value: amount, txnId: id, offer: { id: offerId } });
+                await this.coinPayService.createInvoice({
+                    type: type,
+                    currency: currency,
+                    value: amount,
+                    txnId: id,
+                    offer: { id: offerId },
+                });
             }
             else {
                 const CoinpaymentsCreateWithdrawalOpts = { amount: amount, currency: currency, address: address };
                 const response = await this.client.createWithdrawal(CoinpaymentsCreateWithdrawalOpts);
-                await this.coinPayService.createInvoice({ type: type, currency: currency, value: Number(response.amount), txnId: response.id, offer: { id: offerId } });
+                await this.coinPayService.createInvoice({
+                    type: type,
+                    currency: currency,
+                    value: Number(response.amount),
+                    txnId: response.id,
+                    offer: { id: offerId },
+                });
             }
         };
         this.sellerWithdraw = async (offer) => {
-            const sellerPayout = (0, helpers_1.getInvoiceValue)(offer.invoices) + (0, helpers_1.getInvoiceFee)(offer.invoices) * (offer.feePayer == Offers_1.OffersFeePayer.BUYER ? 0 : -1);
+            const sellerPayout = (0, helpers_1.getInvoiceValue)(offer.invoices) +
+                (0, helpers_1.getInvoiceFee)(offer.invoices) * (offer.feePayer == Offers_1.OffersFeePayer.BUYER ? 0 : -1);
             const currency = offer.paymentMethod.value.split('_').pop();
             await this.withDraw(sellerPayout, offer.sellerWalletData, Invoices_1.InvoicesType.OUT, offer.id, currency);
         };
         this.arbitraryWithdraw = async (arb) => {
             const totalValue = (0, helpers_1.getInvoiceValue)(arb.offer.invoices);
-            const sellerPayout = totalValue * arb.sellerPayout / 100;
-            const buyerPayout = totalValue * arb.buyerPayout / 100;
+            const sellerPayout = (totalValue * arb.sellerPayout) / 100;
+            const buyerPayout = (totalValue * arb.buyerPayout) / 100;
             const timeout = arb.status == Arbitraries_1.ArbitrariesStatus.CLOSED ? 12 * 60 * 60 * 1000 : 0;
             setTimeout(async () => {
                 const isAllOk = await this.coinPayService.getArbState(arb);

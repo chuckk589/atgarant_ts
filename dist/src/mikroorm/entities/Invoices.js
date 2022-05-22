@@ -56,11 +56,22 @@ __decorate([
     __metadata("design:type", Date)
 ], Invoices.prototype, "updatedAt", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Offers_1.Offers, fieldName: 'offerId', onUpdateIntegrity: 'cascade', onDelete: 'cascade', index: 'offerId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Offers_1.Offers,
+        fieldName: 'offerId',
+        onUpdateIntegrity: 'cascade',
+        onDelete: 'cascade',
+        index: 'offerId',
+    }),
     __metadata("design:type", Offers_1.Offers)
 ], Invoices.prototype, "offer", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Invoicestatuses_1.Invoicestatuses, fieldName: 'invoiceStatusId', onUpdateIntegrity: 'cascade', index: 'invoiceStatusId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Invoicestatuses_1.Invoicestatuses,
+        fieldName: 'invoiceStatusId',
+        onUpdateIntegrity: 'cascade',
+        index: 'invoiceStatusId',
+    }),
     __metadata("design:type", Invoicestatuses_1.Invoicestatuses)
 ], Invoices.prototype, "invoiceStatus", void 0);
 Invoices = __decorate([

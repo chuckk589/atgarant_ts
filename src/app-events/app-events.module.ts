@@ -9,6 +9,6 @@ import { AppEventsService } from './app-events.service';
 @Module({
   imports: [offerModule, TelegramModule, PaymentProviderModule.forRootAsync()],
   providers: [AppEventsService, AppEventsController],
-  exports: [AppEventsController]
+  exports: [AppEventsController],
 })
-export class AppEventsModule { }
+export class AppEventsModule {}

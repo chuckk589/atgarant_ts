@@ -35,7 +35,14 @@ __decorate([
     __metadata("design:type", Date)
 ], Violations.prototype, "updatedAt", void 0);
 __decorate([
-    (0, core_1.ManyToOne)({ entity: () => Users_1.Users, fieldName: 'userId', onUpdateIntegrity: 'cascade', onDelete: 'cascade', nullable: true, index: 'userId' }),
+    (0, core_1.ManyToOne)({
+        entity: () => Users_1.Users,
+        fieldName: 'userId',
+        onUpdateIntegrity: 'cascade',
+        onDelete: 'cascade',
+        nullable: true,
+        index: 'userId',
+    }),
     __metadata("design:type", Users_1.Users)
 ], Violations.prototype, "user", void 0);
 Violations = __decorate([

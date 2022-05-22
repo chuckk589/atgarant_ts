@@ -8,20 +8,25 @@ import {
   cilMoon,
   cilSpeedometer,
   cilSun,
-  cilCog
-} from '@coreui/icons'
-import { logo } from './logo'
-
-export const iconsSet = Object.assign({}, {
-  cilApplicationsSettings,
-  cilDrop,
+  cilInfo,
   cilCog,
-  cilPeople,
-  cilBriefcase,
-  cilBalanceScale,
-  cilPuzzle,
-  cilMoon,
-  cilSpeedometer,
-  cilSun,
-  logo
-})
+} from '@coreui/icons';
+import { logo } from './logo';
+
+export const iconsSet = Object.assign(
+  {},
+  {
+    cilApplicationsSettings,
+    cilDrop,
+    cilCog,
+    cilInfo,
+    cilPeople,
+    cilBriefcase,
+    cilBalanceScale,
+    cilPuzzle,
+    cilMoon,
+    cilSpeedometer,
+    cilSun,
+    logo,
+  },
+);

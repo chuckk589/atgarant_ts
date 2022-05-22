@@ -76,7 +76,7 @@ __decorate([
 ReviewController = __decorate([
     (0, common_1.Controller)({
         path: 'review',
-        version: '1'
+        version: '1',
     }),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [review_service_1.ReviewService])

@@ -45,11 +45,17 @@ let BtcCoreController = class BtcCoreController extends interfaces_1.BasePayment
                     incomingTimeout: this.AppConfigService.get('BTC_INCOMING_TIMEOUT') * 1000 || 10 * 60 * 1000,
                     outgoingTimeout: this.AppConfigService.get('BTC_OUTGOING_TIMEOUT') * 1000 || 10 * 60 * 1000,
                 };
-                this.client = new Client({ network: this.options.network, port: this.options.btc_port, password: this.options.btc_password, username: this.options.btc_user, wallet: this.options.wallet });
+                this.client = new Client({
+                    network: this.options.network,
+                    port: this.options.btc_port,
+                    password: this.options.btc_password,
+                    username: this.options.btc_user,
+                    wallet: this.options.wallet,
+                });
                 await this.client.ping();
                 const state = await this.btcCoreService.checkMoneyConvert();
                 if (!state)
-                    throw new Error("Money convert service is not accesible");
+                    throw new Error('Money convert service is not accesible');
                 this.worker();
             }
             catch (error) {
@@ -82,13 +88,14 @@ let BtcCoreController = class BtcCoreController extends interfaces_1.BasePayment
             return { url: url, id: txn_id };
         };
         this.sellerWithdraw = async (offer) => {
-            const sellerPayout = (0, helpers_1.getInvoiceValue)(offer.invoices) + (0, helpers_1.getInvoiceFee)(offer.invoices) * (offer.feePayer == Offers_1.OffersFeePayer.BUYER ? 0 : -1);
+            const sellerPayout = (0, helpers_1.getInvoiceValue)(offer.invoices) +
+                (0, helpers_1.getInvoiceFee)(offer.invoices) * (offer.feePayer == Offers_1.OffersFeePayer.BUYER ? 0 : -1);
             await this.withDraw(sellerPayout, offer.sellerWalletData, Invoices_1.InvoicesType.OUT, offer.id, 'BTC');
         };
         this.arbitraryWithdraw = async (arb) => {
             const totalValue = (0, helpers_1.getInvoiceValue)(arb.offer.invoices);
-            const sellerPayout = totalValue * arb.sellerPayout / 100;
-            const buyerPayout = totalValue * arb.buyerPayout / 100;
+            const sellerPayout = (totalValue * arb.sellerPayout) / 100;
+            const buyerPayout = (totalValue * arb.buyerPayout) / 100;
             const timeout = arb.status == Arbitraries_1.ArbitrariesStatus.CLOSED ? 12 * 60 * 60 * 1000 : 0;
             setTimeout(async () => {
                 const isAllOk = await this.btcCoreService.getArbState(arb);
@@ -105,7 +112,13 @@ let BtcCoreController = class BtcCoreController extends interfaces_1.BasePayment
         };
         this.withDraw = async (amount, address, type, offerId, currency = 'BTC') => {
             const response = await this.client.sendToAddress(address, amount);
-            await this.btcCoreService.createInvoice({ type: type, currency: currency, value: amount, txnId: response, offer: { id: offerId } });
+            await this.btcCoreService.createInvoice({
+                type: type,
+                currency: currency,
+                value: amount,
+                txnId: response,
+                offer: { id: offerId },
+            });
         };
     }
 };

@@ -1,9 +1,9 @@
-import { EntityManager } from "@mikro-orm/core";
-import { Offers } from "src/mikroorm/entities/Offers";
-import { BotContext } from "src/types/interfaces";
+import { EntityManager } from '@mikro-orm/core';
+import { Offers } from 'src/mikroorm/entities/Offers';
+import { BotContext } from 'src/types/interfaces';
 import { Users } from '../../mikroorm/entities/Users';
 import { AppConfigService } from 'src/app-config/app-config.service';
-import { Arbitraries } from "src/mikroorm/entities/Arbitraries";
+import { Arbitraries } from 'src/mikroorm/entities/Arbitraries';
 export declare class globalService {
     private readonly em;
     private readonly AppConfigService;

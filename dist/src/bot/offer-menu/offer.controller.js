@@ -23,7 +23,7 @@ let offerController = class offerController extends interfaces_1.BaseMenu {
         super();
         this.offerService = offerService;
         this.AppConfigService = AppConfigService;
-        this.menu = new menu_1.Menu("offer-menu")
+        this.menu = new menu_1.Menu('offer-menu')
             .dynamic((ctx, range) => {
             switch (ctx.session.step) {
                 case interfaces_1.BotStep.rules: {
@@ -36,7 +36,7 @@ let offerController = class offerController extends interfaces_1.BaseMenu {
                         await ctx.deleteMessage();
                         await ctx.reply(ctx.i18n.t('start'), { reply_markup: (0, keyboards_1.mainKeyboard)(ctx) });
                     });
-                    range.text((0, helpers_1.label)({ text: 'getRules' }), ctx => ctx.reply(ctx.i18n.t('rulesContent')));
+                    range.text((0, helpers_1.label)({ text: 'getRules' }), (ctx) => ctx.reply(ctx.i18n.t('rulesContent')));
                     break;
                 }
                 case interfaces_1.BotStep.roles: {
@@ -74,7 +74,7 @@ let offerController = class offerController extends interfaces_1.BaseMenu {
                 }
                 case interfaces_1.BotStep.payment: {
                     const pms = this.AppConfigService.payments;
-                    pms.map(pm => range.text({ text: ctx.i18n.t(pm.method) || pm.method, payload: String(pm.id) }, async (ctx) => {
+                    pms.map((pm) => range.text({ text: ctx.i18n.t(pm.method) || pm.method, payload: String(pm.id) }, async (ctx) => {
                         ctx.session.step = interfaces_1.BotStep.value;
                         ctx.session.pendingOffer.paymentMethodId = Number(ctx.match);
                         await ctx.editMessageText(ctx.i18n.t('askOfferValue'));
@@ -142,8 +142,7 @@ __decorate([
 ], offerController.prototype, "menu", void 0);
 offerController = __decorate([
     decorators_1.MenuController,
-    __metadata("design:paramtypes", [offer_service_1.offerService,
-        app_config_service_1.AppConfigService])
+    __metadata("design:paramtypes", [offer_service_1.offerService, app_config_service_1.AppConfigService])
 ], offerController);
 exports.offerController = offerController;
 //# sourceMappingURL=offer.controller.js.map

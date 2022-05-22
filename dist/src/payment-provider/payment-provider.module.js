@@ -37,13 +37,8 @@ let PaymentProviderModule = PaymentProviderModule_1 = class PaymentProviderModul
 PaymentProviderModule = PaymentProviderModule_1 = __decorate([
     (0, common_1.Module)({
         imports: [(0, common_1.forwardRef)(() => app_events_module_1.AppEventsModule)],
-        providers: [
-            coin_pay_controller_1.CoinPayController,
-            coin_pay_service_1.CoinPayService,
-            btc_core_controller_1.BtcCoreController,
-            btc_core_service_1.BtcCoreService
-        ],
-        exports: [coin_pay_controller_1.CoinPayController, btc_core_controller_1.BtcCoreController]
+        providers: [coin_pay_controller_1.CoinPayController, coin_pay_service_1.CoinPayService, btc_core_controller_1.BtcCoreController, btc_core_service_1.BtcCoreService],
+        exports: [coin_pay_controller_1.CoinPayController, btc_core_controller_1.BtcCoreController],
     })
 ], PaymentProviderModule);
 exports.PaymentProviderModule = PaymentProviderModule;

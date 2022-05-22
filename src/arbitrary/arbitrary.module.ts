@@ -7,6 +7,6 @@ import { AppEventsModule } from 'src/app-events/app-events.module';
 @Module({
   controllers: [ArbitraryController],
   providers: [ArbitraryService],
-  imports: [TelegramModule, AppEventsModule]
+  imports: [TelegramModule, AppEventsModule],
 })
-export class ArbitraryModule { }
+export class ArbitraryModule {}

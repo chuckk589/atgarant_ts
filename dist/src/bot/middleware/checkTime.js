@@ -20,5 +20,4 @@ async function default_1(ctx, next) {
     }
 }
 exports.default = default_1;
-;
 //# sourceMappingURL=checkTime.js.map

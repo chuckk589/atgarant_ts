@@ -1,4 +1,21 @@
-import { AfterCreate, BeforeCreate, BeforeUpdate, ChangeSet, ChangeSetType, Collection, Entity, EventArgs, EventSubscriber, FlushEventArgs, OneToMany, OneToOne, PrimaryKey, Property, Subscriber, Unique } from '@mikro-orm/core';
+import {
+  AfterCreate,
+  BeforeCreate,
+  BeforeUpdate,
+  ChangeSet,
+  ChangeSetType,
+  Collection,
+  Entity,
+  EventArgs,
+  EventSubscriber,
+  FlushEventArgs,
+  OneToMany,
+  OneToOne,
+  PrimaryKey,
+  Property,
+  Subscriber,
+  Unique,
+} from '@mikro-orm/core';
 import { compare, hash } from 'bcrypt';
 import { Arbitraries } from './Arbitraries';
 import { Invoices } from './Invoices';
@@ -7,11 +24,10 @@ import { Violations } from './Violations';
 
 @Entity()
 export class Users {
-
   constructor(payload: any) {
     Object.assign(this, payload);
   }
-  
+
   @PrimaryKey()
   id!: number;
 
@@ -44,26 +60,26 @@ export class Users {
   @Property({ fieldName: 'updatedAt', onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @OneToMany(() => Arbitraries, arb => arb.arbiter)
+  @OneToMany(() => Arbitraries, (arb) => arb.arbiter)
   arbs = new Collection<Arbitraries>(this);
 
-  @OneToOne({entity: () => Profiles, mappedBy: 'user' })
+  @OneToOne({ entity: () => Profiles, mappedBy: 'user' })
   profile: Profiles = new Profiles();
 
-  @OneToMany(() => Violations, violation => violation.user)
+  @OneToMany(() => Violations, (violation) => violation.user)
   violations = new Collection<Violations>(this);
 
   @BeforeUpdate()
   @BeforeCreate()
   async beforeCreate(args: EventArgs<Users>): Promise<void> {
     if (this.password) {
-      this.password = await hash(this.password, 10)
+      this.password = await hash(this.password, 10);
     }
   }
   async comparePassword(password: string): Promise<boolean> {
     if (this.password) {
       return await compare(password, this.password);
     }
-    return true
+    return true;
   }
 }

@@ -2,9 +2,7 @@ import { Entity, ManyToOne, OneToOne, PrimaryKey, Property } from '@mikro-orm/co
 import { Users } from './Users';
 
 @Entity()
-export class
-  Profiles {
-
+export class Profiles {
   @PrimaryKey()
   id!: number;
 
@@ -39,5 +37,4 @@ export class
   // userId?: Users;
   @OneToOne({ entity: () => Users, inversedBy: 'profile', fieldName: 'userId', index: 'userId' })
   user!: Users;
-
 }

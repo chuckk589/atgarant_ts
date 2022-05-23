@@ -62,7 +62,11 @@ export class AppEventsService {
   }
   constructor(private readonly em: EntityManager, private readonly AppConfigService: AppConfigService) {}
   async getOfferById(id: number): Promise<Offers> {
-    const offer = await this.em.findOneOrFail(Offers, { id: id }, { populate: ['partner', 'initiator'] });
+    const offer = await this.em.findOneOrFail(
+      Offers,
+      { id: id },
+      { populate: ['partner', 'initiator', 'paymentMethod'] },
+    );
     return offer;
   }
   async getArbById(id: number): Promise<Arbitraries> {

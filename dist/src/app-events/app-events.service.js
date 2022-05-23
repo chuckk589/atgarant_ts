@@ -65,7 +65,7 @@ let AppEventsService = class AppEventsService {
         return await this.em.findOne(Offers_1.Offers, { invoices: { txnId: txn_id } }, { populate: ['partner', 'initiator', 'invoices'] });
     }
     async getOfferById(id) {
-        const offer = await this.em.findOneOrFail(Offers_1.Offers, { id: id }, { populate: ['partner', 'initiator'] });
+        const offer = await this.em.findOneOrFail(Offers_1.Offers, { id: id }, { populate: ['partner', 'initiator', 'paymentMethod'] });
         return offer;
     }
     async getArbById(id) {

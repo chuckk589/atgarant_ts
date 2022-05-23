@@ -1,4 +1,4 @@
-import { EntityManager } from '@mikro-orm/core';
+import { Entity, EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
 import { Offers, OffersRole } from 'src/mikroorm/entities/Offers';
 import { Users } from 'src/mikroorm/entities/Users';
@@ -57,7 +57,7 @@ export class AppEventsService {
     return await this.em.findOne(
       Offers,
       { invoices: { txnId: txn_id } },
-      { populate: ['partner', 'initiator', 'invoices'] },
+      { populate: ['partner', 'initiator', 'invoices', 'offerStatus'] },
     );
   }
   constructor(private readonly em: EntityManager, private readonly AppConfigService: AppConfigService) {}

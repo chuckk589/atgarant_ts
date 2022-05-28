@@ -78,7 +78,7 @@ let globalService = class globalService {
             $or: [{ chatId: { $like: `%${String(payload)}%` } }, { username: { $like: `%${String(payload)}%` } }],
         }, {
             limit: 10,
-            populate: ['profile', 'violations'],
+            populate: ['profile'],
         });
         return users;
     }

@@ -87,6 +87,7 @@ let OfferEditMenuController = class OfferEditMenuController extends interfaces_1
             status.value === 'closed' &&
                 _canLeaveReview &&
                 range.text(ctx.i18n.t('leaveFeedback'), async (ctx) => {
+                    await ctx.deleteMessage();
                     await ctx.reply(ctx.i18n.t('feedbackGroup'), {
                         reply_markup: (0, keyboards_1.feedbackMenu)(ctx.session.editedOffer.id, ctx.i18n.locale()),
                     });

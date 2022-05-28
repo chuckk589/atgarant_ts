@@ -31,14 +31,16 @@ let AppEventsService = class AppEventsService {
         });
     }
     async createNewReview(recipientId, authorId, feedback, rate, offerId) {
-        const review = this.em.create(Reviews_1.Reviews, {
-            author: authorId,
-            recipient: recipientId,
-            offer: offerId,
-            rate: rate,
+        const author = await this.em.findOneOrFail(Users_1.Users, { id: authorId }, { populate: ['profile'] });
+        author.profile[rate === Reviews_1.ReviewsRate.POSITIVE ? 'feedbackPositive' : 'feedbackNegative']++;
+        const offer = await this.em.findOneOrFail(Offers_1.Offers, { id: offerId }, { populate: ['reviews'] });
+        offer.reviews.add(this.em.create(Reviews_1.Reviews, {
+            recipient: this.em.getReference(Users_1.Users, recipientId),
+            author: this.em.getReference(Users_1.Users, authorId),
             text: feedback,
-        });
-        await this.em.persistAndFlush(review);
+            rate: rate,
+        }));
+        await this.em.persistAndFlush([author, offer]);
     }
     async applyArbUpdate(arbData) {
         await this.em.persistAndFlush(arbData);

@@ -102,7 +102,7 @@ const checkoutArbMessage = function (arb, code) {
 exports.checkoutArbMessage = checkoutArbMessage;
 const usersQueryMessage = (users) => {
     return users.map((u) => {
-        const message = `Профиль: @${u.username}\nid: ${u.chatId}\nДата регистрации: ${new Date(u.createdAt).toLocaleDateString()}\nПродажи: ${u.profile.offersAsSeller}\nПокупки: ${u.profile.offersAsBuyer}\nОбщая сумма сделок: ${u.profile.totalOfferValueRub} руб.\nПоложительные отзывы: ${u.profile.feedbackPositive}\nОтрицательные отзывы: ${u.profile.feedbackNegative}\nНарушения: ${u.violations.length}`;
+        const message = `Профиль: @${u.username}\nid: ${u.chatId}\nДата регистрации: ${new Date(u.createdAt).toLocaleDateString()}\nПродажи: ${u.profile.offersAsSeller}\nПокупки: ${u.profile.offersAsBuyer}\nОбщая сумма сделок: ${u.profile.totalOfferValueRub} руб.\nПоложительные отзывы: ${u.profile.feedbackPositive}\nОтрицательные отзывы: ${u.profile.feedbackNegative}\nНарушения: ${u.profile.violations}`;
         return {
             type: 'article',
             id: String(u.id),
@@ -176,7 +176,7 @@ const usersByRoles = (offer) => {
 };
 exports.usersByRoles = usersByRoles;
 const leftReview = (reviews, from) => {
-    return false;
+    return !reviews.toArray().some((r) => r.author.id == from || r.author.chatId == from);
 };
 exports.leftReview = leftReview;
 const isInitiator = (ctx) => ctx.session.pendingOffer.initiator_chatId === String(ctx.from.id);

@@ -12,5 +12,5 @@ export declare class ArbitraryService {
     disputeArb(id: string, DisputeArbDto: DisputeArbDto): Promise<import("src/mikroorm/entities/Arbitraries").ArbitrariesStatus>;
     closeArb(id: string, arbData: CloseArbDto): Promise<import("src/mikroorm/entities/Arbitraries").ArbitrariesStatus>;
     getHistory(id: string): Promise<string>;
-    findAll(userId?: string): Promise<import("@mikro-orm/core").Loaded<Arbitraries, "arbiter" | "offer.initiator" | "offer.partner">[]>;
+    findAll(userId?: string): Promise<import("@mikro-orm/core").Loaded<Arbitraries, "offer.initiator" | "offer.partner" | "arbiter">[]>;
 }

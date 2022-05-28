@@ -7,7 +7,7 @@ import { Arbitraries } from 'src/mikroorm/entities/Arbitraries';
 export declare class routerService {
     private readonly em;
     private readonly appConfigService;
-    fetchArb(id: number, chatId: number): Promise<import("@mikro-orm/core").Loaded<Arbitraries, "offer.paymentMethod" | "offer.invoices" | "offer.initiator" | "offer.partner">>;
+    fetchArb(id: number, chatId: number): Promise<import("@mikro-orm/core").Loaded<Arbitraries, "offer.initiator" | "offer.partner" | "offer.paymentMethod" | "offer.invoices">>;
     constructor(em: EntityManager, appConfigService: AppConfigService);
     fetchOffer(id: number, chatId: number): Promise<Offers>;
     fetchContact(ctx: BotContext): Promise<Users>;

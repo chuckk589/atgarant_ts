@@ -179,6 +179,7 @@ let globalComposer = class globalComposer extends interfaces_1.BaseComposer {
                         else {
                             ctx.session.step = interfaces_1.BotStep.setFeedbackN;
                         }
+                        await ctx.deleteMessage();
                         await ctx.reply(ctx.i18n.t('askFeedbackText'));
                     }
                 }

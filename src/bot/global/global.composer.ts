@@ -239,6 +239,7 @@ export class globalComposer extends BaseComposer {
           } else {
             ctx.session.step = BotStep.setFeedbackN;
           }
+          await ctx.deleteMessage();
           await ctx.reply(ctx.i18n.t('askFeedbackText'));
         }
       } else if (data.type == 'lang') {

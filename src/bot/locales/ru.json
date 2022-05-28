@@ -50,7 +50,7 @@
     "feedbackGroup": "Какой отзыв оставляем?",
     "askFeedbackText": "Введите текст отзыва",
     "feedbackLeft": "Отзыв успешно сохранен",
-    "feedbackReceived": "Пользователь ${author} оставил вам ${rate} отзыв следующего содержания: \n ${feedback}",
+    "feedbackReceived": "По сделке ${id} оставлен ${rate} отзыв:\n${feedback}",
     "positive": "Положительный",
     "negative": "Отрицательный",
     "noFreeMod":"Нет свободных арбитров, невозможно инициировать арбитраж",

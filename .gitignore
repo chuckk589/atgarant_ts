@@ -1,3 +1,4 @@
 node_modules/
 .env
 .gitkey
+src/mikroorm/seeders/

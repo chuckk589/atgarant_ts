@@ -18,7 +18,6 @@ import { ReviewsRate } from 'src/mikroorm/entities/Reviews';
 import { ArbEditMenuController } from 'src/bot/arb-edit-menu/arb-edit-menu.controller';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
-//TODO:  Route decorator
 @Injectable()
 @RouterController
 export class routerController extends BaseRouter {

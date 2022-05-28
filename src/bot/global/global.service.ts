@@ -89,7 +89,7 @@ export class globalService {
       },
       {
         limit: 10,
-        populate: ['profile', 'violations'],
+        populate: ['profile'],
       },
     );
     return users;

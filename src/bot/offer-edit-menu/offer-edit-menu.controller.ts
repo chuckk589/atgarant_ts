@@ -84,6 +84,7 @@ export class OfferEditMenuController extends BaseMenu {
       status.value === 'closed' &&
         _canLeaveReview &&
         range.text(ctx.i18n.t('leaveFeedback'), async (ctx) => {
+          await ctx.deleteMessage();
           await ctx.reply(ctx.i18n.t('feedbackGroup'), {
             reply_markup: feedbackMenu(ctx.session.editedOffer.id, ctx.i18n.locale()),
           });

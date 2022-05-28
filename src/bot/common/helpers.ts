@@ -115,7 +115,7 @@ export const usersQueryMessage = (users: Users[]): InlineQueryResultArticle[] =>
       u.profile.offersAsBuyer
     }\nОбщая сумма сделок: ${u.profile.totalOfferValueRub} руб.\nПоложительные отзывы: ${
       u.profile.feedbackPositive
-    }\nОтрицательные отзывы: ${u.profile.feedbackNegative}\nНарушения: ${u.violations.length}`;
+    }\nОтрицательные отзывы: ${u.profile.feedbackNegative}\nНарушения: ${u.profile.violations}`;
     return {
       type: 'article',
       id: String(u.id),
@@ -197,9 +197,7 @@ export const usersByRoles = (offer: Offers): { seller: Users; buyer: Users } => 
   };
 };
 export const leftReview = (reviews: Collection<Reviews>, from: number | string): boolean => {
-  //FIXME: uncomment
-  // return !!reviews.toArray().find(r => r.author.id == from || r.author.chatId == from)
-  return false;
+  return !reviews.toArray().some((r) => r.author.id == from || r.author.chatId == from);
 };
 export const isInitiator = (ctx: BotContext): boolean =>
   ctx.session.pendingOffer.initiator_chatId === String(ctx.from.id);

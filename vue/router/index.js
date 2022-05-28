@@ -1,25 +1,25 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from 'vue';
+import Router from 'vue-router';
 
 // Containers
-const TheContainer = () => import('../containers/TheContainer')
+const TheContainer = () => import('../containers/TheContainer');
 
 // Views
-const Offers = () => import('../views/Offers')
-const Settings = () => import('../views/Settings')
-const Arbitrary = () => import('../views/Arbitrary')
-const Users = () => import('../views/Users')
-const Login = () => import('../views/Login')
-const WebApp = () => import('../views/WebApp')
+const Offers = () => import('../views/Offers');
+const Settings = () => import('../views/Settings');
+const Arbitrary = () => import('../views/Arbitrary');
+const Users = () => import('../views/Users');
+const Login = () => import('../views/Login');
+const WebApp = () => import('../views/WebApp');
 
-Vue.use(Router)
+Vue.use(Router);
 
 const router = new Router({
   mode: 'hash', // https://router.vuejs.org/api/#mode
   linkActiveClass: 'active',
   scrollBehavior: () => ({ y: 0 }),
-  routes: configRoutes()
-})
+  routes: configRoutes(),
+});
 // router.beforeEach((to, from, next) => {
 //   if (to.params.skipAuth) {
 //     next()
@@ -36,19 +36,19 @@ const router = new Router({
 //     }
 //   }
 // })
-export default router
+export default router;
 function configRoutes() {
   return [
     {
       path: '/webapp',
       name: 'WebApp',
-     // meta: { requiresAuth: false },
+      // meta: { requiresAuth: false },
       component: WebApp,
     },
     {
       path: '/login',
       name: 'Login',
-     // meta: { requiresAuth: false },
+      // meta: { requiresAuth: false },
       component: Login,
     },
     {
@@ -56,33 +56,33 @@ function configRoutes() {
       name: 'Home',
       redirect: { name: 'Offers' },
       component: TheContainer,
-     // meta: { requiresAuth: true },
+      // meta: { requiresAuth: true },
       children: [
         {
           path: 'offers',
           name: 'Offers',
           //meta: { requiresAuth: true },
-          component: Offers
+          component: Offers,
         },
         {
           path: 'arbitrary',
           name: 'Arbitrary',
-         // meta: { requiresAuth: true },
-          component: Arbitrary
+          // meta: { requiresAuth: true },
+          component: Arbitrary,
         },
         {
           path: 'settings',
           name: 'Settings',
-         // meta: { requiresAuth: true },
-          component: Settings
+          // meta: { requiresAuth: true },
+          component: Settings,
         },
         {
           path: 'users',
           name: 'Users',
-         // meta: { requiresAuth: true },
-          component: Users
-        }]
-    }
-  ]
+          // meta: { requiresAuth: true },
+          component: Users,
+        },
+      ],
+    },
+  ];
 }
-

@@ -1,4 +1,4 @@
-import { Entity, EntityManager } from '@mikro-orm/core';
+import { Entity, EntityManager, wrap } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
 import { Offers, OffersRole } from 'src/mikroorm/entities/Offers';
 import { Users } from 'src/mikroorm/entities/Users';
@@ -12,6 +12,7 @@ import { Reviews, ReviewsRate } from 'src/mikroorm/entities/Reviews';
 
 @Injectable()
 export class AppEventsService {
+  constructor(private readonly em: EntityManager, private readonly AppConfigService: AppConfigService) {}
   async updateInvoiceStatus(txn_id: string, status: string) {
     const invoiceStatus = this.AppConfigService.invoiceStatus<string>(status);
     await this.em.nativeUpdate(
@@ -23,14 +24,26 @@ export class AppEventsService {
     );
   }
   async createNewReview(recipientId: number, authorId: number, feedback: string, rate: ReviewsRate, offerId: number) {
-    const review = this.em.create(Reviews, {
-      author: authorId,
-      recipient: recipientId,
-      offer: offerId,
-      rate: rate,
-      text: feedback,
-    });
-    await this.em.persistAndFlush(review);
+    const author = await this.em.findOneOrFail(Users, { id: authorId }, { populate: ['profile'] });
+    author.profile[rate === ReviewsRate.POSITIVE ? 'feedbackPositive' : 'feedbackNegative']++;
+    const offer = await this.em.findOneOrFail(Offers, { id: offerId }, { populate: ['reviews'] });
+    offer.reviews.add(
+      this.em.create(Reviews, {
+        recipient: this.em.getReference(Users, recipientId),
+        author: this.em.getReference(Users, authorId),
+        text: feedback,
+        rate: rate,
+      }),
+    );
+    await this.em.persistAndFlush([author, offer]);
+    // const review = this.em.create(Reviews, {
+    //   author: authorId,
+    //   recipient: recipientId,
+    //   offer: offerId,
+    //   rate: rate,
+    //   text: feedback,
+    // });
+    // await this.em.persistAndFlush(review);
   }
   async applyArbUpdate(arbData: Arbitraries) {
     await this.em.persistAndFlush(arbData);
@@ -60,7 +73,6 @@ export class AppEventsService {
       { populate: ['partner', 'initiator', 'invoices', 'offerStatus'] },
     );
   }
-  constructor(private readonly em: EntityManager, private readonly AppConfigService: AppConfigService) {}
   async getOfferById(id: number): Promise<Offers> {
     const offer = await this.em.findOneOrFail(
       Offers,

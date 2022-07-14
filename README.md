@@ -1,9 +1,10 @@
 ### Table of Contents
 
 - [Installation](#installation)
-- [Usage](#usage)
+- [Launch](#launch)
 - [Documentation](#documentation)
-### Installation
+
+#### Installation
  1. ENV schema
     SECRET=sd2b6m8q
     url = http://1.1.1.1:1111
@@ -13,14 +14,11 @@
     DB_NAME=atgarant
     PORT=3000
 
-#### launch
-
-    #debug
+#### Launch
+#debug
     NODE_ENV=debug docker-compose up -d --build
-    #prod 
-docker-compose up -d --build
-
-
+#prod 
+    docker-compose up -d --build
 
 ```
 

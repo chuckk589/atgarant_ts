@@ -3,7 +3,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Documentation](#documentation)
-### Installation
+#### Installation
 
  1. ENV schema
     SECRET=sd2b6m8q

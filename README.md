@@ -4,6 +4,7 @@
 - [Usage](#usage)
 - [Documentation](#documentation)
 ### Installation
+
  1. ENV schema
     SECRET=sd2b6m8q
     url = http://1.1.1.1:1111

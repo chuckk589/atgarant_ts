@@ -32,7 +32,7 @@ import ORMOptionsProvider from 'src/configs/mikro-orm.config';
     AppConfigModule.forRootAsync(),
     LoggerModule.forRoot(),
     BotModule.forRootAsync(botOptionsProvider),
-    ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'public') }),
+    ServeStaticModule.forRoot({ rootPath: join(__dirname, '.', 'public') }),
     UserModule,
     PaymentsModule,
     TelegramModule,

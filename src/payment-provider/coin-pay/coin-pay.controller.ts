@@ -43,7 +43,6 @@ export class CoinPayController extends BasePaymentController {
     private readonly AppConfigService: AppConfigService,
   ) {
     super();
-    console.log(this.AppConfigService.get<string>('node_env'));
   }
   client: Coinpayments;
   qiwiApi: any;

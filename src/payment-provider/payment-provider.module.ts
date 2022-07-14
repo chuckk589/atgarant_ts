@@ -21,7 +21,7 @@ export class PaymentProviderModule {
       provide: PAYMENTS_CONTROLLER,
       useFactory: async (orm: MikroORM, a: CoinPayController, b: BtcCoreController) => {
         const config = await orm.em.findOne(Configs, { name: 'PAYMENT_SERVICE' });
-        return config.value == 'btc-core' ? b : a;
+        return config?.value == 'btc-core' ? b : a;
       },
       inject: [MikroORM, CoinPayController, BtcCoreController],
     };

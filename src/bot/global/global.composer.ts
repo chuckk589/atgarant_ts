@@ -60,9 +60,7 @@ export class globalComposer extends BaseComposer {
 
   @Hears('offers')
   offers = async (ctx: BotContext) => {
-    //FIXME:
-    //const imageurl = this.mode == 'development' ? 'https://picsum.photos/200/300' : this.url + '/media/04.jpg';
-    const imageurl = 'https://picsum.photos/200/300';
+    const imageurl = this.url + '/media/04.jpg';
     await ctx.replyWithPhoto(imageurl, { caption: ctx.i18n.t('offerMenu'), reply_markup: offerKeyboard(ctx) });
   };
   @Hears('createOffer')
@@ -92,9 +90,7 @@ export class globalComposer extends BaseComposer {
 
   @Hears('arbitraries')
   arbitraries = async (ctx: BotContext) => {
-    //FIXME:
-    //const imageurl = this.mode == 'development' ? 'https://picsum.photos/200/300' : this.url + '/media/03.jpg';
-    const imageurl = 'https://picsum.photos/200/300';
+    const imageurl = this.url + '/media/03.jpg';
     await ctx.replyWithPhoto(imageurl, { caption: ctx.i18n.t('arbitraries'), reply_markup: arbitraryKeyboard(ctx) });
   };
 

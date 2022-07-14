@@ -4,7 +4,7 @@ import { Logger } from 'nestjs-pino';
 import { AppConfigService } from './app-config/app-config.service';
 import { AppModule } from './app.module';
 
-export async function bootstrap() {
+async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   //app.useLogger(app.get(Logger));
   app.enableVersioning({ type: VersioningType.URI });
@@ -12,3 +12,4 @@ export async function bootstrap() {
   const configService = app.get(AppConfigService);
   await app.listen(configService.get('PORT'));
 }
+bootstrap();

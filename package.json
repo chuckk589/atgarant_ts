@@ -28,7 +28,7 @@
     "start:dev": "SET NODE_ENV=development&& nodemon index.ts | pino-pretty",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "start:dev:debug": "set NODE_ENV=debug&& nodemon index.ts | pino-pretty",
-    "start:prod": "node dist/index.js",
+    "start:prod": "node dist/main.js",
     "start:debug": "node dist/index.js | pino-pretty",
     "gen": "ts-node ./src/utils/generate-entities.ts",
     "schema:initial": "mikro-orm schema:create --run",

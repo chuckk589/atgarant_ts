@@ -18,8 +18,8 @@ services:
       - mysqldb
     build:
       context: .
-      target: post
-    command: sh -c "yarn mikro-orm schema:update --run&&yarn mikro-orm seeder:run --class=ConfigSeeder || :&&yarn run start:prod"
+      target: builder
+    command: sh -c -f "yarn mikro-orm schema:update --run&&yarn mikro-orm seeder:run --class=ConfigSeeder;yarn run start:prod"
     restart: unless-stopped
     env_file: ./.env
     volumes:
@@ -27,8 +27,6 @@ services:
     ports:
       - $PORT:$PORT
     stdin_open: true
-    environment:
-      - NODE_ENV=debug
     tty: true
 volumes: 
     db:

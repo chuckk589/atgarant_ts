@@ -17,7 +17,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { getArbMessage, getOffersMessage, usersQueryMessage } from '../common/helpers';
 import { OfferEditMenuController } from 'src/bot/offer-edit-menu/offer-edit-menu.controller';
 import { ArbEditMenuController } from 'src/bot/arb-edit-menu/arb-edit-menu.controller';
-import { InlineKeyboard, Keyboard } from 'grammy';
+import { InlineKeyboard, InputFile, Keyboard } from 'grammy';
 
 @ComposerController
 export class globalComposer extends BaseComposer {
@@ -60,8 +60,10 @@ export class globalComposer extends BaseComposer {
 
   @Hears('offers')
   offers = async (ctx: BotContext) => {
-    const imageurl = this.url + '/media/04.jpg';
-    await ctx.replyWithPhoto(imageurl, { caption: ctx.i18n.t('offerMenu'), reply_markup: offerKeyboard(ctx) });
+    await ctx.replyWithPhoto(new InputFile('./dist/public/media/04.jpg'), {
+      caption: ctx.i18n.t('offerMenu'),
+      reply_markup: offerKeyboard(ctx),
+    });
   };
   @Hears('createOffer')
   createOffer = async (ctx: BotContext) => {
@@ -90,8 +92,10 @@ export class globalComposer extends BaseComposer {
 
   @Hears('arbitraries')
   arbitraries = async (ctx: BotContext) => {
-    const imageurl = this.url + '/media/03.jpg';
-    await ctx.replyWithPhoto(imageurl, { caption: ctx.i18n.t('arbitraries'), reply_markup: arbitraryKeyboard(ctx) });
+    await ctx.replyWithPhoto(new InputFile('./dist/public/media/03.jpg'), {
+      caption: ctx.i18n.t('arbitraries'),
+      reply_markup: arbitraryKeyboard(ctx),
+    });
   };
 
   @Hears('allOffers')
